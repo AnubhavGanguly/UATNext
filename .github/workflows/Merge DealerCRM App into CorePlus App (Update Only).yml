@@ -12,8 +12,12 @@ jobs:
 
     env:
       ENV_URL: https://itstcoedev.crm8.dynamics.com
-      DealerCRM_SOLUTION_NAME: ITS_TCOE_SET_UATNext_DealerCRM_Solution
+
+      # Solution names
+      DealerCRM_SOLUTION_NAME: ITS-TCOE_SET_UATNext_DealerCRM_Solution
       CorePlus_SOLUTION_NAME: ITSTCOE_CorePlus_UATNext_Solution
+
+      # Output zips
       DealerCRM_ZIP: dealercrm.zip
       CorePlus_ZIP: coreplus.zip
 
@@ -21,8 +25,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Install Power Platform Tools
+      - name: Install Power Platform CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
+
+      # --------------------------------------------------
+      # EXPORT BOTH SOLUTIONS
+      # --------------------------------------------------
 
       - name: Export DealerCRM Solution
         uses: microsoft/powerplatform-actions/export-solution@v1
@@ -46,6 +54,10 @@ jobs:
           client-secret: ${{ secrets.SECRET_VALUE }}
           tenant-id: ${{ secrets.DIRECTORY_ID }}
 
+      # --------------------------------------------------
+      # UNPACK BOTH
+      # --------------------------------------------------  
+
       - name: Unpack DealerCRM Solution
         uses: microsoft/powerplatform-actions/unpack-solution@v1
         with:
@@ -62,6 +74,10 @@ jobs:
           solution-type: Unmanaged
           overwrite-files: true
 
+      # --------------------------------------------------
+      # COPY DealerCRM APP CONTENT INTO CorePlus APP
+      # --------------------------------------------------
+
       - name: Replace CorePlus Canvas App Content
         shell: pwsh
         run: |
@@ -74,6 +90,10 @@ jobs:
           for ($i = 0; $i -lt $corePlusApps.Count; $i++) {
             Copy-Item $DealerCRMApps[$i].FullName $corePlusApps[$i].FullName -Force
           }
+
+      # --------------------------------------------------
+      # 🔥 MSAPP SURGERY: DealerCRM → CorePlus REFERENCES
+      # --------------------------------------------------
 
       - name: Fix Environment Variables, Connectors & Flows
         shell: pwsh
@@ -111,6 +131,10 @@ jobs:
             Compress-Archive "$tmp/*" $app.FullName -Force
             Remove-Item $tmp -Recurse -Force
           }
+
+      # --------------------------------------------------
+      # PACK & IMPORT (UPDATE ONLY)
+      # --------------------------------------------------
 
       - name: Pack CorePlus Solution
         uses: microsoft/powerplatform-actions/pack-solution@v1
