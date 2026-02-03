@@ -14,7 +14,7 @@ jobs:
       ENV_URL: https://itstcoedev.crm8.dynamics.com
 
       # Solution names
-      DealerCRM_SOLUTION_NAME: ITS-TCOE_SET_UATNext_DealerCRM_Solution
+      DealerCRM_SOLUTION_NAME: ITS_TCOE_SET_UATNext_DealerCRM_Solution
       CorePlus_SOLUTION_NAME: ITSTCOE_CorePlus_UATNext_Solution
 
       # Output zips
