@@ -137,16 +137,16 @@ jobs:
             Remove-Item $tmp -Recurse -Force
           }
 
-      - name: Merge DealerCRM Custom Connectors into Insight
-        shell: pwsh
-        run: |
-          $src = "dealercrm_unpacked/CustomConnectors"
-          $dst = "insight_unpacked/CustomConnectors"
+      # - name: Merge DealerCRM Custom Connectors into Insight
+      #   shell: pwsh
+      #   run: |
+      #     $src = "dealercrm_unpacked/CustomConnectors"
+      #     $dst = "insight_unpacked/CustomConnectors"
 
-          if (Test-Path $src) {
-            New-Item -ItemType Directory -Force -Path $dst
-            Copy-Item "$src/*" $dst -Recurse -Force
-          }
+      #     if (Test-Path $src) {
+      #       New-Item -ItemType Directory -Force -Path $dst
+      #       Copy-Item "$src/*" $dst -Recurse -Force
+      #     }
 
 
       # --------------------------------------------------
