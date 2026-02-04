@@ -160,11 +160,21 @@ jobs:
           solution-file: CorePlus_Updated.zip
           solution-type: Unmanaged
 
-      - name: Import CorePlus Solution
-        uses: microsoft/powerplatform-actions/import-solution@v1
+      # - name: Import CorePlus Solution
+      #   uses: microsoft/powerplatform-actions/import-solution@v1
+      #   with:
+      #     environment-url: ${{ env.ENV_URL }}
+      #     solution-file: CorePlus_Updated.zip
+      #     app-id: ${{ secrets.APPLICATION_ID }}
+      #     client-secret: ${{ secrets.SECRET_VALUE }}
+      #     tenant-id: ${{ secrets.DIRECTORY_ID }}
+
+      # --------------------------------------------------
+      # UPLOAD AS ARTIFACT (DOWNLOAD TO LOCAL)
+      # --------------------------------------------------
+
+      - name: Upload CorePlus Solution Artifact
+        uses: actions/upload-artifact@v4
         with:
-          environment-url: ${{ env.ENV_URL }}
-          solution-file: CorePlus_Updated.zip
-          app-id: ${{ secrets.APPLICATION_ID }}
-          client-secret: ${{ secrets.SECRET_VALUE }}
-          tenant-id: ${{ secrets.DIRECTORY_ID }}
+          name: CorePlus_Updated_Solution
+          path: CorePlus_Updated.zip
