@@ -99,8 +99,11 @@ jobs:
         shell: pwsh
         run: |
           $replaceMap = @{
+            # Custom Connectors
             "ITS-TCOE_SET_UATNextCRMMain" = "ITS-TCOE_CorePlus_UATNextMain"
-            "ITS-TCOE_SET_UATNextCRMELog" = "ITS-TCOE_CorePlus_UATNextELog"
+            "ITS-TCOE_SET_UATNextCRMELog" = "ITS_TCOE_CorePlus_UATNextELog"
+
+            # Environment Variables
             "ITS-TCOE_SET_UATNext_DealerCRM_qTestProjectID" = "ITS-TCOE_CorePlus_UATNext_qTestProjectID"
             "ITS-TCOE_SET_UATNext_DealerCRM_TestCaseModuleID" = "ITS-TCOE_CorePlus_UATNext_TestCaseModuleID"
             "ITS-TCOE_SET_UATNext_DealerCRM_qTestModuleID" = "ITS-TCOE_CorePlus_UATNext_qTestModuleID"
@@ -108,6 +111,8 @@ jobs:
             "ITS-TCOE_SET_UATNext_DealerCRM_Releases" = "ITS-TCOE_CorePlus_UATNext_Releases"
             "ITS-TCOE_SET_UATNext_DealerCRM_ModuleController" = "ITS-TCOE_CorePlus_UATNext_ModuleController"
             "ITS-TCOE_SET_UATNext_DealerCRM_Teams" = "ITS-TCOE_CorePlus_UATNext_Teams"
+
+            # Cloud Flow
             "ITS-TCOE_SET_UATNext_DealerCRM_AttachmentUpload_Flow" = "ITS-TCOE_CorePlus_UATNext_AttachmentUpload_Flow"
           }
           $apps = Get-ChildItem "coreplus_unpacked/CanvasApps" -Filter "*.msapp"
@@ -131,6 +136,18 @@ jobs:
             Compress-Archive "$tmp/*" $app.FullName -Force
             Remove-Item $tmp -Recurse -Force
           }
+
+      - name: Merge DealerCRM Custom Connectors into CorePlus
+        shell: pwsh
+        run: |
+          $src = "dealercrm_unpacked/CustomConnectors"
+          $dst = "coreplus_unpacked/CustomConnectors"
+
+          if (Test-Path $src) {
+            New-Item -ItemType Directory -Force -Path $dst
+            Copy-Item "$src/*" $dst -Recurse -Force
+          }
+
 
       # --------------------------------------------------
       # PACK & IMPORT (UPDATE ONLY)
