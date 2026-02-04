@@ -1,4 +1,4 @@
-name: Merge DealerCRM App into CorePlus App (Update Only)
+name: Merge DealerCRM App into Insight App (Update Only)
 
 on:
   workflow_dispatch:
@@ -15,11 +15,11 @@ jobs:
 
       # Solution names
       DealerCRM_SOLUTION_NAME: ITS_TCOE_SET_UATNext_DealerCRM_Solution
-      CorePlus_SOLUTION_NAME: ITSTCOE_CorePlus_UATNext_Solution
+      Insight_SOLUTION_NAME: ITSTCOE_Insights_UATNext_Solution
 
       # Output zips
       DealerCRM_ZIP: dealercrm.zip
-      CorePlus_ZIP: coreplus.zip
+      Insight_ZIP: insight.zip
 
     steps:
       - name: Checkout repo
@@ -43,12 +43,12 @@ jobs:
           client-secret: ${{ secrets.SECRET_VALUE }}
           tenant-id: ${{ secrets.DIRECTORY_ID }}
 
-      - name: Export CorePlus Solution
+      - name: Export Insight Solution
         uses: microsoft/powerplatform-actions/export-solution@v1
         with:
           environment-url: ${{ env.ENV_URL }}
-          solution-name: ${{ env.CorePlus_SOLUTION_NAME }}
-          solution-output-file: ${{ env.CorePlus_ZIP }}
+          solution-name: ${{ env.Insight_SOLUTION_NAME }}
+          solution-output-file: ${{ env.Insight_ZIP }}
           managed: false
           app-id: ${{ secrets.APPLICATION_ID }}
           client-secret: ${{ secrets.SECRET_VALUE }}
@@ -66,33 +66,33 @@ jobs:
           solution-type: Unmanaged
           overwrite-files: true
 
-      - name: Unpack CorePlus Solution
+      - name: Unpack Insight Solution
         uses: microsoft/powerplatform-actions/unpack-solution@v1
         with:
-          solution-file: ${{ env.CorePlus_ZIP }}
-          solution-folder: coreplus_unpacked
+          solution-file: ${{ env.Insight_ZIP }}
+          solution-folder: insight_unpacked
           solution-type: Unmanaged
           overwrite-files: true
 
       # --------------------------------------------------
-      # COPY DealerCRM APP CONTENT INTO CorePlus APP
+      # COPY DealerCRM APP CONTENT INTO Insight APP
       # --------------------------------------------------
 
-      - name: Replace CorePlus Canvas App Content
+      - name: Replace Insight Canvas App Content
         shell: pwsh
         run: |
-          $corePlusApps = Get-ChildItem "coreplus_unpacked/CanvasApps" -Filter "*.msapp"
+          $insightApps = Get-ChildItem "insight_unpacked/CanvasApps" -Filter "*.msapp"
           $DealerCRMApps = Get-ChildItem "dealercrm_unpacked/CanvasApps" -Filter "*.msapp"
-          if ($corePlusApps.Count -ne $DealerCRMApps.Count) {
+          if ($insightApps.Count -ne $DealerCRMApps.Count) {
             Write-Error "Canvas App count mismatch"
             exit 1
           }
-          for ($i = 0; $i -lt $corePlusApps.Count; $i++) {
-            Copy-Item $DealerCRMApps[$i].FullName $corePlusApps[$i].FullName -Force
+          for ($i = 0; $i -lt $insightApps.Count; $i++) {
+            Copy-Item $DealerCRMApps[$i].FullName $insightApps[$i].FullName -Force
           }
 
       # --------------------------------------------------
-      # 🔥 MSAPP SURGERY: DealerCRM → CorePlus REFERENCES
+      # 🔥 MSAPP SURGERY: DealerCRM → Insight REFERENCES
       # --------------------------------------------------
 
       - name: Fix Environment Variables, Connectors & Flows
@@ -100,22 +100,22 @@ jobs:
         run: |
           $replaceMap = @{
             # Custom Connectors
-            "ITS-TCOE_SET_UATNextCRMMain" = "ITS-TCOE_CorePlus_UATNextMain"
-            "ITS-TCOE_SET_UATNextCRMELog" = "ITS_TCOE_CorePlus_UATNextELog"
+            "ITS-TCOE_SET_UATNextCRMMain" = "ITS-TCOE_FNI_UATNextMain"
+            "ITS-TCOE_SET_UATNextCRMELog" = "ITS-TCOE_FNI_UATNextELog"
 
             # Environment Variables
-            "ITS-TCOE_SET_UATNext_DealerCRM_qTestProjectID" = "ITS-TCOE_CorePlus_UATNext_qTestProjectID"
-            "ITS-TCOE_SET_UATNext_DealerCRM_TestCaseModuleID" = "ITS-TCOE_CorePlus_UATNext_TestCaseModuleID"
-            "ITS-TCOE_SET_UATNext_DealerCRM_qTestModuleID" = "ITS-TCOE_CorePlus_UATNext_qTestModuleID"
-            "ITS-TCOE_SET_UATNext_DealerCRM_AQUAModuleID" = "ITS-TCOE_CorePlus_AQUAModuleID"
-            "ITS-TCOE_SET_UATNext_DealerCRM_Releases" = "ITS-TCOE_CorePlus_UATNext_Releases"
-            "ITS-TCOE_SET_UATNext_DealerCRM_ModuleController" = "ITS-TCOE_CorePlus_UATNext_ModuleController"
-            "ITS-TCOE_SET_UATNext_DealerCRM_Teams" = "ITS-TCOE_CorePlus_UATNext_Teams"
+            "ITS-TCOE_SET_UATNext_DealerCRM_qTestProjectID" = "ITS-TCOE_Insights_UATNext_qTestProjectID"
+            "ITS-TCOE_SET_UATNext_DealerCRM_TestCaseModuleID" = "ITS-TCOE_Insights_UATNext_TestCaseModuleID"
+            "ITS-TCOE_SET_UATNext_DealerCRM_qTestModuleID" = "ITS-TCOE_Insights_UATNext_qTestModuleID"
+            "ITS-TCOE_SET_UATNext_DealerCRM_AQUAModuleID" = "ITS-TCOE_Insights_UATNext_AQUAModuleID"
+            "ITS-TCOE_SET_UATNext_DealerCRM_Releases" = "ITS-TCOE_Insights_UATNext_Releases"
+            "ITS-TCOE_SET_UATNext_DealerCRM_ModuleController" = "ITS-TCOE_Insights_UATNext_ModuleController"
+            "ITS-TCOE_SET_UATNext_DealerCRM_Teams" = "ITS-TCOE_Insights_UATNext_Teams"
 
             # Cloud Flow
-            "ITS-TCOE_SET_UATNext_DealerCRM_AttachmentUpload_Flow" = "ITS-TCOE_CorePlus_UATNext_AttachmentUpload_Flow"
+            "ITS-TCOE_SET_UATNext_DealerCRM_AttachmentUpload_Flow" = "ITS-TCOE_Insights_UATNext_AttachmentUpload_Flow"
           }
-          $apps = Get-ChildItem "coreplus_unpacked/CanvasApps" -Filter "*.msapp"
+          $apps = Get-ChildItem "insight_unpacked/CanvasApps" -Filter "*.msapp"
           foreach ($app in $apps) {
             $tmp = "tmp_extract"
             if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
@@ -137,11 +137,11 @@ jobs:
             Remove-Item $tmp -Recurse -Force
           }
 
-      - name: Merge DealerCRM Custom Connectors into CorePlus
+      - name: Merge DealerCRM Custom Connectors into Insight
         shell: pwsh
         run: |
           $src = "dealercrm_unpacked/CustomConnectors"
-          $dst = "coreplus_unpacked/CustomConnectors"
+          $dst = "insight_unpacked/CustomConnectors"
 
           if (Test-Path $src) {
             New-Item -ItemType Directory -Force -Path $dst
@@ -153,28 +153,28 @@ jobs:
       # PACK & IMPORT (UPDATE ONLY)
       # --------------------------------------------------
 
-      - name: Pack CorePlus Solution
+      - name: Pack Insight Solution
         uses: microsoft/powerplatform-actions/pack-solution@v1
         with:
-          solution-folder: coreplus_unpacked
-          solution-file: CorePlus_Updated.zip
+          solution-folder: insight_unpacked
+          solution-file: Insight_Updated.zip
           solution-type: Unmanaged
 
-      # - name: Import CorePlus Solution
-      #   uses: microsoft/powerplatform-actions/import-solution@v1
-      #   with:
-      #     environment-url: ${{ env.ENV_URL }}
-      #     solution-file: CorePlus_Updated.zip
-      #     app-id: ${{ secrets.APPLICATION_ID }}
-      #     client-secret: ${{ secrets.SECRET_VALUE }}
-      #     tenant-id: ${{ secrets.DIRECTORY_ID }}
+      - name: Import Insight Solution
+        uses: microsoft/powerplatform-actions/import-solution@v1
+        with:
+          environment-url: ${{ env.ENV_URL }}
+          solution-file: Insight_Updated.zip
+          app-id: ${{ secrets.APPLICATION_ID }}
+          client-secret: ${{ secrets.SECRET_VALUE }}
+          tenant-id: ${{ secrets.DIRECTORY_ID }}
 
       # --------------------------------------------------
       # UPLOAD AS ARTIFACT (DOWNLOAD TO LOCAL)
       # --------------------------------------------------
 
-      - name: Upload CorePlus Solution Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: CorePlus_Updated_Solution
-          path: CorePlus_Updated.zip
+      # - name: Upload CorePlus Solution Artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: CorePlus_Updated_Solution
+      #     path: CorePlus_Updated.zip
