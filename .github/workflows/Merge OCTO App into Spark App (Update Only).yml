@@ -78,52 +78,32 @@ jobs:
       # COPY OCTO APP CONTENT INTO SPARK APP
       # --------------------------------------------------
  
-      - name: Sync Canvas App Metadata Files Only
-        shell: pwsh
+      - name: Sync AdditionalUris identity files from Octo to Spark
+        shell: bash
         run: |
-          $octoPath  = "octo_unpacked/CanvasApps"
-          $sparkPath = "spark_unpacked/CanvasApps"
+          OCTO_DIR="octo_unpacked/CanvasApps"
+          SPARK_DIR="spark_unpacked/CanvasApps"
 
-          $appTokens = @("uatnext", "qtestcoordinator")
+          for OCTO_FILE in "$OCTO_DIR"/*_AdditionalUris0_identity.json; do
+            FILE_NAME=$(basename "$OCTO_FILE")
 
-          $allowedSuffixes = @(
-            "_AdditionalUris0_identity.json",
-            ".meta.xml"
-          )
+            if [[ "$FILE_NAME" == *uatnext* ]]; then
+              TOKEN="uatnext"
+            elif [[ "$FILE_NAME" == *qtestcoordinator* ]]; then
+              TOKEN="qtestcoordinator"
+            else
+              continue
+            fi
 
-          foreach ($app in $appTokens) {
+            SPARK_FILE=$(ls "$SPARK_DIR"/*"$TOKEN"*"_AdditionalUris0_identity.json" 2>/dev/null | head -n 1)
 
-            Write-Host "Processing app: $app"
-
-            foreach ($suffix in $allowedSuffixes) {
-
-              # Find Octo file (AND condition)
-              $octoFile = Get-ChildItem $octoPath -File |
-                Where-Object {
-                  $_.Name -match $app -and $_.Name -like "*$suffix"
-                }
-
-              # Find Spark file (AND condition)
-              $sparkFile = Get-ChildItem $sparkPath -File |
-                Where-Object {
-                  $_.Name -match $app -and $_.Name -like "*$suffix"
-                }
-
-              if ($sparkFile.Count -ne 1) {
-                Write-Error "Spark missing required file: $app | $suffix"
-                exit 1
-              }
-
-              if ($octoFile.Count -eq 1) {
-                Write-Host "  Replacing $suffix"
-                Copy-Item $octoFile.FullName $sparkFile.FullName -Force
-              }
-              else {
-                Write-Host "  Octo file not found, keeping Spark version: $suffix"
-              }
-            }
-          }
-
+            if [[ -f "$SPARK_FILE" ]]; then
+              echo "Replacing content for $TOKEN"
+              cp "$OCTO_FILE" "$SPARK_FILE"
+            else
+              echo "No Spark match found for $FILE_NAME"
+            fi
+          done
  
       # --------------------------------------------------
       # 🔥 MSAPP SURGERY: OCTO → SPARK REFERENCES
@@ -175,37 +155,6 @@ jobs:
  
             Compress-Archive "$tmp/*" $app.FullName -Force
             Remove-Item $tmp -Recurse -Force
-          }
-
-      # --------------------------------------------------
-      # CHECKING REQUIRED FILES BEFORE PACKING (MSAPP + JSON + XML)
-      # --------------------------------------------------
-
-      - name: Ensure Required Canvas App Files Exist
-        shell: pwsh
-        run: |
-          $canvasPath = "spark_unpacked/CanvasApps"
-
-          # Find all Canvas Apps by msapp
-          $apps = Get-ChildItem $canvasPath |
-            Where-Object { $_.Name -match "_DocumentUri\.msapp$" }
-
-          foreach ($msapp in $apps) {
-            $base = $msapp.Name -replace "_DocumentUri\.msapp$", ""
-
-            $requiredFiles = @(
-              "$base`_BackgroundImageUri",
-              "$base`_AdditionalUris0_identity.json",
-              "$base.meta.xml"
-            )
-
-            foreach ($file in $requiredFiles) {
-              $fullPath = Join-Path $canvasPath $file
-              if (-not (Test-Path $fullPath)) {
-                Write-Host "Creating missing required file: $file"
-                New-Item -Path $fullPath -ItemType File | Out-Null
-              }
-            }
           }
 
  
