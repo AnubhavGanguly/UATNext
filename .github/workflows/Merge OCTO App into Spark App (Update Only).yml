@@ -78,7 +78,7 @@ jobs:
       # COPY OCTO APP CONTENT INTO SPARK APP
       # --------------------------------------------------
  
-      - name: Sync Canvas App Files (AND condition)
+      - name: Sync Canvas App Metadata Files Only
         shell: pwsh
         run: |
           $octoPath  = "octo_unpacked/CanvasApps"
@@ -86,48 +86,44 @@ jobs:
 
           $appTokens = @("uatnext", "qtestcoordinator")
 
-          $octoFiles = Get-ChildItem $octoPath -File
+          $allowedSuffixes = @(
+            "_AdditionalUris0_identity.json",
+            ".meta.xml"
+          )
 
-          foreach ($octoFile in $octoFiles) {
+          foreach ($app in $appTokens) {
 
-            # ---- App name token (must exist) ----
-            $appToken = $appTokens | Where-Object { $octoFile.Name -match $_ }
+            Write-Host "Processing app: $app"
 
-            if (-not $appToken) {
-              Write-Host "Skipping (no app token): $($octoFile.Name)"
-              continue
-            }
+            foreach ($suffix in $allowedSuffixes) {
 
-            # ---- File type (must match exactly) ----
-            $fileSuffix = $null
+              # Find Octo file (AND condition)
+              $octoFile = Get-ChildItem $octoPath -File |
+                Where-Object {
+                  $_.Name -match $app -and $_.Name -like "*$suffix"
+                }
 
-            if     ($octoFile.Name -match "_DocumentUri\.msapp$")              { $fileSuffix = "_DocumentUri.msapp" }
-            elseif ($octoFile.Name -match "_AdditionalUris0_identity\.json$")  { $fileSuffix = "_AdditionalUris0_identity.json" }
-            elseif ($octoFile.Name -match "_BackgroundImageUri$")              { $fileSuffix = "_BackgroundImageUri" }
-            elseif ($octoFile.Name -match "\.meta\.xml$")                      { $fileSuffix = ".meta.xml" }
+              # Find Spark file (AND condition)
+              $sparkFile = Get-ChildItem $sparkPath -File |
+                Where-Object {
+                  $_.Name -match $app -and $_.Name -like "*$suffix"
+                }
 
-            if (-not $fileSuffix) {
-              Write-Host "Skipping (unknown file type): $($octoFile.Name)"
-              continue
-            }
-
-            Write-Host "Processing: App=$appToken | Type=$fileSuffix"
-
-            # ---- AND condition: app token + file suffix ----
-            $sparkMatch = Get-ChildItem $sparkPath -File |
-              Where-Object {
-                $_.Name -match $appToken -and $_.Name -like "*$fileSuffix"
+              if ($sparkFile.Count -ne 1) {
+                Write-Error "Spark missing required file: $app | $suffix"
+                exit 1
               }
 
-            if ($sparkMatch.Count -ne 1) {
-              Write-Error "Expected exactly 1 Spark match for [$appToken + $fileSuffix], found $($sparkMatch.Count)"
-              exit 1
+              if ($octoFile.Count -eq 1) {
+                Write-Host "  Replacing $suffix"
+                Copy-Item $octoFile.FullName $sparkFile.FullName -Force
+              }
+              else {
+                Write-Host "  Octo file not found, keeping Spark version: $suffix"
+              }
             }
-
-            # ---- Replace content only ----
-            Copy-Item $octoFile.FullName $sparkMatch.FullName -Force
-            Write-Host "Replaced: $($sparkMatch.Name)"
           }
+
  
       # --------------------------------------------------
       # 🔥 MSAPP SURGERY: OCTO → SPARK REFERENCES
