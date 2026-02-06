@@ -176,6 +176,38 @@ jobs:
             Compress-Archive "$tmp/*" $app.FullName -Force
             Remove-Item $tmp -Recurse -Force
           }
+
+      # --------------------------------------------------
+      # CHECKING REQUIRED FILES BEFORE PACKING (MSAPP + JSON + XML)
+      # --------------------------------------------------
+
+      - name: Ensure Required Canvas App Files Exist
+        shell: pwsh
+        run: |
+          $canvasPath = "spark_unpacked/CanvasApps"
+
+          # Find all Canvas Apps by msapp
+          $apps = Get-ChildItem $canvasPath |
+            Where-Object { $_.Name -match "_DocumentUri\.msapp$" }
+
+          foreach ($msapp in $apps) {
+            $base = $msapp.Name -replace "_DocumentUri\.msapp$", ""
+
+            $requiredFiles = @(
+              "$base`_BackgroundImageUri",
+              "$base`_AdditionalUris0_identity.json",
+              "$base.meta.xml"
+            )
+
+            foreach ($file in $requiredFiles) {
+              $fullPath = Join-Path $canvasPath $file
+              if (-not (Test-Path $fullPath)) {
+                Write-Host "Creating missing required file: $file"
+                New-Item -Path $fullPath -ItemType File | Out-Null
+              }
+            }
+          }
+
  
       # --------------------------------------------------
       # PACK & IMPORT (UPDATE ONLY)
