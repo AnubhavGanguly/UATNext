@@ -78,32 +78,42 @@ jobs:
       # COPY OCTO APP CONTENT INTO SPARK APP
       # --------------------------------------------------
  
-      - name: Sync AdditionalUris identity files from Octo to Spark
+      - name: Sync Canvas App files from Octo to Spark
         shell: bash
         run: |
           OCTO_DIR="octo_unpacked/CanvasApps"
           SPARK_DIR="spark_unpacked/CanvasApps"
 
-          for OCTO_FILE in "$OCTO_DIR"/*_AdditionalUris0_identity.json; do
-            FILE_NAME=$(basename "$OCTO_FILE")
+          FILE_PATTERNS=(
+            "_AdditionalUris0_identity.json"
+            "_DocumentUri.msapp"
+          )
 
-            if [[ "$FILE_NAME" == *uatnext* ]]; then
-              TOKEN="uatnext"
-            elif [[ "$FILE_NAME" == *qtestcoordinator* ]]; then
-              TOKEN="qtestcoordinator"
-            else
-              continue
-            fi
+          for PATTERN in "${FILE_PATTERNS[@]}"; do
+            for OCTO_FILE in "$OCTO_DIR"/*"$PATTERN"; do
 
-            SPARK_FILE=$(ls "$SPARK_DIR"/*"$TOKEN"*"_AdditionalUris0_identity.json" 2>/dev/null | head -n 1)
+              FILE_NAME=$(basename "$OCTO_FILE")
 
-            if [[ -f "$SPARK_FILE" ]]; then
-              echo "Replacing content for $TOKEN"
-              cp "$OCTO_FILE" "$SPARK_FILE"
-            else
-              echo "No Spark match found for $FILE_NAME"
-            fi
+              if [[ "$FILE_NAME" == *uatnext* ]]; then
+                TOKEN="uatnext"
+              elif [[ "$FILE_NAME" == *qtestcoordinator* ]]; then
+                TOKEN="qtestcoordinator"
+              else
+                continue
+              fi
+
+              SPARK_FILE=$(ls "$SPARK_DIR"/*"$TOKEN"*"$PATTERN" 2>/dev/null | head -n 1)
+
+              if [[ -f "$SPARK_FILE" ]]; then
+                echo "Replacing $PATTERN for $TOKEN"
+                cp "$OCTO_FILE" "$SPARK_FILE"
+              else
+                echo "No Spark match found for $FILE_NAME"
+              fi
+
+            done
           done
+
  
       # --------------------------------------------------
       # 🔥 MSAPP SURGERY: OCTO → SPARK REFERENCES
