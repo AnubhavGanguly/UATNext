@@ -125,8 +125,8 @@ jobs:
           $replaceMap = @{
           
             # Custom Connectors
-            "ITS-TCOE_OCTO_UATMain_V1" = "ITS-TCOE_SETF_UATMain_V1"
-            "ITS-TCOE_OCTO_UATELog_V1" = "ITS-TCOE_SETF_UATELog_V1"
+            "ITS-TCOE_OCTO_UATMain_V1" = "ITS-TCOE_CorePlus_UATMain_V1"
+            "ITS-TCOE_OCTO_UATELog_V1" = "ITS_TCOE_CorePlus_UATELog_V1"
  
             # Environment Variables
             "ITS-TCOE_OCTO_UATNext_Test_qTestProjectID"   = "ITS-TCOE_CorePlus_UATNext_qTestProjectID"
@@ -187,3 +187,4 @@ jobs:
           app-id: ${{ secrets.APPLICATION_ID }}
           client-secret: ${{ secrets.SECRET_VALUE }}
           tenant-id: ${{ secrets.DIRECTORY_ID }}
+
