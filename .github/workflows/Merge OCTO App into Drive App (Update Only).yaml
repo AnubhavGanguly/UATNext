@@ -1,0 +1,191 @@
+name: Merge OCTO App into Drive App (Update Only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  merge-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      ENV_URL: https://itstcoedev.crm8.dynamics.com
+
+      # Solution names
+      OCTO_SOLUTION_NAME: ITSTCOE_OCTO_UATNext_Test_Solution
+      Drive_SOLUTION_NAME: ITSTCOE_SET_UATNext_Drive_Solution
+
+      # Output zips
+      OCTO_ZIP: octo.zip
+      Drive_ZIP: drive.zip
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Power Platform CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
+
+      # --------------------------------------------------
+      # EXPORT BOTH SOLUTIONS
+      # --------------------------------------------------
+
+      - name: Export OCTO Solution
+        uses: microsoft/powerplatform-actions/export-solution@v1
+        with:
+          environment-url: ${{ env.ENV_URL }}
+          solution-name: ${{ env.OCTO_SOLUTION_NAME }}
+          solution-output-file: ${{ env.OCTO_ZIP }}
+          managed: false
+          app-id: ${{ secrets.APPLICATION_ID }}
+          client-secret: ${{ secrets.SECRET_VALUE }}
+          tenant-id: ${{ secrets.DIRECTORY_ID }}
+
+      - name: Export Drive Solution
+        uses: microsoft/powerplatform-actions/export-solution@v1
+        with:
+          environment-url: ${{ env.ENV_URL }}
+          solution-name: ${{ env.Drive_SOLUTION_NAME }}
+          solution-output-file: ${{ env.Drive_ZIP }}
+          managed: false
+          app-id: ${{ secrets.APPLICATION_ID }}
+          client-secret: ${{ secrets.SECRET_VALUE }}
+          tenant-id: ${{ secrets.DIRECTORY_ID }}
+
+      # --------------------------------------------------
+      # UNPACK BOTH
+      # --------------------------------------------------  
+
+      - name: Unpack OCTO Solution
+        uses: microsoft/powerplatform-actions/unpack-solution@v1
+        with:
+          solution-file: ${{ env.OCTO_ZIP }}
+          solution-folder: octo_unpacked
+          solution-type: Unmanaged
+          overwrite-files: true
+
+      - name: Unpack Drive Solution
+        uses: microsoft/powerplatform-actions/unpack-solution@v1
+        with:
+          solution-file: ${{ env.Drive_ZIP }}
+          solution-folder: drive_unpacked
+          solution-type: Unmanaged
+          overwrite-files: true
+
+      # --------------------------------------------------
+      # COPY OCTO APP CONTENT INTO DRIVE APP
+      # --------------------------------------------------
+
+      - name: Sync Canvas App files from Octo to Drive
+        shell: bash
+        run: |
+          OCTO_DIR="octo_unpacked/CanvasApps"
+          DRIVE_DIR="drive_unpacked/CanvasApps"
+
+          FILE_PATTERNS=(
+            "_AdditionalUris0_identity.json"
+            "_DocumentUri.msapp"
+          )
+
+          for PATTERN in "${FILE_PATTERNS[@]}"; do
+            for OCTO_FILE in "$OCTO_DIR"/*"$PATTERN"; do
+
+              FILE_NAME=$(basename "$OCTO_FILE")
+
+              if [[ "$FILE_NAME" == *uatnext* ]]; then
+                TOKEN="uatnext"
+              elif [[ "$FILE_NAME" == *qtestcoordinator* ]]; then
+                TOKEN="qtestcoordinator"
+              else
+                continue
+              fi
+
+              DRIVE_FILE=$(ls "$DRIVE_DIR"/*"$TOKEN"*"$PATTERN" 2>/dev/null | head -n 1)
+
+              if [[ -f "$DRIVE_FILE" ]]; then
+                echo "Replacing $PATTERN for $TOKEN"
+                cp "$OCTO_FILE" "$DRIVE_FILE"
+              else
+                echo "No Drive match found for $FILE_NAME"
+              fi
+
+            done
+          done
+
+      # --------------------------------------------------
+      # 🔥 MSAPP SURGERY: OCTO → Drive REFERENCES
+      # --------------------------------------------------
+
+      - name: Fix Environment Variables, Connectors & Flows
+        shell: pwsh
+        run: |
+          $replaceMap = @{
+
+            # Custom Connectors
+            "ITS-TCOE_OCTO_UATMain_V1" = "ITS-TCOE_SET_UATDriveMain_V1"
+            "ITS-TCOE_OCTO_UATELog_V1" = "ITS-TCOE_SET_UATDriveELog_V1"
+
+            # Environment Variables
+            "ITS-TCOE_OCTO_UATNext_Test_qTestProjectID"   =  "ITS-TCOE_SET_UATNext_Drive_qTestProjectID"
+            "ITS-TCOE_OCTO_UATNext_Test_TestCaseModuleID" =  "ITS-TCOE_SET_UATNext_Drive_TestCaseModuleID"
+            "ITS-TCOE_OCTO_UATNext_Test_qTestModuleID"    =  "ITS-TCOE_SET_UATNext_Drive_qTestModuleID"
+            "ITS-TCOE_OCTO_UATNext_Test_AQUAModuleID"     =  "ITS-TCOE_SET_UATNext_Drive_AQUAModuleID"
+            "ITS-TCOE_OCTO_UATNext_Test_Releases"         =  "ITS-TCOE_SET_UATNext_Drive_Releases"
+            "ITS-TCOE_OCTO_UATNext_Test_ModuleController" =  "ITS-TCOE_SET_UATNext_Drive_ModuleController"
+            "ITS-TCOE_OCTO_UATNext_Test_Teams"            =  "ITS-TCOE_SET_UATNext_Drive_Teams"
+            # Cloud Flow
+            "ITS-TCOE_OCTO_UATNext_Test_AttachmentUpload_Flow" = "ITS-TCOE_SET_UATNext_Drive_AttachmentUpload_Flow"
+          }
+          $apps = Get-ChildItem "drive_unpacked/CanvasApps" -Filter "*.msapp"
+          foreach ($app in $apps) {
+            $tmp = "tmp_extract"
+            if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
+            Expand-Archive $app.FullName $tmp -Force
+            Get-ChildItem $tmp -Recurse -File | ForEach-Object {
+              $content = Get-Content $_.FullName -Raw
+              $changed = $false
+              foreach ($key in $replaceMap.Keys) {
+                if ($content.Contains($key)) {
+                  $content = $content.Replace($key, $replaceMap[$key])
+                  $changed = $true
+                }
+              }
+              if ($changed) {
+                Set-Content $_.FullName $content -NoNewline
+              }
+            }
+            Compress-Archive "$tmp/*" $app.FullName -Force
+            Remove-Item $tmp -Recurse -Force
+          }
+
+
+      # --------------------------------------------------
+      # PACK & IMPORT (UPDATE ONLY)
+      # --------------------------------------------------
+
+      - name: Pack Drive Solution
+        uses: microsoft/powerplatform-actions/pack-solution@v1
+        with:
+          solution-folder: drive_unpacked
+          solution-file: Drive_Updated.zip
+          solution-type: Unmanaged
+
+      - name: Import Drive Solution
+        uses: microsoft/powerplatform-actions/import-solution@v1
+        with:
+          environment-url: ${{ env.ENV_URL }}
+          solution-file: Drive_Updated.zip
+          app-id: ${{ secrets.APPLICATION_ID }}
+          client-secret: ${{ secrets.SECRET_VALUE }}
+          tenant-id: ${{ secrets.DIRECTORY_ID }}
+
+      # --------------------------------------------------
+      # UPLOAD AS ARTIFACT (DOWNLOAD TO LOCAL)
+      # --------------------------------------------------
+
+      # - name: Upload CorePlus Solution Artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: CorePlus_Updated_Solution
+      #     path: CorePlus_Updated.zip
