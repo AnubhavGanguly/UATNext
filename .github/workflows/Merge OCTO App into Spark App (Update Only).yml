@@ -125,8 +125,8 @@ jobs:
           $replaceMap = @{
           
             # Custom Connectors
-            "ITS-TCOE_OCTO_UATNextTestMain" = "ITS-TCOE_SETF_UATNextSparkMain"
-            "ITS-TCOE_OCTO_UATNextTestELog" = "ITS-TCOE_SETF_UATNextSparkELog"
+            "ITS-TCOE_OCTO_UATMain_V1" = "ITS-TCOE_SETF_UATSparkMain_V1"
+            "ITS-TCOE_OCTO_UATELog_V1" = "ITS-TCOE_SETF_UATSparkELog_V1"
  
             # Environment Variables
             "ITS-TCOE_OCTO_UATNext_Test_qTestProjectID"    = "ITS-TCOE_SETF_UATNext_Spark_qTestProjectID"
