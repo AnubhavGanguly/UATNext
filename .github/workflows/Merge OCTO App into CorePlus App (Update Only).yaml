@@ -29,7 +29,7 @@ jobs:
         uses: microsoft/powerplatform-actions/actions-install@v1
 
       - name: Authenticate to Power Platform
-        uses: microsoft/powerplatform-actions/actions-add-environment@v1
+        uses: microsoft/powerplatform-actions/actions-add-environment@main
         with:
           environment-url: ${{ env.ENV_URL }}
           app-id: ${{ secrets.APPLICATION_ID }}
@@ -201,4 +201,5 @@ jobs:
           app-id: ${{ secrets.APPLICATION_ID }}
           client-secret: ${{ secrets.SECRET_VALUE }}
           tenant-id: ${{ secrets.DIRECTORY_ID }}
+
 
