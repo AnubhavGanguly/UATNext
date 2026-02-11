@@ -27,6 +27,20 @@ jobs:
  
       - name: Install Power Platform CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
+
+      - name: Authenticate to Power Platform
+        uses: microsoft/powerplatform-actions/add-environment@v1
+        with:
+          environment-url: ${{ env.ENV_URL }}
+          app-id: ${{ secrets.APPLICATION_ID }}
+          client-secret: ${{ secrets.SECRET_VALUE }}
+          tenant-id: ${{ secrets.DIRECTORY_ID }}
+
+      - name: Publish OCTO Solution Only
+        shell: bash
+        run: |
+          echo "Publishing OCTO solution..."
+          pac solution publish --solution-name "${{ env.OCTO_SOLUTION_NAME }}"
  
       # --------------------------------------------------
       # EXPORT BOTH SOLUTIONS
