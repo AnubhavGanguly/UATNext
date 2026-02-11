@@ -15,11 +15,11 @@ jobs:
 
       # Solution names
       OCTO_SOLUTION_NAME: ITSTCOE_OCTO_UATNext_Test_Solution
-      Procurement_SOLUTION_NAME: ITSTCOE_JMFE_UATNext_Procurement_Solution
+      JMFE_PROCUREMENT_SOLUTION_NAME: ITSTCOE_JMFE_UATNext_Procurement_Solution
 
       # Output zips
       OCTO_ZIP: octo.zip
-      Procurement_ZIP: procurement.zip
+      JMFE_PROCUREMENT_ZIP: jmfe_procurement.zip
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -42,12 +42,12 @@ jobs:
           client-secret: ${{ secrets.SECRET_VALUE }}
           tenant-id: ${{ secrets.DIRECTORY_ID }}
 
-      - name: Export Procurement Solution
+      - name: Export JMFE_PROCUREMENT Solution
         uses: microsoft/powerplatform-actions/export-solution@v1
         with:
           environment-url: ${{ env.ENV_URL }}
-          solution-name: ${{ env.Procurement_SOLUTION_NAME }}
-          solution-output-file: ${{ env.Procurement_ZIP }}
+          solution-name: ${{ env.JMFE_PROCUREMENT_SOLUTION_NAME }}
+          solution-output-file: ${{ env.JMFE_PROCUREMENT_ZIP }}
           managed: false
           app-id: ${{ secrets.APPLICATION_ID }}
           client-secret: ${{ secrets.SECRET_VALUE }}
@@ -65,33 +65,56 @@ jobs:
           solution-type: Unmanaged
           overwrite-files: true
 
-      - name: Unpack Procurement Solution
+      - name: Unpack JMFE_PROCUREMENT Solution
         uses: microsoft/powerplatform-actions/unpack-solution@v1
         with:
-          solution-file: ${{ env.Procurement_ZIP }}
-          solution-folder: procurement_unpacked
+          solution-file: ${{ env.JMFE_PROCUREMENT_ZIP }}
+          solution-folder: jmfe_procurement_unpacked
           solution-type: Unmanaged
           overwrite-files: true
 
       # --------------------------------------------------
-      # COPY OCTO APP CONTENT INTO Procurement APP
+      # COPY OCTO APP CONTENT INTO JMFE_PROCUREMENT APP
       # --------------------------------------------------
 
-      - name: Replace Procurement Canvas App Content
-        shell: pwsh
+      - name: Sync Canvas App files from Octo to JMFE_Procurement
+        shell: bash
         run: |
-          $procurementApps = Get-ChildItem "procurement_unpacked/CanvasApps" -Filter "*.msapp"
-          $octoApps = Get-ChildItem "octo_unpacked/CanvasApps" -Filter "*.msapp"
-          if ($procurementApps.Count -ne $octoApps.Count) {
-            Write-Error "Canvas App count mismatch"
-            exit 1
-          }
-          for ($i = 0; $i -lt $procurementApps.Count; $i++) {
-            Copy-Item $octoApps[$i].FullName $procurementApps[$i].FullName -Force
-          }
+          OCTO_DIR="octo_unpacked/CanvasApps"
+          JMFE_PROCUREMENT_DIR="jmfe_procurement_unpacked/CanvasApps"
+
+          FILE_PATTERNS=(
+            "_AdditionalUris0_identity.json"
+            "_DocumentUri.msapp"
+          )
+
+          for PATTERN in "${FILE_PATTERNS[@]}"; do
+            for OCTO_FILE in "$OCTO_DIR"/*"$PATTERN"; do
+
+              FILE_NAME=$(basename "$OCTO_FILE")
+
+              if [[ "$FILE_NAME" == *uatnext* ]]; then
+                TOKEN="uatnext"
+              elif [[ "$FILE_NAME" == *qtestcoordinator* ]]; then
+                TOKEN="qtestcoordinator"
+              else
+                continue
+              fi
+
+              JMFE_PROCUREMENT_FILE=$(ls "$JMFE_PROCUREMENT_DIR"/*"$TOKEN"*"$PATTERN" 2>/dev/null | head -n 1)
+
+              if [[ -f "$JMFE_PROCUREMENT_FILE" ]]; then
+                echo "Replacing $PATTERN for $TOKEN"
+                cp "$OCTO_FILE" "$JMFE_PROCUREMENT_FILE"
+              else
+                echo "No JMFE_Procurement match found for $FILE_NAME"
+              fi
+
+            done
+          done
 
       # --------------------------------------------------
-      # 🔥 MSAPP SURGERY: OCTO → Procurement REFERENCES
+      # 🔥 MSAPP SURGERY: OCTO → JMFE_PROCUREMENT REFERENCES
       # --------------------------------------------------
 
       - name: Fix Environment Variables, Connectors & Flows
@@ -100,8 +123,8 @@ jobs:
           $replaceMap = @{
 
             # Custom Connectors
-            "ITS-TCOE_OCTO_UATNextMain" = "ITS-TCOE_JMFE_UATNextProcMain"
-            "ITS-TCOE_OCTO_UATNextELog" = "ITS-TCOE_JMFE_UATNextProcELog"
+            "ITS-TCOE_OCTO_UATMain_V1" = "ITS-TCOE_JMFE_UATProcMain_V1"
+            "ITS-TCOE_OCTO_UATELog_V1" = "ITS-TCOE_JMFE_UATProcELog_V1"
 
             # Environment Variables
             "ITS-TCOE_OCTO_UATNext_Test_qTestProjectID" = "ITS-TCOE_JMFE_UATNext_Proc_qTestProjectID"
@@ -110,12 +133,12 @@ jobs:
             "ITS-TCOE_OCTO_UATNext_Test_AQUAModuleID" = "ITS-TCOE_JMFE_UATNext_Proc_AQUAModuleID"
             "ITS-TCOE_OCTO_UATNext_Test_Releases" = "ITS-TCOE_JMFE_UATNext_Proc_Releases"
             "ITS-TCOE_OCTO_UATNext_Test_ModuleController" = "ITS-TCOE_JMFE_UATNext_Proc_ModuleController"
-            "ITS-TCOE_OCTO_UATNext_Test_Teams" = "ITS-TCOE_SETF_UATNext_Spark_Teams"
+            "ITS-TCOE_OCTO_UATNext_Test_Teams" = "ITS-TCOE_JMFE_UATNext_Proc_UATNext_Teams"
 
             # Cloud Flow
             "ITS-TCOE_OCTO_UATNext_Test_AttachmentUpload_Flow" = "ITS-TCOE_JMFE_UATNext_Procurement_AttachmentUpload_Flow"
           }
-          $apps = Get-ChildItem "procurement_unpacked/CanvasApps" -Filter "*.msapp"
+          $apps = Get-ChildItem "jmfe_procurement_unpacked/CanvasApps" -Filter "*.msapp"
           foreach ($app in $apps) {
             $tmp = "tmp_extract"
             if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
@@ -142,18 +165,18 @@ jobs:
       # PACK & IMPORT (UPDATE ONLY)
       # --------------------------------------------------
 
-      - name: Pack Procurement Solution
+      - name: Pack JMFE_Procurement Solution
         uses: microsoft/powerplatform-actions/pack-solution@v1
         with:
-          solution-folder: procurement_unpacked
-          solution-file: Procurement_Updated.zip
+          solution-folder: jmfe_procurement_unpacked
+          solution-file: JMFE_Procurement_Updated.zip
           solution-type: Unmanaged
 
-      - name: Import Procurement Solution
+      - name: Import JMFE_Procurement Solution
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
           environment-url: ${{ env.ENV_URL }}
-          solution-file: Procurement_Updated.zip
+          solution-file: JMFE_Procurement_Updated.zip
           app-id: ${{ secrets.APPLICATION_ID }}
           client-secret: ${{ secrets.SECRET_VALUE }}
           tenant-id: ${{ secrets.DIRECTORY_ID }}
