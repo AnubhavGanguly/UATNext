@@ -1,17 +1,18 @@
 name: Merge OCTO App into CorePlus App (Update Only)
-
+ 
 on:
   workflow_dispatch:
  
 permissions:
   contents: write
+  id-token: write
  
 jobs:
   merge-and-deploy:
     runs-on: ubuntu-latest
  
     env:
-      ENV_URL: https://itstcoedev.crm.dynamics.com
+      ENV_URL: https://itstcoedev.crm8.dynamics.com
  
       # Solution names
       COREPLUS_SOLUTION_NAME: ITSTCOE_CorePlus_UATNext_Solution
@@ -27,7 +28,15 @@ jobs:
  
       - name: Install Power Platform CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
-      
+
+      # 🔐 Azure Login using Federated Credential
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+ 
       # --------------------------------------------------
       # EXPORT BOTH SOLUTIONS
       # --------------------------------------------------
@@ -39,9 +48,9 @@ jobs:
           solution-name: ${{ env.COREPLUS_SOLUTION_NAME }}
           solution-output-file: ${{ env.COREPLUS_ZIP }}
           managed: false
-          app-id: ${{ secrets.UATNext_APPLICATION_ID }}
+          app-id: ${{ secrets.APPLICATION_ID }}
           #client-secret: ${{ secrets.SECRET_VALUE }}
-          tenant-id: ${{ secrets.UATNext_DIRECTORY_ID }}
+          tenant-id: ${{ secrets.DIRECTORY_ID }}
  
       - name: Export OCTO Solution (content source)
         uses: microsoft/powerplatform-actions/export-solution@v1
@@ -50,9 +59,9 @@ jobs:
           solution-name: ${{ env.OCTO_SOLUTION_NAME }}
           solution-output-file: ${{ env.OCTO_ZIP }}
           managed: false
-          app-id: ${{ secrets.UATNext_APPLICATION_ID }}
+          app-id: ${{ secrets.APPLICATION_ID }}
           #client-secret: ${{ secrets.SECRET_VALUE }}
-          tenant-id: ${{ secrets.UATNext_DIRECTORY_ID }}
+          tenant-id: ${{ secrets.DIRECTORY_ID }}
  
       # --------------------------------------------------
       # UNPACK BOTH
@@ -135,7 +144,7 @@ jobs:
             "ITS-TCOE_OCTO_UATNext_Test_AQUAModuleID"     = "ITS-TCOE_CorePlus_AQUAModuleID"
             "ITS-TCOE_OCTO_UATNext_Test_Releases"         = "ITS-TCOE_CorePlus_UATNext_Releases"
             "ITS-TCOE_OCTO_UATNext_Test_ModuleController" = "ITS-TCOE_CorePlus_UATNext_ModuleController"
-            "ITS-TCOE_OCTO_UATNext_Test_UATNext_Teams"    = "ITS-TCOE_CorePlus_UATNext_Teams"
+            "ITS-TCOE_OCTO_UATNext_Test_UATNext_Teams"            = "ITS-TCOE_CorePlus_UATNext_Teams"
  
             # Cloud Flow
             "ITS-TCOE_OCTO_UATNext_Test_AttachmentUpload_Flow" = "ITS-TCOE_CorePlus_UATNext_AttachmentUpload_Flow"
@@ -184,12 +193,6 @@ jobs:
         with:
           environment-url: ${{ env.ENV_URL }}
           solution-file: CorePlus_Updated.zip
-          app-id: ${{ secrets.UATNext_APPLICATION_ID }}
+          app-id: ${{ secrets.APPLICATION_ID }}
           #client-secret: ${{ secrets.SECRET_VALUE }}
-          tenant-id: ${{ secrets.UATNext_DIRECTORY_ID }}
-
-
-
-
-
-
+          tenant-id: ${{ secrets.DIRECTORY_ID }}
