@@ -48,9 +48,8 @@ jobs:
           solution-name: ${{ env.COREPLUS_SOLUTION_NAME }}
           solution-output-file: ${{ env.COREPLUS_ZIP }}
           managed: false
-          app-id: ${{ secrets.APPLICATION_ID }}
-          #client-secret: ${{ secrets.SECRET_VALUE }}
-          tenant-id: ${{ secrets.DIRECTORY_ID }}
+          app-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
  
       - name: Export OCTO Solution (content source)
         uses: microsoft/powerplatform-actions/export-solution@v1
@@ -59,9 +58,8 @@ jobs:
           solution-name: ${{ env.OCTO_SOLUTION_NAME }}
           solution-output-file: ${{ env.OCTO_ZIP }}
           managed: false
-          app-id: ${{ secrets.APPLICATION_ID }}
-          #client-secret: ${{ secrets.SECRET_VALUE }}
-          tenant-id: ${{ secrets.DIRECTORY_ID }}
+          app-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
  
       # --------------------------------------------------
       # UNPACK BOTH
@@ -193,6 +191,5 @@ jobs:
         with:
           environment-url: ${{ env.ENV_URL }}
           solution-file: CorePlus_Updated.zip
-          app-id: ${{ secrets.APPLICATION_ID }}
-          #client-secret: ${{ secrets.SECRET_VALUE }}
-          tenant-id: ${{ secrets.DIRECTORY_ID }}
+          app-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
