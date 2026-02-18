@@ -1,0 +1,196 @@
+name: Merge OCTO App into CorePlus App (Update Only)
+ 
+#on:
+  #workflow_dispatch:
+on:
+  push:
+    branches:
+      - dev
+    paths-ignore:
+      - '.github/workflows/**'
+ 
+permissions:
+  contents: write
+  id-token: write
+ 
+jobs:
+  merge-and-deploy:
+    runs-on: ubuntu-latest
+ 
+    env:
+      ENV_URL: https://itstcoedev.crm8.dynamics.com
+ 
+      # Solution names
+      COREPLUS_SOLUTION_NAME: ITSTCOE_CorePlus_UATNext_Solution
+      OCTO_SOLUTION_NAME: ITSTCOE_OCTO_UATNext_Test_Solution
+ 
+      # Output zips
+      COREPLUS_ZIP: coreplus.zip
+      OCTO_ZIP: octo.zip
+ 
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+ 
+      - name: Install Power Platform CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
+ 
+      # --------------------------------------------------
+      # EXPORT BOTH SOLUTIONS
+      # --------------------------------------------------
+ 
+      - name: Export Coreplus Solution (identity anchor)
+        uses: microsoft/powerplatform-actions/export-solution@v1
+        with:
+          environment-url: ${{ env.ENV_URL }}
+          solution-name: ${{ env.COREPLUS_SOLUTION_NAME }}
+          solution-output-file: ${{ env.COREPLUS_ZIP }}
+          managed: false
+          app-id: ${{ secrets.APPLICATION_ID }}
+          #client-secret: ${{ secrets.SECRET_VALUE }}
+          tenant-id: ${{ secrets.DIRECTORY_ID }}
+ 
+      - name: Export OCTO Solution (content source)
+        uses: microsoft/powerplatform-actions/export-solution@v1
+        with:
+          environment-url: ${{ env.ENV_URL }}
+          solution-name: ${{ env.OCTO_SOLUTION_NAME }}
+          solution-output-file: ${{ env.OCTO_ZIP }}
+          managed: false
+          app-id: ${{ secrets.APPLICATION_ID }}
+          #client-secret: ${{ secrets.SECRET_VALUE }}
+          tenant-id: ${{ secrets.DIRECTORY_ID }}
+ 
+      # --------------------------------------------------
+      # UNPACK BOTH
+      # --------------------------------------------------
+ 
+      - name: Unpack Coreplus Solution
+        uses: microsoft/powerplatform-actions/unpack-solution@v1
+        with:
+          solution-file: ${{ env.COREPLUS_ZIP }}
+          solution-folder: coreplus_unpacked
+          solution-type: Unmanaged
+          overwrite-files: true
+ 
+      - name: Unpack OCTO Solution
+        uses: microsoft/powerplatform-actions/unpack-solution@v1
+        with:
+          solution-file: ${{ env.OCTO_ZIP }}
+          solution-folder: octo_unpacked
+          solution-type: Unmanaged
+          overwrite-files: true
+ 
+      # --------------------------------------------------
+      # COPY OCTO APP CONTENT INTO COREPLUS APP
+      # --------------------------------------------------
+ 
+      - name: Sync Canvas App files from Octo to Coreplus
+        shell: bash
+        run: |
+          OCTO_DIR="octo_unpacked/CanvasApps"
+          COREPLUS_DIR="coreplus_unpacked/CanvasApps"
+
+          FILE_PATTERNS=(
+            "_AdditionalUris0_identity.json"
+            "_DocumentUri.msapp"
+          )
+
+          for PATTERN in "${FILE_PATTERNS[@]}"; do
+            for OCTO_FILE in "$OCTO_DIR"/*"$PATTERN"; do
+
+              FILE_NAME=$(basename "$OCTO_FILE")
+
+              if [[ "$FILE_NAME" == *uatnext* ]]; then
+                TOKEN="uatnext"
+              elif [[ "$FILE_NAME" == *qtestcoordinator* ]]; then
+                TOKEN="qtestcoordinator"
+              else
+                continue
+              fi
+
+              COREPLUS_FILE=$(ls "$COREPLUS_DIR"/*"$TOKEN"*"$PATTERN" 2>/dev/null | head -n 1)
+
+              if [[ -f "$COREPLUS_FILE" ]]; then
+                echo "Replacing $PATTERN for $TOKEN"
+                cp "$OCTO_FILE" "$COREPLUS_FILE"
+              else
+                echo "No CorePlus match found for $FILE_NAME"
+              fi
+
+            done
+          done
+
+ 
+      # --------------------------------------------------
+      # 🔥 MSAPP SURGERY: OCTO → COREPLUS REFERENCES
+      # --------------------------------------------------
+ 
+      - name: Fix Environment Variables, Connectors & Flows
+        shell: pwsh
+        run: |
+          $replaceMap = @{
+          
+            # Custom Connectors
+            "ITS-TCOE_OCTO_UATMain_V1" = "ITS-TCOE_CorePlus_UATMain_V1"
+            "ITS-TCOE_OCTO_UATELog_V1" = "ITS_TCOE_CorePlus_UATELog_V1"
+ 
+            # Environment Variables
+            "ITS-TCOE_OCTO_UATNext_Test_qTestProjectID"   = "ITS-TCOE_CorePlus_UATNext_qTestProjectID"
+            "ITS-TCOE_OCTO_UATNext_Test_TestCaseModuleID" = "ITS-TCOE_CorePlus_UATNext_TestCaseModuleID"
+            "ITS-TCOE_OCTO_UATNext_Test_qTestModuleID"    = "ITS-TCOE_CorePlus_UATNext_qTestModuleID"
+            "ITS-TCOE_OCTO_UATNext_Test_AQUAModuleID"     = "ITS-TCOE_CorePlus_AQUAModuleID"
+            "ITS-TCOE_OCTO_UATNext_Test_Releases"         = "ITS-TCOE_CorePlus_UATNext_Releases"
+            "ITS-TCOE_OCTO_UATNext_Test_ModuleController" = "ITS-TCOE_CorePlus_UATNext_ModuleController"
+            "ITS-TCOE_OCTO_UATNext_Test_UATNext_Teams"            = "ITS-TCOE_CorePlus_UATNext_Teams"
+ 
+            # Cloud Flow
+            "ITS-TCOE_OCTO_UATNext_Test_AttachmentUpload_Flow" = "ITS-TCOE_CorePlus_UATNext_AttachmentUpload_Flow"
+          }
+ 
+          $apps = Get-ChildItem "coreplus_unpacked/CanvasApps" -Filter "*.msapp"
+ 
+          foreach ($app in $apps) {
+            $tmp = "tmp_extract"
+            Expand-Archive $app.FullName $tmp -Force
+ 
+            Get-ChildItem $tmp -Recurse -File | ForEach-Object {
+              $content = Get-Content $_.FullName -Raw
+              $changed = $false
+ 
+              foreach ($key in $replaceMap.Keys) {
+                if ($content.Contains($key)) {
+                  $content = $content.Replace($key, $replaceMap[$key])
+                  $changed = $true
+                }
+              }
+ 
+              if ($changed) {
+                Set-Content $_.FullName $content
+              }
+            }
+ 
+            Compress-Archive "$tmp/*" $app.FullName -Force
+            Remove-Item $tmp -Recurse -Force
+          }
+
+ 
+      # --------------------------------------------------
+      # PACK & IMPORT (UPDATE ONLY)
+      # --------------------------------------------------
+ 
+      - name: Pack CorePlus Solution
+        uses: microsoft/powerplatform-actions/pack-solution@v1
+        with:
+          solution-folder: coreplus_unpacked
+          solution-file: CorePlus_Updated.zip
+          solution-type: Unmanaged
+ 
+      - name: Import CorePlus Solution (Update Existing Apps)
+        uses: microsoft/powerplatform-actions/import-solution@v1
+        with:
+          environment-url: ${{ env.ENV_URL }}
+          solution-file: CorePlus_Updated.zip
+          app-id: ${{ secrets.APPLICATION_ID }}
+          #client-secret: ${{ secrets.SECRET_VALUE }}
+          tenant-id: ${{ secrets.DIRECTORY_ID }}
