@@ -1,10 +1,17 @@
 name: Merge OCTO App into CorePlus App (Update Only)
  
+#on:
+  #workflow_dispatch:
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - dev
+    paths-ignore:
+      - '.github/workflows/**'
  
 permissions:
   contents: write
+  id-token: write
  
 jobs:
   merge-and-deploy:
@@ -40,7 +47,7 @@ jobs:
           solution-output-file: ${{ env.COREPLUS_ZIP }}
           managed: false
           app-id: ${{ secrets.APPLICATION_ID }}
-          client-secret: ${{ secrets.SECRET_VALUE }}
+          #client-secret: ${{ secrets.SECRET_VALUE }}
           tenant-id: ${{ secrets.DIRECTORY_ID }}
  
       - name: Export OCTO Solution (content source)
@@ -51,7 +58,7 @@ jobs:
           solution-output-file: ${{ env.OCTO_ZIP }}
           managed: false
           app-id: ${{ secrets.APPLICATION_ID }}
-          client-secret: ${{ secrets.SECRET_VALUE }}
+          #client-secret: ${{ secrets.SECRET_VALUE }}
           tenant-id: ${{ secrets.DIRECTORY_ID }}
  
       # --------------------------------------------------
@@ -185,5 +192,5 @@ jobs:
           environment-url: ${{ env.ENV_URL }}
           solution-file: CorePlus_Updated.zip
           app-id: ${{ secrets.APPLICATION_ID }}
-          client-secret: ${{ secrets.SECRET_VALUE }}
+          #client-secret: ${{ secrets.SECRET_VALUE }}
           tenant-id: ${{ secrets.DIRECTORY_ID }}
