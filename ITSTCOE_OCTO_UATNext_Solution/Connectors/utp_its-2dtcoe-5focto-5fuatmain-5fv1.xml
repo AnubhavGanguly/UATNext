@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Connector xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <connectorid>64e1a090-fd33-4800-a37b-06bbbd955fdf</connectorid>
+  <description></description>
+  <displayname>ITS-TCOE_OCTO_UATMain_V1</displayname>
+  <iconbrandcolor>#007ee5</iconbrandcolor>
+  <name>utp_its-2dtcoe-5focto-5fuatmain-5fv1</name>
+  <connectortype>1</connectortype>
+  <openapidefinition>/Connector/utp_its-2dtcoe-5focto-5fuatmain-5fv1_openapidefinition.json</openapidefinition>
+  <connectionparameters>/Connector/utp_its-2dtcoe-5focto-5fuatmain-5fv1_connectionparameters.json</connectionparameters>
+  <policytemplateinstances>/Connector/utp_its-2dtcoe-5focto-5fuatmain-5fv1_policytemplateinstances.json</policytemplateinstances>
+  <iconblob>/Connector/utp_its-2dtcoe-5focto-5fuatmain-5fv1_iconblob.Png</iconblob>
+</Connector>
