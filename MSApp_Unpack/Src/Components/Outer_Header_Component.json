@@ -52,7 +52,7 @@
         "OptimizeForDevices": "Off",
         "Parent": "Outer_Header_Component",
         "PersistMetaDataIDKey": false,
-        "PublishOrderIndex": 835,
+        "PublishOrderIndex": 834,
         "Rules": [
           {
             "Category": "Design",
@@ -238,7 +238,7 @@
         "OptimizeForDevices": "Off",
         "Parent": "Outer_Header_Component",
         "PersistMetaDataIDKey": false,
-        "PublishOrderIndex": 836,
+        "PublishOrderIndex": 835,
         "Rules": [
           {
             "Category": "Design",
@@ -464,7 +464,7 @@
         "OptimizeForDevices": "Off",
         "Parent": "Outer_Header_Component",
         "PersistMetaDataIDKey": false,
-        "PublishOrderIndex": 837,
+        "PublishOrderIndex": 836,
         "Rules": [
           {
             "Category": "Data",
@@ -803,7 +803,7 @@
         "OptimizeForDevices": "Off",
         "Parent": "Outer_Header_Component",
         "PersistMetaDataIDKey": false,
-        "PublishOrderIndex": 838,
+        "PublishOrderIndex": 837,
         "Rules": [
           {
             "Category": "Data",
@@ -1069,7 +1069,7 @@
             "OptimizeForDevices": "Off",
             "Parent": "HeadderCTabMenuGallery",
             "PersistMetaDataIDKey": false,
-            "PublishOrderIndex": 840,
+            "PublishOrderIndex": 839,
             "Rules": [
               {
                 "Category": "Design",
@@ -1316,7 +1316,7 @@
             "OptimizeForDevices": "Off",
             "Parent": "HeadderCTabMenuGallery",
             "PersistMetaDataIDKey": false,
-            "PublishOrderIndex": 841,
+            "PublishOrderIndex": 840,
             "Rules": [
               {
                 "Category": "Data",
@@ -1649,7 +1649,7 @@
             "OptimizeForDevices": "Off",
             "Parent": "HeadderCTabMenuGallery",
             "PersistMetaDataIDKey": false,
-            "PublishOrderIndex": 842,
+            "PublishOrderIndex": 841,
             "Rules": [
               {
                 "Category": "Design",
@@ -1863,7 +1863,7 @@
         "OptimizeForDevices": "Off",
         "Parent": "Outer_Header_Component",
         "PersistMetaDataIDKey": false,
-        "PublishOrderIndex": 839,
+        "PublishOrderIndex": 838,
         "Rules": [
           {
             "Category": "Data",
@@ -2157,7 +2157,7 @@
         "OptimizeForDevices": "Off",
         "Parent": "Outer_Header_Component",
         "PersistMetaDataIDKey": false,
-        "PublishOrderIndex": 843,
+        "PublishOrderIndex": 842,
         "Rules": [
           {
             "Category": "Data",
@@ -2523,7 +2523,7 @@
         "OptimizeForDevices": "Off",
         "Parent": "Outer_Header_Component",
         "PersistMetaDataIDKey": false,
-        "PublishOrderIndex": 844,
+        "PublishOrderIndex": 843,
         "Rules": [
           {
             "Category": "Data",
@@ -2877,7 +2877,7 @@
         "OptimizeForDevices": "Off",
         "Parent": "Outer_Header_Component",
         "PersistMetaDataIDKey": false,
-        "PublishOrderIndex": 845,
+        "PublishOrderIndex": 844,
         "Rules": [
           {
             "Category": "Data",
@@ -3243,7 +3243,7 @@
         "OptimizeForDevices": "Off",
         "Parent": "Outer_Header_Component",
         "PersistMetaDataIDKey": false,
-        "PublishOrderIndex": 846,
+        "PublishOrderIndex": 845,
         "Rules": [
           {
             "Category": "Data",
@@ -3599,7 +3599,7 @@
         "OptimizeForDevices": "Off",
         "Parent": "Outer_Header_Component",
         "PersistMetaDataIDKey": false,
-        "PublishOrderIndex": 847,
+        "PublishOrderIndex": 846,
         "Rules": [
           {
             "Category": "Data",
@@ -3879,7 +3879,7 @@
       "OuterComponentVideoLink",
       "conProjectID"
     ],
-    "LastModifiedTimestamp": "639083038980652298",
+    "LastModifiedTimestamp": "639083045355178657",
     "Name": "Outer_Header_Component",
     "Rules": [
       {
@@ -3999,7 +3999,7 @@
   "IsPcfControl": false,
   "IsPremiumPcfControl": false,
   "IsWidgetTemplate": false,
-  "LastModifiedTimestamp": "639083038980652298",
+  "LastModifiedTimestamp": "639083045355178657",
   "Name": "142eec637f424ea2a6bbea715c3e13da",
   "OverridableProperties": {},
   "Version": "1.0"
