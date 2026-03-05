@@ -1,0 +1,1742 @@
+"'Create Defect' As screen.'phoneLayout_FluidGridWithHeaderPageLayout_ver3.0'":
+    OnHidden: |-
+        =Clear(colTemDefFinalProperty);
+        
+        Clear(Attachments);
+        
+        Reset(ICDAttachmentUpload); Reset(ICDSummaryTxtInput); Reset(ICDDescriptionTxtInput); Reset(ICDAffectedReleaseCombobox); Reset(ICDSeverityCombobox); Reset('ICDFR/BCombobox'); Reset(ICDRootCauseCombobox); Reset(ICDPriorityCombobox); Reset(CDModuleCombobox); Reset(ICDAssignedToCOmbobox); Reset(ICDStatusCombobox); Reset(ICDTypeCombobox); Reset(ICDTRBuildCombobox); Reset(ICDReasonCombobox); Reset(ICDCategoryCombobox);
+    OnVisible: |-
+        =UpdateContext({ showCDLoadingSpinner: true});
+        
+        Concurrent(
+            Set(varScreenName, "Create Defect"),
+        
+            Set(varVideoLink, Concatenate(nfSharepointbaseUrl,"video/Create_Defect.mp4")),
+            
+            Set(varPDFLink, Concatenate(nfSharepointbaseUrl,"pdf/Create_Defect.pdf"))
+        );
+        
+        
+        Concurrent( Clear(colRequirementDetails), Clear(Attachments), Reset(ICDTeamCombobox), Reset(ICDGalleryENVCombobox));
+        
+        
+        Concurrent( Clear(colTemDefAffReaBuild), Clear(colTemDefSeverity), Clear(colTemDefFixedRelease), Clear(colTemDefRootCause), Clear(colTemDefPriority), Clear(colTemDefModule), Clear(colTemDefEnvironment), Clear(colTemDefStatus), Clear(colTemDefType), Clear(colTemDefTRBuild), Clear(colTemDefReason), Clear(colTemDefCategory), Clear(colTemDefAssignTo), Clear(colTemDefNonQAUser),Clear(colTemDefTeam));
+        
+        ClearCollect( colLinkedRequirements, Filter( First( 'ITS-TCOE_OCTO_UATMain_V1'.GetObjectLink( constProjectInfo.id, {type: "test-cases", ids: gallerySelectedTestrun.testCaseId})).objects, StartsWith( Upper( pid), "RQ-")));
+        
+        ForAll( colLinkedRequirements, Collect( colRequirementDetails, 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, {object_type: "requirements", fields:["*"], query: $"'Id' = '{ThisRecord.id}'"}).items));
+        
+        
+        Concurrent(
+            ClearCollect(
+                colTemDefAffReaBuild,
+                {
+                    field_id: First(colAllDefectFieldsId).AffectedReleaseBuild,
+                    field_name: "Affected Release/Build",
+                    field_value: Text( LookUp( colAffectReleaseValues, label = constReleaseInfo.name).value),
+                    field_value_name: LookUp( colAffectReleaseValues, label = constReleaseInfo.name).label
+                }
+            ),
+        
+            If(
+                !IsBlank( LookUp( colSeverityValues, is_default = true)),
+        
+                ClearCollect(
+                    colTemDefSeverity,
+                    {
+                        field_id: First(colAllDefectFieldsId).Severity,
+                        field_name: "Severity",
+                        field_value: Text( LookUp( colSeverityValues, is_default = true).value),
+                        field_value_name: LookUp( colSeverityValues, is_default = true).label
+                    }
+                ),
+        
+                ClearCollect( colTemDefSeverity, Blank())
+            ),
+        
+            If(
+                !IsBlank( LookUp( colRotCauseValues, is_default = true)),
+            
+                ClearCollect(
+                    colTemDefRootCause,
+                    {
+                        field_id: First(colAllDefectFieldsId).RootCause,
+                        field_name: "Root Cause",
+                        field_value: Text( LookUp( colRotCauseValues, is_default = true).value),
+                        field_value_name: LookUp( colRotCauseValues, is_default = true).label
+                    }
+                ),
+        
+                ClearCollect( colTemDefRootCause, Blank())
+            ),
+            
+            If(
+                !IsBlank( LookUp( colPriorityValues, is_default = true)),
+        
+                ClearCollect(
+                    colTemDefPriority,
+                    {
+                        field_id: First(colAllDefectFieldsId).Priority,
+                        field_name: "Priority",
+                        field_value: Text( LookUp( colPriorityValues, is_default = true).value),
+                        field_value_name: LookUp( colPriorityValues, is_default = true).label
+                    }
+                ),
+        
+                ClearCollect( colTemDefPriority, Blank())
+            ),
+        
+            ClearCollect(
+                colTemDefModule,
+                {
+                    field_id: First(colAllDefectFieldsId).Module,
+                    field_name: "Module",
+                    field_value: Text( LookUp( colModuleValues, value = constAreaPathModuleInfo.id).value),
+                    field_value_name: LookUp( colModuleValues, value = constAreaPathModuleInfo.id).label
+                }
+            ),
+        
+            If(
+                !IsBlank( LookUp( colStatusValues, is_default = true)),
+        
+                ClearCollect(
+                    colTemDefStatus,
+                    {
+                        field_id: First(colAllDefectFieldsId).Status,
+                        field_name: "Status",
+                        field_value: Text( LookUp( colStatusValues, is_default = true).value),
+                        field_value_name: LookUp( colStatusValues, is_default = true).label
+                    }
+                ),
+        
+                ClearCollect( colTemDefStatus, Blank())
+            ),
+        
+            If(
+                !IsBlank( LookUp( colTypeValues, is_default = true)),
+        
+                ClearCollect(
+                    colTemDefType,
+                    {
+                        field_id: First(colAllDefectFieldsId).Type,
+                        field_name: "Type",
+                        field_value: Text( LookUp( colTypeValues, is_default = true).value),
+                        field_value_name: LookUp( colTypeValues, is_default = true).label
+                    }
+                ),
+        
+                ClearCollect( colTemDefType, Blank())
+            ),
+        
+            If(
+                !IsBlank( LookUp( colCategoryValues, is_default = true)),
+        
+                ClearCollect(
+                    colTemDefCategory,
+                    {
+                        field_id: First(colAllDefectFieldsId).Category,
+                        field_name: "Category",
+                        field_value: Text( LookUp( colCategoryValues, is_default = true).value),
+                        field_value_name: LookUp( colCategoryValues, is_default = true).label
+                    }
+                ),
+        
+                ClearCollect( colTemDefCategory, Blank())
+            )
+        );
+        
+        UpdateContext({ showCDLoadingSpinner: false});
+
+    IDCSCanvas As fluidGrid.fluidGridWithBlankCard:
+        BorderThickness: =0
+        Height: =Parent.Height - Self.Y
+        Width: =Parent.Width
+        Y: =ICD_Inner_Header_Component.Y + ICD_Inner_Header_Component.Height
+        ZIndex: =3
+
+        IDCSDataCard As dataCard:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            BorderStyle: =BorderStyle.Solid
+            BorderThickness: =0
+            DisplayMode: =DisplayMode.Edit
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =716
+            Width: =Parent.Width
+            X: =0
+            Y: =0
+            ZIndex: =1
+
+            ICDSummaryLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =35
+                Size: =11
+                Text: ="Summary"
+                Width: =85
+                X: =30
+                Y: =20
+                ZIndex: =1
+
+            ICDARBLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =ICDSummaryLbl.Height
+                Size: =11
+                Text: ="Affected Release/Build"
+                Width: =180
+                X: =ICDSummaryLbl.X
+                Y: =125
+                ZIndex: =2
+
+            ICDDescriptionLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =ICDSummaryLbl.Height
+                Size: =11
+                Text: ="Description"
+                Width: =95
+                X: =ICDSummaryLbl.X
+                Y: =ICDAssignedToLbl.Y +ICDAssignedToLbl.Height + 20
+                ZIndex: =3
+
+            ICDDescriptionTxtInput As text:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                Default: |-
+                    =If(
+                        !IsBlank(varSelectedTestStepForDefect),
+                    
+                    "Test Suite : ("& Trim( selectedSuiteInfo.pid) & ") " & PlainText( Trim( selectedSuiteInfo.name)) & Char(10) &
+                    "Test Case Name : "& PlainText( FetchedTestCaseDetails.name) & Char(10) &
+                    "Business Impact :
+                    Role Used : 
+                    Test Data (if any) : "& Char(10) & Char(10) &
+                    "Steps to Reproduce :" & Char(10) &
+                    Concat(
+                        Filter( First( colTestSteplog).test_step_logs, Int( order) <= Int( varSelectedTestStepForDefect.order)),
+                        PlainText( ThisRecord.order) & ") " & PlainText( ThisRecord.description) & Char(10)
+                    ) & Char(10) &
+                    "Expected Result : " & PlainText( varSelectedTestStepForDefect.expected_result) & Char(10) & 
+                    "Actual Result : " & PlainText( varSelectedTestStepForDefect.actual_result) & Char(10) & Char(10) &
+                    "User Name : "& nfUserObject.'Full Name' & Char(10) &
+                    "Test Case Number : "& FetchedTestCaseDetails.pid & Char(10) & Char(10) & 
+                    "Requirement Details:" & Char(10) &
+                    If(
+                        !IsEmpty( colRequirementDetails),
+                        Concat(
+                            colRequirementDetails,
+                            "(" & pid & " / " & If( !IsBlank( LookUp( properties, field_name = "Link ID").field_value), LookUp( properties, field_name = "Link ID", field_value), "N/A") & ") " & name & Char(10)
+                        ),
+                        "N/A"
+                    ),
+                    
+                    
+                    "Test Suite : ("& Trim( selectedSuiteInfo.pid) & ") " & PlainText( Trim( selectedSuiteInfo.name)) & Char(10) &
+                    "Test Case Name : "& PlainText( FetchedTestCaseDetails.name) & Char(10) &
+                    "Business Impact :
+                    Role Used : 
+                    Test Data (if any) : "& Char(10) & Char(10) &
+                    "Steps to Reproduce :" & Char(10) &
+                    Concat(
+                        First( colTestSteplog).test_step_logs,
+                        PlainText( ThisRecord.order) & ") " & PlainText( ThisRecord.description) & Char(10)
+                    ) & Char(10) &
+                    "Expected Result : 
+                    Actual Result : 
+                    
+                    User Name : "& nfUserObject.'Full Name' & Char(10) &
+                    "Test Case Number : "& FetchedTestCaseDetails.pid & Char(10) & Char(10) & 
+                    "Requirement Details:" & Char(10) &
+                    If(
+                        !IsEmpty( colRequirementDetails),
+                        Concat(
+                            colRequirementDetails,
+                            "(" & pid & " / " & If( !IsBlank( LookUp( properties, field_name = "Link ID").field_value), LookUp( properties, field_name = "Link ID", field_value), "N/A") & ") " & name & Char(10)
+                        ),
+                        "N/A"
+                    )
+                    )
+                FocusedBorderThickness: =1
+                Font: =Font.'Segoe UI'
+                Height: =185
+                HintText: =""
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(255, 255, 255, 1)
+                Mode: =TextMode.MultiLine
+                OnSelect: =
+                RadiusBottomLeft: =0.4
+                RadiusBottomRight: =0.4
+                RadiusTopLeft: =0.4
+                RadiusTopRight: =0.4
+                Size: =11
+                Width: =ICDSummaryTxtInput.Width
+                X: =ICDSummaryTxtInput.X
+                Y: =ICDDescriptionLbl.Y
+                ZIndex: =4
+
+            ICDSummaryTxtInput As text:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =0.4
+                Default: =""
+                FocusedBorderThickness: =1
+                Font: =Font.'Segoe UI'
+                Height: =80
+                HintText: ="Please enter your summary within 255 characters."
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(255, 255, 255, 1)
+                MaxLength: =255
+                Mode: =TextMode.MultiLine
+                OnSelect: =
+                RadiusBottomLeft: =0.4
+                RadiusBottomRight: =0.4
+                RadiusTopLeft: =0.4
+                RadiusTopRight: =0.4
+                Size: =11
+                Width: =1090
+                X: =220
+                Y: =20
+                ZIndex: =5
+
+            ICDAffectedReleaseCombobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =0.4
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =LookUp( colAffectReleaseValues, value = Int( First(colTemDefAffReaBuild).field_value))
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: =
+                Items: =colAffectReleaseValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value),
+                    
+                        ClearCollect(
+                            colTemDefAffReaBuild,
+                            {
+                                field_id: First(colAllDefectFieldsId).AffectedReleaseBuild,
+                                field_name: "Affected Release/Build",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                        
+                        Clear(colTemDefAffReaBuild)
+                    )
+                OnSelect: =
+                PressedBorderColor: =RGBA(204, 204, 204, 1)
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(Filter(colAffectReleaseValues,is_active),ICDAffectedReleaseCombobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =ICDSummaryTxtInput.X
+                Y: =125
+                ZIndex: =6
+
+            ICDSeverityLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =35
+                Size: =11
+                Text: ="Severity"
+                Width: =110
+                X: =480
+                Y: =125
+                ZIndex: =7
+
+            ICDSeverityCombobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =LookUp( colSeverityValues, value = Int( First(colTemDefSeverity).field_value))
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: =
+                Items: =colSeverityValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value),
+                        
+                        ClearCollect(
+                            colTemDefSeverity,
+                            {
+                                field_id: First(colAllDefectFieldsId).Severity,
+                                field_name: "Severity",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                    
+                        Clear(colTemDefSeverity)
+                    )
+                OnSelect: =
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(Filter(colSeverityValues,is_active),ICDSeverityCombobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =592
+                Y: =125
+                ZIndex: =8
+
+            ICDFRBLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =35
+                Size: =11
+                Text: ="Fixed Release/Build"
+                Width: =180
+                X: =865
+                Y: =125
+                ZIndex: =9
+
+            "'ICDFR/BCombobox' As combobox":
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: =
+                Items: =colFixedReleaseValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value),
+                        
+                        ClearCollect(
+                            colTemDefFixedRelease,
+                            {
+                                field_id: First(colAllDefectFieldsId).FixedReleaseBuild,
+                                field_name: "Fixed Release/Build",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                    
+                        Clear(colTemDefFixedRelease)
+                    )
+                OnSelect: =
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(Filter(colFixedReleaseValues,is_active),'ICDFR/BCombobox'.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =1060
+                Y: =125
+                ZIndex: =10
+
+            ICDRootCauseLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =ICDSummaryLbl.Height
+                Size: =11
+                Text: ="Root Cause"
+                Width: =180
+                X: =ICDSummaryLbl.X
+                Y: =188
+                ZIndex: =11
+
+            ICDRootCauseCombobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =LookUp( colRotCauseValues, value = Int( First(colTemDefRootCause).field_value))
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: =
+                Items: =colRotCauseValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value),
+                    
+                        ClearCollect(
+                            colTemDefRootCause,
+                            {
+                                field_id: First(colAllDefectFieldsId).RootCause,
+                                field_name: "Root Cause",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                        
+                        Clear(colTemDefRootCause)
+                    )
+                OnSelect: =
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(Filter(colRotCauseValues,is_active),ICDRootCauseCombobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =ICDSummaryTxtInput.X
+                Y: =188
+                ZIndex: =12
+
+            ICDPriorityLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =35
+                Size: =11
+                Text: ="Priority"
+                Width: =110
+                X: =480
+                Y: =188
+                ZIndex: =13
+
+            ICDPriorityCombobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =LookUp( colPriorityValues, value = Int( First(colTemDefPriority).field_value))
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: =
+                Items: =colPriorityValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value),
+                    
+                        ClearCollect(colTemDefPriority,
+                            {
+                                field_id: First(colAllDefectFieldsId).Priority,
+                                field_name: "Priority",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                        
+                        Clear(colTemDefPriority)
+                    )
+                OnSelect: =
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(Filter(colPriorityValues,is_active),ICDPriorityCombobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =592
+                Y: =188
+                ZIndex: =14
+
+            ICDModuleLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =35
+                Size: =11
+                Text: ="Module"
+                Width: =180
+                X: =865
+                Y: =188
+                ZIndex: =15
+
+            CDModuleCombobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =0.4
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronDisabledBackground: =Self.Fill
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                ChevronHoverFill: =RGBA(107, 106, 106, 1)
+                Color: =RGBA(94, 93, 93, 1)
+                DefaultSelectedItems: |-
+                    =If(
+                        Lower(nfModuleController) = "yes",
+                        [],
+                        LookUp( colModuleValues, value = Int( First(colTemDefModule).field_value))
+                    )
+                DisabledBorderColor: =Self.BorderColor
+                DisabledColor: =RGBA(0, 0, 0, 1)
+                DisabledFill: =Self.Fill
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: ="Select Module"
+                Items: =colModuleValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value),
+                    
+                        ClearCollect(
+                            colTemDefModule,
+                            {
+                                field_id: First(colAllDefectFieldsId).Module,
+                                field_name: "Module",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                        
+                        Clear(colTemDefModule)
+                    )
+                OnSelect: =
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(colModuleValues,CDModuleCombobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =1060
+                Y: =188
+                ZIndex: =16
+
+            ICDAssignedToLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =ICDSummaryLbl.Height
+                Size: =11
+                Text: ="Assigned To"
+                Width: =180
+                X: =ICDSummaryLbl.X
+                Y: =363
+                ZIndex: =17
+
+            ICDAssignedToCOmbobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: =
+                Items: =colAssignToValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value) && Not(Self.Selected.label = "NonQAUser"),
+                    
+                        ClearCollect(
+                            colTemDefAssignTo,
+                            {
+                                field_id: First(colAllDefectFieldsId).AssignedTo,
+                                field_name: "Assigned To",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                        
+                        Clear(colTemDefAssignTo)
+                    )
+                OnSelect: =
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(Filter(colAssignToValues,is_active),ICDAssignedToCOmbobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =ICDSummaryTxtInput.X
+                Y: =363
+                ZIndex: =18
+
+            ICDStatusLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =35
+                Size: =11
+                Text: ="Status"
+                Width: =110
+                X: =480
+                Y: =246
+                ZIndex: =19
+
+            ICDStatusCombobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =LookUp( colStatusValues, value = Int( First(colTemDefStatus).field_value))
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: =
+                Items: =colStatusValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value),
+                    
+                        ClearCollect(
+                            colTemDefStatus,
+                            {
+                                field_id: First(colAllDefectFieldsId).Status,
+                                field_name: "Status",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                        
+                        Clear(colTemDefStatus)
+                    )
+                OnSelect: =
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(Filter(colStatusValues,is_active),ICDStatusCombobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =592
+                Y: =246
+                ZIndex: =20
+
+            ICDTypeLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =35
+                Size: =11
+                Text: ="Type"
+                Width: =180
+                X: =865
+                Y: =246
+                ZIndex: =21
+
+            ICDTypeCombobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =LookUp( colTypeValues, value = Int( First(colTemDefType).field_value))
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: =
+                Items: =colTypeValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value),
+                    
+                        ClearCollect(
+                            colTemDefType,
+                            {
+                                field_id: First(colAllDefectFieldsId).Type,
+                                field_name: "Type",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                    
+                        Clear(colTemDefType)
+                    )
+                OnSelect: =
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(Filter(colTypeValues,is_active),ICDTypeCombobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =1060
+                Y: =246
+                ZIndex: =22
+
+            ICDTRBuildLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =ICDSummaryLbl.Height
+                Size: =11
+                Text: ="Target Release/Build"
+                Width: =180
+                X: =ICDSummaryLbl.X
+                Y: =301
+                ZIndex: =23
+
+            ICDTRBuildCombobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: =
+                Items: =colTargetReleaseBValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value),
+                    
+                        ClearCollect(
+                            colTemDefTRBuild,
+                            {
+                                field_id: First(colAllDefectFieldsId).TargetReleaseBuild,
+                                field_name: "Target Release/Build",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                        
+                        Clear(colTemDefTRBuild)
+                    )
+                OnSelect: =
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(Filter(colTargetReleaseBValues,is_active),ICDTRBuildCombobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =ICDSummaryTxtInput.X
+                Y: =303
+                ZIndex: =24
+
+            ICDReasolLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =35
+                Size: =11
+                Text: ="Reason"
+                Width: =110
+                X: =480
+                Y: =301
+                ZIndex: =25
+
+            ICDReasonCombobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: =
+                Items: =colReasonValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value),
+                    
+                        ClearCollect(
+                            colTemDefReason,
+                            {
+                                field_id: First(colAllDefectFieldsId).Reason,
+                                field_name: "Reason",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                    
+                        Clear(colTemDefReason)
+                    )
+                OnSelect: =
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(Filter(colReasonValues,is_active),ICDReasonCombobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =592
+                Y: =301
+                ZIndex: =26
+
+            ICDCategoryLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =35
+                Size: =11
+                Text: ="Category"
+                Width: =180
+                X: =865
+                Y: =301
+                ZIndex: =27
+
+            ICDCategoryCombobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =LookUp( colCategoryValues, value = Int( First(colTemDefCategory).field_value))
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: =
+                Items: =colCategoryValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value),
+                    
+                        ClearCollect(
+                            colTemDefCategory,
+                            {
+                                field_id: First(colAllDefectFieldsId).Category,
+                                field_name: "Category",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                    
+                        Clear(colTemDefCategory)
+                    )
+                OnSelect: |
+                    =///ClearCollect(collectDefect,{summary:TextInputSummary.Text,AffectRelease:ComboBoxAffRelease.Selected,severity:ComboBoxSeverity.Selected,fixedRelease:ComboBoxFixedRelease.Selected,rootcause:ComboBoxRootcause.Selected,defectPriority:ComboBoxPriorityDefect.Selected,defectModule:ComboBoxModuleDefect.Selected,defectAssignTo:ComboBoxAssignTo.Selected,defectStatus:ComboBoxDefectStatus.Selected,defectType :ComboBoxTypeDefect.Selected,defectTRB:ComboBoxTRBuild.Selected,defectReason:ComboBoxReasonDefect.Selected,defectCategory: ComboBoxCategoryDefect.Selected,defectTargetDate:"",defectEnv:ComboBoxEnvironment.Selected,defectCloseDate:"",description:TextInputDesdefect.Text});
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(Filter(colCategoryValues,is_active),ICDCategoryCombobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =1060
+                Y: =301
+                ZIndex: =28
+
+            ICDTargetDateLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =35
+                Size: =11
+                Text: |-
+                    ="Target Date :"
+                Visible: =false
+                Width: =180
+                X: =865
+                Y: =663
+                ZIndex: =29
+
+            ICDEnvironmentLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =ICDSummaryLbl.Height
+                Size: =11
+                Text: ="Environment"
+                Width: =110
+                X: =ICDSummaryLbl.X
+                Y: =246
+                ZIndex: =30
+
+            ICDGalleryENVCombobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: =
+                Items: =colEnvValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value),
+                    
+                        Collect(
+                            colTemDefEnvironment,
+                            {
+                                field_id: First(colAllDefectFieldsId).Environment,
+                                field_name: "Environment",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                        
+                        Clear(colTemDefEnvironment)
+                    )
+                OnSelect: =
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(Filter(colEnvValues,is_active),ICDGalleryENVCombobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =ICDSummaryTxtInput.X
+                Y: =246
+                ZIndex: =31
+
+            ICDClosedDateLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =35
+                Size: =11
+                Text: |-
+                    ="Closed Date :"
+                Visible: =false
+                Width: =180
+                X: =865
+                Y: =363
+                ZIndex: =32
+
+            ICDSummaryAstricLbl As label:
+                Color: =RGBA(255, 0, 0, 1)
+                Font: =Font.'Segoe UI'
+                Height: =ICDSummaryLbl.Height
+                Text: ="*"
+                Width: =19
+                X: =98
+                Y: =ICDSummaryLbl.Y + 2
+                ZIndex: =33
+
+            ICDDescriptionAstricLbl As label:
+                Color: =RGBA(255, 0, 0, 1)
+                Font: =Font.'Segoe UI'
+                Height: =ICDDescriptionLbl.Height
+                Text: ="*"
+                Width: =19
+                X: =110
+                Y: =ICDDescriptionLbl.Y + 2
+                ZIndex: =34
+
+            ICDBusinessUserLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =35
+                Size: =11
+                Text: ="Business User"
+                Width: =110
+                X: =480
+                Y: =363
+                ZIndex: =35
+
+            ICDComboBoxBusinessUser As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: =
+                Items: =colNonQAUserValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value),
+                    
+                        ClearCollect(
+                            colTemDefNonQAUser,
+                            {
+                                field_id: First(colAllDefectFieldsId).NonQAUser,
+                                field_name: "Non-QA User (UATNext Only)",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                    
+                        Clear(colTemDefNonQAUser)
+                    )
+                OnSelect: =
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(colNonQAUserValues,ICDComboBoxBusinessUser.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagColor: |-
+                    =RGBA(0, 0, 0, 1)
+                    //Self.HoverColor
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =592
+                Y: =363
+                ZIndex: =36
+
+            ICDTeamLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =35
+                Size: =11
+                Text: ="Team"
+                Width: =180
+                X: =865
+                Y: =363
+                ZIndex: =39
+
+            ICDTeamCombobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =
+                DisplayFields: =["label"]
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =35
+                HoverBorderColor: =RGBA(4, 141, 154, 1)
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: =
+                Items: =colTeamValues
+                OnChange: |-
+                    =If(
+                        !IsBlank( Self.Selected.value),
+                    
+                        ClearCollect(
+                            colTemDefTeam,
+                            {
+                                field_id: First(colAllDefectFieldsId).Team,
+                                field_name: "Team",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Self.Selected.label
+                            }
+                        ),
+                    
+                        Clear(colTemDefTeam)
+                    )
+                OnSelect: =
+                PressedFill: =RGBA(70, 189, 198, 1)
+                Reset: =true
+                SearchFields: =["label"]
+                SearchItems: =Search(Filter(colTeamValues,is_active),ICDTeamCombobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =250
+                X: =ICDTeamLbl.X + ICDTeamLbl.Width + 15
+                Y: =363
+                ZIndex: =40
+
+            "'IDCSave&SubmitBtn' As button":
+                BorderThickness: =0.4
+                Fill: =RGBA(4, 141, 154, 1)
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                HoverBorderColor: =ColorFade(Self.HoverFill, 20%)
+                HoverFill: =RGBA(255, 152, 1, 1)
+                OnSelect: |-
+                    =UpdateContext({ showCDLoadingSpinner: true});
+                    
+                    
+                    ClearCollect(
+                        colTotalAttachments,
+                        ShowColumns(
+                            AddColumns(
+                                ICDAttachmentsHiddenGal.AllItems,
+                                data,
+                                With(
+                                    {
+                                        varDemoFormAttachmentCOntrol: JSON(
+                                            ICDAHGImage.Image,
+                                            JSONFormat.IncludeBinaryData
+                                        )
+                                    },
+                                    Mid(
+                                        varDemoFormAttachmentCOntrol,
+                                        Find(
+                                            ",",
+                                            varDemoFormAttachmentCOntrol
+                                        ) + 1,
+                                        Len(varDemoFormAttachmentCOntrol) - Find(
+                                            ",",
+                                            varDemoFormAttachmentCOntrol
+                                        ) - 1
+                                    )
+                                ),
+                                name,
+                                ICDAHNameValue.Text,
+                                content_type,
+                                ICDAHContentTypeValue.Text
+                            ),
+                            data,
+                            name,
+                            content_type
+                        )
+                    );
+                    
+                    
+                    Concurrent(
+                        ClearCollect(
+                            colTemDefSummary,
+                            {
+                                field_id: First(colAllDefectFieldsId).Summary,
+                                field_name: "Summary",
+                                field_value: ICDSummaryTxtInput.Text,
+                                field_value_name: ""
+                            }
+                        ),
+                        ClearCollect(
+                            colTemDefCreatedby,
+                            {
+                                field_id: First(colAllDefectFieldsId).CreatedByUAT,
+                                field_name: "Created By (UATNext Only)",
+                                field_value: nfUserObject.'Full Name',
+                                field_value_name: ""
+                            }
+                        ),
+                        ClearCollect(
+                            colTempDefUpdatedby,
+                            {
+                                field_id: First(colAllDefectFieldsId).UpdatedByUAT,
+                                field_name: "Updated By (UATNext Only)",
+                                field_value: nfUserObject.'Full Name',
+                                field_value_name: ""
+                            }
+                        ),
+                        ClearCollect(
+                            colTemDefDescription,
+                            {
+                                field_id: First(colAllDefectFieldsId).Description,
+                                field_name: "Description",
+                                field_value: ICDDescriptionTxtInput.Text,
+                                field_value_name: ""
+                            }
+                        )
+                    );
+                    
+                    
+                    Clear(colTemDefFinalProperty);
+                    
+                    
+                    Collect(
+                        colTemDefFinalProperty,
+                    
+                        If( !IsEmpty(colTemDefSummary), colTemDefSummary),
+                    
+                        If( !IsEmpty(colTemDefCreatedby), colTemDefCreatedby),
+                    
+                        If( !IsEmpty(colTempDefUpdatedby), colTempDefUpdatedby),
+                    
+                        If( !IsEmpty(colTemDefDescription), colTemDefDescription),
+                        
+                        If( !IsEmpty(colTemDefAffReaBuild), colTemDefAffReaBuild),
+                    
+                        If( !IsEmpty(colTemDefSeverity), colTemDefSeverity),
+                    
+                        If( !IsEmpty(colTemDefFixedRelease), colTemDefFixedRelease),
+                    
+                        If( !IsEmpty(colTemDefRootCause), colTemDefRootCause),
+                    
+                        If( !IsEmpty(colTemDefPriority), colTemDefPriority), 
+                        
+                        If( !IsEmpty(colTemDefStatus), colTemDefStatus),
+                    
+                        If( !IsEmpty(colTemDefType), colTemDefType),
+                    
+                        If( !IsEmpty(colTemDefTRBuild), colTemDefTRBuild),
+                        
+                        If( !IsEmpty(colTemDefReason), colTemDefReason),
+                    
+                        If( !IsEmpty(colTemDefCategory), colTemDefCategory),
+                    
+                        If( !IsEmpty(colTemDefEnvironment), colTemDefEnvironment),
+                    
+                        If( !IsEmpty(colTemDefAssignTo), colTemDefAssignTo),
+                    
+                        If( !IsEmpty(colTemDefNonQAUser), colTemDefNonQAUser),
+                    
+                        If( !IsEmpty(colTemDefTeam), colTemDefTeam),
+                    
+                        If( !IsEmpty(colTemDefModule), colTemDefModule)
+                    );
+                    
+                    
+                    If( 
+                        Lower( nfTeamsInfo)="no",
+                    
+                    
+                        If(
+                            !IsBlank(ICDSummaryTxtInput.Text) && !IsBlank(ICDDescriptionTxtInput.Text) && !IsBlank(CDModuleCombobox.Selected) && !IsBlank(ICDAffectedReleaseCombobox.Selected) && !IsBlank(ICDSeverityCombobox.Selected) && !IsBlank(ICDPriorityCombobox.Selected) && !IsBlank(ICDStatusCombobox.Selected) && !IsBlank(ICDTypeCombobox.Selected),
+                    
+                            UpdateContext({
+                                varCreateDefectid:
+                    
+                                'ITS-TCOE_OCTO_UATMain_V1'.CreateDefect(
+                                    constProjectInfo.id,
+                                    {
+                                        properties: colTemDefFinalProperty,
+                                        attachments: colTotalAttachments
+                                    }
+                                ).id
+                            });
+                    
+                    
+                            Notify( "Defect Created Successfully", NotificationType.Success, 4000);
+                    
+                    
+                            If(
+                                !IsBlank(ICDComboBoxBusinessUser.Selected),
+                    
+                                'ITS-TCOE_OCTO_UATMain_V1'.CreateDefectComment(
+                                    constProjectInfo.id,
+                                    varCreateDefectid,
+                                    {
+                                        content: "Assigned To : " & ICDComboBoxBusinessUser.Selected.label
+                                    }
+                                )
+                            );
+                    
+                            If(
+                                !IsBlank(varSelectedTestStepForDefect),
+                    
+                                'ITS-TCOE_OCTO_UATMain_V1'.CreateObjectLink(
+                                    constProjectInfo.id,
+                                    "test-steps",
+                                    varSelectedTestStepForDefect.test_step_log_id,
+                                    {
+                                        type: "defects",
+                                        CreateAobjectlinkingRequestBody: [varCreateDefectid]
+                                    }
+                                );
+                                Set( varFetchedTestStepLinkedDefectPid, 'ITS-TCOE_OCTO_UATMain_V1'.GetObjectLink(constProjectInfo.id,{type:"test-steps",ids:varSelectedTestStepForDefect.test_step_log_id}).objects);
+                    
+                                Clear(colFetchedTestStepLinkedDefectPid);
+                    
+                                ForAll( varFetchedTestStepLinkedDefectPid, Collect( colFetchedTestStepLinkedDefectPid, ThisRecord.objects));
+                    
+                                ClearCollect(
+                                    colTestSteplog,
+                                    'ITS-TCOE_OCTO_UATMain_V1'.GetTestLog(
+                                        constProjectInfo.id,
+                                        gallerySelectedTestrun.id
+                                    ).items
+                                ),
+                    
+                                'ITS-TCOE_OCTO_UATMain_V1'.CreateObjectLink(
+                                    constProjectInfo.id,
+                                    "test-logs",
+                                    TestLogId,
+                                    {
+                                        type: "defects",
+                                        CreateAobjectlinkingRequestBody: [varCreateDefectid]
+                                    }
+                                )
+                            );
+                    
+                    
+                            Back(),
+                            
+                    
+                            Notify( "Please fill in all required fields before saving the defect.", NotificationType.Information, 4000)
+                        ),
+                    
+                    
+                        If(
+                            !IsBlank(ICDSummaryTxtInput.Text) && !IsBlank(ICDDescriptionTxtInput.Text) && !IsBlank(ICDTeamCombobox.Selected) && !IsBlank(CDModuleCombobox.Selected) && !IsBlank(ICDAffectedReleaseCombobox.Selected) && !IsBlank(ICDSeverityCombobox.Selected) && !IsBlank(ICDPriorityCombobox.Selected) && !IsBlank(ICDStatusCombobox.Selected) && !IsBlank(ICDTypeCombobox.Selected),
+                    
+                    
+                            UpdateContext({
+                                varCreateDefectid:
+                    
+                                'ITS-TCOE_OCTO_UATMain_V1'.CreateDefect(
+                                    constProjectInfo.id,
+                                    {
+                                        properties: colTemDefFinalProperty,
+                                        attachments: colTotalAttachments
+                                    }
+                                ).id
+                            });
+                    
+                    
+                            Notify( "Defect Created Successfully.", NotificationType.Success, 4000);
+                    
+                    
+                            If(
+                                !IsBlank(ICDComboBoxBusinessUser.Selected),
+                    
+                                'ITS-TCOE_OCTO_UATMain_V1'.CreateDefectComment(
+                                    constProjectInfo.id,
+                                    varCreateDefectid,
+                                    {
+                                        content: "Assigned To : " & ICDComboBoxBusinessUser.Selected.label
+                                    }
+                                )
+                            );
+                    
+                    
+                            If(
+                                !IsBlank(varSelectedTestStepForDefect),
+                                
+                                'ITS-TCOE_OCTO_UATMain_V1'.CreateObjectLink(
+                                    constProjectInfo.id,
+                                    "test-steps",
+                                    varSelectedTestStepForDefect.test_step_log_id,
+                                    {
+                                        type: "defects",
+                                        CreateAobjectlinkingRequestBody: [varCreateDefectid]
+                                    }
+                                );
+                                
+                                Clear(colFetchedTestStepLinkedDefectPid);
+                    
+                                ForAll( varFetchedTestStepLinkedDefectPid, Collect( colFetchedTestStepLinkedDefectPid, ThisRecord.objects));
+                    
+                                ClearCollect(
+                                    colTestSteplog,
+                                    'ITS-TCOE_OCTO_UATMain_V1'.GetTestLog(
+                                        constProjectInfo.id,
+                                        gallerySelectedTestrun.id
+                                    ).items
+                                ),
+                    
+                                'ITS-TCOE_OCTO_UATMain_V1'.CreateObjectLink(
+                                    constProjectInfo.id,
+                                    "test-logs",
+                                    TestLogId,
+                                    {
+                                        type: "defects",
+                                        CreateAobjectlinkingRequestBody: [varCreateDefectid]
+                                    }
+                                )
+                            );
+                    
+                    
+                            Back(),
+                    
+                    
+                            Notify( "Please fill in all required fields before saving the defect", NotificationType.Information, 4000)
+                        )
+                    );
+                    
+                    
+                    UpdateContext({ showCDLoadingSpinner: false});
+                RadiusBottomLeft: =4
+                RadiusBottomRight: =4
+                RadiusTopLeft: =4
+                RadiusTopRight: =4
+                Size: =10.5
+                Text: ="SAVE"
+                Width: =200
+                X: =1110
+                Y: =650
+                ZIndex: =42
+
+            ICDTeamAstricLbl As label:
+                Color: =RGBA(255, 0, 0, 1)
+                Font: =Font.'Segoe UI'
+                Height: =ICDSummaryLbl.Height
+                Text: ="*"
+                Visible: =If( Lower(nfTeamsInfo)="no",false,true)
+                Width: =19
+                X: =ICDTeamLbl.X+40
+                Y: =ICDTeamLbl.Y 
+                ZIndex: =43
+
+            ECDDescriptionAstricLbl_3 As label:
+                Color: =RGBA(255, 0, 0, 1)
+                Font: =Font.'Segoe UI'
+                Height: =ICDModuleLbl.Height
+                Text: ="*"
+                Width: =19
+                X: =ICDModuleLbl.X + 55
+                Y: =ICDModuleLbl.Y
+                ZIndex: =44
+
+            ICDPriorityAstricLbl As label:
+                Color: =RGBA(255, 0, 0, 1)
+                Font: =Font.'Segoe UI'
+                Height: =ICDSummaryLbl.Height
+                Text: ="*"
+                Width: =19
+                X: =ICDPriorityLbl.X + ICDPriorityLbl.Width - Self.Width - 35
+                Y: =ICDPriorityLbl.Y
+                ZIndex: =45
+
+            ICDSeverityAstricLbl As label:
+                Color: =RGBA(255, 0, 0, 1)
+                Font: =Font.'Segoe UI'
+                Height: =ICDSummaryLbl.Height
+                Text: ="*"
+                Width: =19
+                X: =ICDSeverityLbl.X + ICDSeverityLbl.Width - Self.Width - 30
+                Y: =ICDSeverityCombobox.Y
+                ZIndex: =46
+
+            ICDARAstricLbl As label:
+                Color: =RGBA(255, 0, 0, 1)
+                Font: =Font.'Segoe UI'
+                Height: =ICDSummaryLbl.Height
+                Text: ="*"
+                Width: =19
+                X: =ICDARBLbl.X + ICDARBLbl.Width - Self.Width - 5
+                Y: =ICDARBLbl.Y
+                ZIndex: =47
+
+            ICDStatusAstricLbl As label:
+                Color: =RGBA(255, 0, 0, 1)
+                Font: =Font.'Segoe UI'
+                Height: =ICDSummaryLbl.Height
+                Text: ="*"
+                Width: =19
+                X: =ICDStatusLbl.X + ICDStatusLbl.Width - Self.Width - 42
+                Y: =ICDStatusLbl.Y
+                ZIndex: =48
+
+            ICDTypeAstricLbl As label:
+                Color: =RGBA(255, 0, 0, 1)
+                Font: =Font.'Segoe UI'
+                Height: =ICDSummaryLbl.Height
+                Text: ="*"
+                Width: =19
+                X: =ICDTypeLbl.X + ICDTypeLbl.Width - Self.Width - 125
+                Y: =ICDTypeLbl.Y
+                ZIndex: =49
+
+            ICDLoadingSpinerGroup As group:
+                Height: =5
+                Width: =5
+                X: =40
+                Y: =40
+                ZIndex: =50
+
+                ICD_Loading_Button As button:
+                    Color: =RGBA(107, 106, 106, 1)
+                    DisplayMode: =DisplayMode.View
+                    Fill: =ColorFade(RGBA(230, 230, 230, 0.82), 35%)
+                    Height: =Parent.Height
+                    Text: =
+                    Visible: =showCDLoadingSpinner
+                    Width: =Parent.Width
+                    X: =
+                    Y: =
+                    ZIndex: =50
+
+                ICD_Loading_Spinner As image:
+                    Image: ='Eclipse@1x'
+                    Visible: =showCDLoadingSpinner
+                    X: =633
+                    Y: =308
+                    ZIndex: =51
+
+            IDCAttachmentsUploadGroup As group:
+                Height: =5
+                Width: =5
+                X: =40
+                Y: =40
+                ZIndex: =52
+
+                ICDAttachmentUpload As attachments:
+                    AddAttachmentText: ="Upload file"
+                    BorderColor: =RGBA(177, 227, 230, 1)
+                    BorderThickness: =1
+                    DropTargetBorderColor: =RGBA(227, 234, 243, 1)
+                    DropTargetBorderStyle: =BorderStyle.None
+                    DropTargetBorderThickness: =0.5
+                    FocusedBorderThickness: =0.4
+                    Font: =Font.'Segoe UI'
+                    Height: =80
+                    HoverBorderColor: =RGBA(4, 141, 154, 1)
+                    HoverFill: |-
+                        =ColorFade(ColorValue("#048D9A"), 60%)
+                    IsInDataCard: =true
+                    Items: =
+                    MaxAttachments: =5
+                    MaxAttachmentsText: =""
+                    NoAttachmentsText: ="There is no file."
+                    OnAddFile: =ClearCollect(Attachments, ICDAttachmentUpload.Attachments)
+                    OnRemoveFile: =ClearCollect(Attachments, ICDAttachmentUpload.Attachments)
+                    PaddingBottom: =5
+                    PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+                    PaddingRight: =5
+                    PaddingTop: =5
+                    PressedBorderColor: =RGBA(153, 153, 153, 1)
+                    PressedFill: |-
+                        =ColorFade(ColorValue("#048D9A"), 60%)
+                    Size: =10
+                    Width: =400
+                    X: =ICDSummaryTxtInput.X
+                    Y: =ICDAttachmentsLbl.Y
+                    ZIndex: =37
+
+                ICDAttachmentsLbl As label:
+                    Color: =RGBA(122, 119, 119, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =ICDSummaryLbl.Height
+                    Size: =11
+                    Text: ="Attachments"
+                    Width: =95
+                    X: =ICDSummaryLbl.X
+                    Y: =ICDDescriptionTxtInput.Y + ICDDescriptionTxtInput.Height + 15
+                    ZIndex: =38
+
+                "ICDAttachmentsHiddenGal As gallery.'BrowseLayout_Vertical_OneTextOneImageVariant_ver5.0'":
+                    '#CopilotOverlayLabel': ="Filtered"
+                    DelayItemLoading: =true
+                    Height: =ICDAttachmentUpload.Height
+                    Items: =Attachments
+                    Layout: =Layout.Vertical
+                    LoadingSpinner: =LoadingSpinner.Data
+                    TemplatePadding: =0
+                    TemplateSize: =92
+                    Visible: =false
+                    Width: =296
+                    X: =654
+                    Y: =ICDAttachmentUpload.Y
+                    ZIndex: =41
+
+                    ICDAHGImage As image:
+                        Height: =60
+                        Image: =ThisItem.Value
+                        OnSelect: =Select(Parent)
+                        RadiusBottomLeft: =8
+                        RadiusBottomRight: =8
+                        RadiusTopLeft: =8
+                        RadiusTopRight: =8
+                        Width: =60
+                        X: =1
+                        ZIndex: =1
+
+                    ICDAHNameValue As label:
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(71, 69, 64, 1)
+                        DisabledColor: =RGBA(186, 186, 186, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                        Height: =60
+                        OnSelect: =Select(Parent)
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =14
+                        Text: =ThisItem.Name
+                        VerticalAlign: =VerticalAlign.Top
+                        Width: =51
+                        X: =108
+                        ZIndex: =2
+
+                    ICDAHContentTypeValue As label:
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(71, 69, 64, 1)
+                        DisabledColor: =RGBA(186, 186, 186, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                        Height: =60
+                        OnSelect: =Select(Parent)
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =14
+                        Text: =Last(Split(ThisItem.Name, ".")).Value
+                        VerticalAlign: =VerticalAlign.Top
+                        Width: =99
+                        X: =196
+                        ZIndex: =3
+
+    ICD_Inner_Header_Component As Inner_Header_Component:
+        PDFLink: =varPDFLink
+        ScreenName: =varScreenName
+        VideoLink: =varVideoLink
+        ZIndex: =8
+
+    IDCSBackIcon As icon.ArrowRight:
+        Color: =RGBA(255, 255, 255, 1)
+        Height: =40
+        Icon: =Icon.BackArrow
+        OnSelect: =Back()
+        Width: =40
+        X: =5
+        Y: =5
+        ZIndex: =9
+

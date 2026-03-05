@@ -1,0 +1,1499 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  Defect Details:
+    Properties:
+      LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
+      OnVisible: "=UpdateContext({ showddloadingspinner: true});\r\n\r\nConcurrent(\r\n    Set(varScreenName, \"Defect Details\"),\r\n\r\n    Set(varVideoLink, Concatenate(nfSharepointbaseUrl,\"video/Defect_Details.mp4\")),\r\n    \r\n    Set(varPDFLink, Concatenate(nfSharepointbaseUrl,\"pdf/Defect_Details.pdf\"))\r\n);\r\n\r\nUpdateContext({varDlinkDF: false});\r\n\r\nConcurrent(\r\n    ClearCollect( colGetDef, 'ITS-TCOE_OCTO_UATMain_V1'.GetDefect( constProjectInfo.id, SelectedDefectInfo.id)),\r\n\r\n    ClearCollect( colDefectComments, 'ITS-TCOE_OCTO_UATMain_V1'.GetAllCommentsOfADefect(constProjectInfo.id, SelectedDefectInfo.id).items),\r\n\r\n    ClearCollect(colDefectAttachments, 'ITS-TCOE_OCTO_UATMain_V1'.GetAttachments( constProjectInfo.id,\"defects\", SelectedDefectInfo.id)),\r\n\r\n    ClearCollect( colLinkedTR, First( 'ITS-TCOE_OCTO_UATMain_V1'.GetObjectLink(constProjectInfo.id, {type:\"defects\", ids: SelectedDefectInfo.id})).objects) \r\n);\r\n\r\nForAll(colGetDef, Collect(colDefPro,ThisRecord.properties));\r\n\r\nUpdateContext({ showddloadingspinner: false});"
+    Children:
+      - TUATDD_Inner_Header_Component:
+          Control: CanvasComponent
+          ComponentName: Inner_Header_Component
+          Properties:
+            Height: =50
+            PDFLink: =varPDFLink
+            ScreenName: =varScreenName
+            VideoLink: =varVideoLink
+            Width: =1366
+      - TUATDDBackIcon:
+          Control: Classic/Icon@2.5.0
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            Fill: =RGBA(0, 134, 146, 1)
+            Height: =50
+            Icon: =Icon.BackArrow
+            OnSelect: |-
+              =Back();
+              Clear(colDefectAttachments)
+            PaddingBottom: =8
+            PaddingLeft: =8
+            PaddingRight: =8
+            PaddingTop: =8
+            Width: =50
+      - DDCanvas:
+          Control: FluidGrid@2.3.0
+          Properties:
+            BorderThickness: =0
+            Height: |-
+              =Parent.Height - Self.Y
+              //Parent.Height
+            Width: =Parent.Width
+            Y: =TUATDD_Inner_Header_Component.Y + TUATDD_Inner_Header_Component.Height
+          Children:
+            - DDDataCard:
+                Control: DataCard@1.0.2
+                Properties:
+                  Height: =Parent.Height
+                  Width: =Parent.Width
+                  X: =0
+                  Y: =0
+                Children:
+                  - DDCommentsLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =TUATDDDescriptionLbl.Height
+                        Size: =11
+                        Text: ="Comments"
+                        Width: =95
+                        X: =TUATDDAttachmentLbl.X +5
+                        Y: =TUATDDAttachmentGallery.Y + TUATDDAttachmentGallery.Height + 25
+                  - DDCommentGalleryBottomPaddingRectangle:
+                      Control: Rectangle@2.3.0
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: =Color.Transparent
+                        Height: =1
+                        Visible: =DDCommentsLbl.Visible
+                        X: =40
+                        Y: =DDCommentsGallery.Y +DDCommentsGallery.Height + 5
+                  - DDCommentsGallery:
+                      Control: Gallery@2.15.0
+                      Variant: BrowseLayout_Vertical_TwoTextVariant_ver5.0
+                      Properties:
+                        BorderColor: =RGBA(166, 166, 166, 1)
+                        BorderThickness: =0.4
+                        Height: =329
+                        Items: =SortByColumns( colDefectComments, "created", SortOrder.Descending)
+                        LoadingSpinner: =LoadingSpinner.None
+                        TemplateSize: =83
+                        Visible: =DDCommentsLbl.Visible
+                        Width: =TUATDDDescriptionTxtInput.Width
+                        X: =TUATDDDescriptionTxtInput.X +5
+                        Y: =TUATDDAttachmentGallery.Y + TUATDDAttachmentGallery.Height + 25
+                      Children:
+                        - DDCommentLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 0, 0, 1)
+                              Color: =RGBA(107, 106, 106, 1)
+                              DisabledColor: =RGBA(186, 186, 186, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              OnSelect: =Select(Parent)
+                              Overflow: =Overflow.Scroll
+                              PaddingBottom: =0
+                              PaddingLeft: =10
+                              PaddingRight: =0
+                              PaddingTop: =4
+                              Size: =12
+                              Text: =ThisItem.content
+                              Tooltip: =//ThisItem.content
+                              Width: =Parent.TemplateWidth
+                              Y: =2
+                        - DDCommentCreatedByLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 0, 0, 1)
+                              DisabledColor: =RGBA(186, 186, 186, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =30
+                              OnSelect: =Select(Parent)
+                              PaddingBottom: =0
+                              PaddingLeft: =10
+                              PaddingRight: =0
+                              PaddingTop: =0
+                              Size: =11
+                              Text: =LookUp( colAssignToValues, value = ThisItem.userId).label
+                              Tooltip: =Self.Text
+                              Width: =500
+                              X: =DDCommentLbl.X
+                              Y: =DDCommentLbl.Y + DDCommentLbl.Height + 3
+                        - DDCommentSeperator:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =RGBA(166, 166, 166, 1)
+                              Fill: =RGBA(166, 166, 166, 1)
+                              Height: =1
+                              OnSelect: =Select(Parent)
+                              Width: =Parent.TemplateWidth
+                              Y: =DDCommentCreatedByLbl.Y + DDCommentCreatedByLbl.Height + 5
+                        - DDCommentCreatedAtLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              Align: =Align.Right
+                              BorderColor: =RGBA(0, 0, 0, 1)
+                              DisabledColor: =RGBA(186, 186, 186, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =DDCommentCreatedByLbl.Height
+                              OnSelect: =Select(Parent)
+                              PaddingBottom: =0
+                              PaddingRight: =0
+                              PaddingTop: =0
+                              Size: =11
+                              Text: =Text( DateTimeValue( ThisItem.created), "[$-en-US]dd-mmm-yyyy hh:mm:ss AM/PM")
+                              Tooltip: =Self.Text
+                              Width: =240
+                              X: =DDCommentCreatedByLbl.X + DDCommentCreatedByLbl.Width + 340
+                              Y: =DDCommentCreatedByLbl.Y
+                  - DDNoCommentsLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Font: =Font.'Segoe UI'
+                        Size: =11
+                        Text: ="No Comments Found"
+                        Visible: =If( CountRows( colDefectComments) > 0, false,true)
+                        Width: =DDCommentsGallery.Width
+                        X: =DDCommentsGallery.X
+                        Y: '=DDCommentsGallery.Y '
+                  - TUATDDGallery:
+                      Control: Gallery@2.15.0
+                      Variant: Vertical
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Height: =800
+                        Items: =colGetDef
+                        TemplateSize: =667
+                        Width: =Parent.Width
+                        Y: =Parent.Y
+                      Children:
+                        - TUATDDAttachmentLbl:
+                            Control: Label@2.5.1
+                            Group: TUATDDAttachmentGroup
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Attachment"
+                              Width: ='TUATDDAffectedRelease/BuildLbl'.Width
+                              X: ='TUATDDAffectedRelease/BuildLbl'.X
+                              Y: =TUATDDDescriptionTxtInput.Y + TUATDDDescriptionTxtInput.Height + 25
+                        - TUATDDAttachmentGallery:
+                            Control: Gallery@2.15.0
+                            Variant: Vertical
+                            Group: TUATDDAttachmentGroup
+                            Properties:
+                              BorderColor: =RGBA(166, 166, 166, 1)
+                              BorderThickness: =0.4
+                              Height: =70
+                              Items: =colDefectAttachments
+                              LoadingSpinner: =LoadingSpinner.None
+                              LoadingSpinnerColor: =
+                              TemplatePadding: =0
+                              TemplateSize: =35
+                              Width: =300
+                              X: =TUATDDDescriptionTxtInput.X
+                              Y: =TUATDDAttachmentLbl.Y
+                            Children:
+                              - TUATDDAttachmentGallerySeparator:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    BorderColor: =RGBA(0, 18, 107, 1)
+                                    Fill: =RGBA(166, 166, 166, 1)
+                                    Height: =0.4
+                                    OnSelect: =Select(Parent)
+                                    Width: =Parent.Width
+                                    Y: '=TUATDDAttachmentName.Y + TUATDDAttachmentName.Height '
+                              - TUATDDAttachmentName:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    BorderColor: =RGBA(0, 18, 107, 1)
+                                    Color: =RGBA(102, 182, 227, 1)
+                                    Font: =Font.'Segoe UI'
+                                    Height: =35
+                                    OnSelect: =Download(ThisItem.web_url)
+                                    Size: =11
+                                    Text: =ThisItem.name
+                                    Width: =290
+                              - TUATDDAttachmentButton:
+                                  Control: Classic/Button@2.2.0
+                                  Properties:
+                                    BorderColor: =ColorFade(Self.Fill, -15%)
+                                    BorderThickness: =0
+                                    Color: =RGBA(255, 255, 255, 1)
+                                    DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    Font: =Font.'Open Sans'
+                                    Height: =35
+                                    HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                                    HoverColor: =RGBA(255, 255, 255, 1)
+                                    HoverFill: =
+                                    OnSelect: =Select(TUATDDAttachmentName)
+                                    PressedBorderColor: =Self.Fill
+                                    PressedColor: =Self.Fill
+                                    PressedFill: =
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Text: =
+                                    Width: =TUATDDAttachmentName.Width
+                                    X: =TUATDDAttachmentName.X
+                                    Y: =TUATDDAttachmentName.Y
+                        - TUATDDAttachmentMessage:
+                            Control: Label@2.5.1
+                            Group: TUATDDAttachmentGroup
+                            Properties:
+                              Align: =Align.Center
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              OnSelect: =Select(Parent)
+                              Size: =11
+                              Text: ="No Attachment Found"
+                              Visible: =If( CountRows( colDefectAttachments) > 0, false,true)
+                              Width: =TUATDDAttachmentGallery.Width
+                              X: =TUATDDAttachmentGallery.X
+                              Y: =TUATDDAttachmentGallery.Y
+                        - TUATDDTRIDsLbl:
+                            Control: Label@2.5.1
+                            Group: TUATDDLinkedTRGroup
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Linked Test Runs"
+                              Width: ='TUATDDAffectedRelease/BuildLbl'.Width
+                              X: =720
+                              Y: =TUATDDAttachmentLbl.Y
+                        - TUATDDTRIDsGallery:
+                            Control: Gallery@2.15.0
+                            Variant: Vertical
+                            Group: TUATDDLinkedTRGroup
+                            Properties:
+                              BorderColor: =RGBA(166, 166, 166, 1)
+                              BorderThickness: =0.4
+                              Height: =70
+                              Items: =colLinkedTR
+                              LoadingSpinner: =LoadingSpinner.None
+                              LoadingSpinnerColor: =
+                              TemplatePadding: =0
+                              TemplateSize: =35
+                              Width: =300
+                              X: =TUATDDTRIDsLbl.X + TUATDDTRIDsLbl.Width + 30
+                              Y: =TUATDDTRIDsLbl.Y
+                            Children:
+                              - TUATDDTRIDGallerySeparator:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    BorderColor: =RGBA(0, 18, 107, 1)
+                                    Fill: =RGBA(166, 166, 166, 1)
+                                    Height: =0.4
+                                    OnSelect: =Select(Parent)
+                                    Width: =Parent.Width
+                                    Y: =34.6
+                              - TUATDDTRIDLbl:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    BorderColor: =RGBA(0, 18, 107, 1)
+                                    Color: |-
+                                      =RGBA(107, 106, 106, 1)
+
+                                      //RGBA(102, 182, 227, 1)
+                                    Font: =Font.'Segoe UI'
+                                    Height: =35
+                                    Size: =11
+                                    Text: =ThisItem.pid
+                                    Width: =290
+                              - TUATDDTRIDButton:
+                                  Control: Classic/Button@2.2.0
+                                  Properties:
+                                    BorderColor: =ColorFade(Self.Fill, -15%)
+                                    BorderThickness: =0
+                                    Color: =RGBA(255, 255, 255, 1)
+                                    DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                                    Fill: =RGBA(0, 0, 0, 0)
+                                    Font: =Font.'Open Sans'
+                                    Height: =35
+                                    HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                                    HoverColor: =RGBA(255, 255, 255, 1)
+                                    HoverFill: =
+                                    OnSelect: =Select(TUATDDTRIDLbl)
+                                    PressedBorderColor: =Self.Fill
+                                    PressedColor: =Self.Fill
+                                    PressedFill: =
+                                    RadiusBottomLeft: =0
+                                    RadiusBottomRight: =0
+                                    RadiusTopLeft: =0
+                                    RadiusTopRight: =0
+                                    Text: =
+                                    Visible: =false
+                                    Width: =TUATDDTRIDLbl.Width
+                                    X: =TUATDDTRIDLbl.X
+                                    Y: =TUATDDTRIDLbl.Y
+                        - TUATDDTRIDSlbl:
+                            Control: Label@2.5.1
+                            Group: TUATDDLinkedTRGroup
+                            Properties:
+                              Align: =Align.Center
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              OnSelect: =Select(Parent)
+                              Size: =11
+                              Text: ="No Linked Test Runs Found"
+                              Visible: =If( CountRows( colLinkedTR) > 0, false,true)
+                              Width: =TUATDDTRIDsGallery.Width
+                              X: =TUATDDTRIDsGallery.X
+                              Y: =TUATDDTRIDsGallery.Y
+                        - TUATDDDescriptionLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Description"
+                              Width: ='TUATDDAffectedRelease/BuildLbl'.Width
+                              X: ='TUATDDAffectedRelease/BuildLbl'.X
+                              Y: =TUATDDNonQAUserLbl.Y+TUATDDNonQAUserLbl.Height+25
+                        - TUATDDDescriptionTxtInput:
+                            Control: Classic/TextInput@2.3.2
+                            Properties:
+                              BorderColor: =RGBA(236, 248, 249, 1)
+                              BorderThickness: =0.4
+                              Default: =LookUp(ThisItem.properties,field_name="Description",field_value)
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =185
+                              HoverBorderColor: =RGBA(4, 141, 154, 1)
+                              HoverFill: =RGBA(255, 255, 255, 1)
+                              Mode: =TextMode.MultiLine
+                              RadiusBottomLeft: =0.4
+                              RadiusBottomRight: =0.4
+                              RadiusTopLeft: =0.4
+                              RadiusTopRight: =0.4
+                              Size: =11
+                              Width: =1090
+                              X: =230
+                              Y: =TUATDDDescriptionLbl.Y+5
+                        - TUATDDAffectedRelease/BuildLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              DisplayMode: =DisplayMode.View
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Affected Release/Build"
+                              Width: =170
+                              X: =40
+                              Y: =TextInputSummary_2.Y+TextInputSummary_2.Height+30
+                        - TextInputSummary_2:
+                            Control: Classic/TextInput@2.3.2
+                            Properties:
+                              BorderColor: =RGBA(236, 248, 249, 1)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =0.4
+                              Color: =RGBA(19, 61, 83, 1)
+                              Default: =LookUp(ThisItem.properties,field_name="Summary",field_value)
+                              DisabledColor: =RGBA(94, 93, 93, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayMode: =DisplayMode.View
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Bold
+                              Height: =100
+                              HoverBorderColor: =RGBA(4, 141, 154, 1)
+                              HoverFill: =RGBA(255, 255, 255, 1)
+                              Mode: =TextMode.MultiLine
+                              PaddingLeft: =5
+                              RadiusBottomLeft: =0.4
+                              RadiusBottomRight: =0.4
+                              RadiusTopLeft: =0.4
+                              RadiusTopRight: =0.4
+                              Size: =14
+                              Width: =1090
+                              X: =230
+                              Y: =TUATDDDefectIdLbl.Y
+                        - TUATDDAR/BCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(107, 106, 106, 1)
+                              DefaultSelectedItems: =LookUp(colAffectReleaseValues,label=LookUp(ThisItem.properties,field_name="Affected Release/Build",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colAffectReleaseValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =230
+                              Y: ='TUATDDAffectedRelease/BuildLbl'.Y
+                        - TUATDDSeverityLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Severity"
+                              Width: =110
+                              X: =490
+                              Y: ='TUATDDAffectedRelease/BuildLbl'.Y
+                        - TUATDDSeverityCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DefaultSelectedItems: =LookUp(colSeverityValues,label=LookUp(ThisItem.properties,field_name="Severity",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colSeverityValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =602
+                              Y: ='TUATDDAffectedRelease/BuildLbl'.Y
+                        - TUATDDFR/BLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Fixed Release/Build"
+                              Width: =180
+                              X: =875
+                              Y: ='TUATDDAffectedRelease/BuildLbl'.Y
+                        - TUATDDFR/BCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DefaultSelectedItems: =LookUp(colFixedReleaseValues,label=LookUp(ThisItem.properties,field_name="Fixed Release/Build",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colFixedReleaseValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =1070
+                              Y: ='TUATDDAffectedRelease/BuildLbl'.Y
+                        - TUATDDRootCauseLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Root Cause"
+                              Width: ='TUATDDAffectedRelease/BuildLbl'.Width
+                              X: ='TUATDDAffectedRelease/BuildLbl'.X
+                              Y: ='TUATDDAffectedRelease/BuildLbl'.Y+'TUATDDAffectedRelease/BuildLbl'.Height+25
+                        - TUATDDRootCauseCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DefaultSelectedItems: =LookUp(colRotCauseValues,label=LookUp(ThisItem.properties,field_name="Root Cause",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colRotCauseValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =230
+                              Y: =TUATDDRootCauseLbl.Y
+                        - TUATDDPriorityLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Priority"
+                              Width: =110
+                              X: =490
+                              Y: =TUATDDRootCauseLbl.Y
+                        - TUATDDPriorityCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DefaultSelectedItems: =LookUp(colPriorityValues,label=LookUp(ThisItem.properties,field_name="Priority",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colPriorityValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =602
+                              Y: =TUATDDRootCauseLbl.Y
+                        - TUATDDModuleLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Module"
+                              Width: =180
+                              X: =875
+                              Y: =TUATDDRootCauseLbl.Y
+                        - TUATDDModuleCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DefaultSelectedItems: =LookUp(colModuleValues,label=LookUp(ThisItem.properties,field_name="Module",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colModuleValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =1070
+                              Y: =TUATDDRootCauseLbl.Y
+                        - TUATDDAssignedToLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Assigned To"
+                              Width: ='TUATDDAffectedRelease/BuildLbl'.Width
+                              X: ='TUATDDAffectedRelease/BuildLbl'.X
+                              Y: =TUATDDRootCauseLbl.Y+TUATDDRootCauseLbl.Height+25
+                        - TUATDDAssignedToCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DefaultSelectedItems: =LookUp(colAssignToValues,label=LookUp(ThisItem.properties,field_name="Assigned To",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colAssignToValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =230
+                              Y: =TUATDDAssignedToLbl.Y
+                        - TUATDDStatusLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Status"
+                              Width: =110
+                              X: =490
+                              Y: =TUATDDAssignedToLbl.Y
+                        - TUATDDStatusCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DefaultSelectedItems: =LookUp(colStatusValues,label=LookUp(ThisItem.properties,field_name="Status",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colStatusValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =602
+                              Y: =TUATDDAssignedToLbl.Y
+                        - TUATDDTypeLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Type"
+                              Width: =180
+                              X: =875
+                              Y: =TUATDDAssignedToLbl.Y
+                        - TUATDDTypeCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DefaultSelectedItems: =LookUp(colTypeValues,label=LookUp(ThisItem.properties,field_name="Type",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colTypeValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =1070
+                              Y: =TUATDDAssignedToLbl.Y
+                        - TUATDDTargetRelease/BuildLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Target Release/Build"
+                              Width: ='TUATDDAffectedRelease/BuildLbl'.Width
+                              X: ='TUATDDAffectedRelease/BuildLbl'.X
+                              Y: =TUATDDAssignedToLbl.Y+TUATDDAssignedToLbl.Height+25
+                        - TUATDDTR/BCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DefaultSelectedItems: =LookUp(colTargetReleaseBValues,label=LookUp(ThisItem.properties,field_name="Target Release/Build",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colTargetReleaseBValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =230
+                              Y: ='TUATDDTargetRelease/BuildLbl'.Y
+                        - TUATDDReasonLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Reason"
+                              Width: =110
+                              X: =490
+                              Y: ='TUATDDTargetRelease/BuildLbl'.Y
+                        - TUATDDReasonCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DefaultSelectedItems: =LookUp(colReasonValues,label=LookUp(ThisItem.properties,field_name="Reason",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colReasonValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =602
+                              Y: ='TUATDDTargetRelease/BuildLbl'.Y
+                        - TUATDDCategoryLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Category"
+                              Width: =180
+                              X: =875
+                              Y: ='TUATDDTargetRelease/BuildLbl'.Y
+                        - TUATDDCategoryCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DefaultSelectedItems: =LookUp(colCategoryValues,label=LookUp(ThisItem.properties,field_name="Category",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colCategoryValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =1070
+                              Y: ='TUATDDTargetRelease/BuildLbl'.Y
+                        - TUATDDTargetDateLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Target Date"
+                              Width: ='TUATDDAffectedRelease/BuildLbl'.Width
+                              X: ='TUATDDAffectedRelease/BuildLbl'.X
+                              Y: ='TUATDDTargetRelease/BuildLbl'.Y+'TUATDDTargetRelease/BuildLbl'.Height+25
+                        - TUATDDTargetDateCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["qType"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =[1,2,3,4,5]
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["qType"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =230
+                              Y: =TUATDDTargetDateLbl.Y
+                        - TUATDDEnvLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Environment"
+                              Width: =110
+                              X: =490
+                              Y: =TUATDDTargetDateLbl.Y
+                        - TUATDDEnvCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DefaultSelectedItems: |+
+                                =LookUp(colEnvValues,label=LookUp(ThisItem.properties,field_name="Environment",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colEnvValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =602
+                              Y: =TUATDDTargetDateLbl.Y
+                        - TUATDDLinkIdLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Link ID"
+                              Width: =180
+                              X: =875
+                              Y: =TUATDDTargetDateLbl.Y
+                        - TUATDDDefectIdLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(19, 61, 83, 1)
+                              DisplayMode: =DisplayMode.View
+                              Fill: =RGBA(255, 255, 255, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Bold
+                              Height: =35
+                              Size: =14
+                              Text: =First(colGetDef).pid
+                              Width: =170
+                              X: =40
+                              Y: =5
+                        - TUATDDNonQAUserLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Non QA User"
+                              Width: ='TUATDDAffectedRelease/BuildLbl'.Width
+                              X: ='TUATDDAffectedRelease/BuildLbl'.X
+                              Y: =TUATDDTargetDateLbl.Y+TUATDDTargetDateLbl.Height+25
+                        - TUATDDNonQAUserCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DefaultSelectedItems: =LookUp(colNonQAUserValues, label=LookUp(ThisItem.properties,field_name="Non-QA User (UATNext Only)",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colNonQAUserValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =232
+                              Y: =TUATDDNonQAUserLbl.Y
+                        - TUATDDLinkIdTxtInput:
+                            Control: Classic/TextInput@2.3.2
+                            Properties:
+                              BorderColor: =RGBA(236, 248, 249, 1)
+                              BorderThickness: =0.4
+                              Default: =LookUp(ThisItem.properties,field_name="Link ID",field_value)
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverBorderColor: =RGBA(4, 141, 154, 1)
+                              HoverFill: =RGBA(255, 255, 255, 1)
+                              Mode: =TextMode.MultiLine
+                              RadiusBottomLeft: =0.4
+                              RadiusBottomRight: =0.4
+                              RadiusTopLeft: =0.4
+                              RadiusTopRight: =0.4
+                              Size: =11
+                              Width: =250
+                              X: =1070
+                              Y: =TUATDDTargetDateLbl.Y
+                        - TUATDDTeamLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Team"
+                              Width: =110
+                              X: =490
+                              Y: =TUATDDNonQAUserLbl.Y
+                        - TUATDDTeamCombobox:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(204, 204, 204, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledFill: =RGBA(0, 0, 0, 0)
+                              ChevronFill: =RGBA(179, 179, 179, 1)
+                              ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                              ChevronHoverFill: =RGBA(0, 0, 0, 0)
+                              DefaultSelectedItems: =LookUp(colTeamValues,label=LookUp(ThisItem.properties,field_name="Team",field_value_name))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverFill: =RGBA(186, 202, 226, 1)
+                              IsSearchable: =false
+                              Items: =colTeamValues
+                              OnChange: =
+                              OnSelect: =
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(107, 106, 106, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(0, 0, 0, 1)
+                              SelectionFill: =RGBA(255, 255, 255, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =250
+                              X: =TUATDDTeamLbl.X + TUATDDTeamLbl.Width + 2
+                              Y: =TUATDDTeamLbl.Y
+                        - BrokenLinkImage:
+                            Control: Image@2.2.3
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Height: =DelinkDefectBtn.Height
+                              Image: ='Broken link'
+                              OnSelect: =Select(Parent)
+                              Width: =DelinkDefectBtn.Width
+                              X: =DelinkDefectBtn.X
+                              Y: =DelinkDefectBtn.Y
+                        - DelinkDefectBtn:
+                            Control: Classic/Icon@2.5.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: |-
+                                =Color.Transparent
+                                //RGBA(184, 0, 0, 1)
+                              Height: =30
+                              Icon: =Icon.Trash
+                              OnSelect: |-
+                                =UpdateContext({varDlinkDF: true})
+                              PaddingBottom: =5
+                              PaddingLeft: =5
+                              PaddingRight: =5
+                              PaddingTop: =5
+                              Tooltip: ="Unlink"
+                              Width: =30
+                              X: =1320
+                              Y: =10
+                        - TUATDDSubmitted DateLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(122, 119, 119, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =35
+                              Size: =11
+                              Text: ="Submitted Date"
+                              Width: =180
+                              X: =875
+                              Y: =TUATDDNonQAUserLbl.Y
+                        - TUATDDSubmitted DateTxtInput:
+                            Control: Classic/TextInput@2.3.2
+                            Properties:
+                              BorderColor: =RGBA(236, 248, 249, 1)
+                              BorderThickness: =0.4
+                              Default: |-
+                                =Text(
+                                    DateTimeValue( First( colGetDef).submitted_date),
+                                    "[$-en-US]mm/dd/yyyy hh:mm:ss AM/PM"
+                                )
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =1
+                              Font: =Font.'Segoe UI'
+                              Height: =35
+                              HoverBorderColor: =RGBA(4, 141, 154, 1)
+                              HoverFill: =RGBA(255, 255, 255, 1)
+                              Mode: =TextMode.MultiLine
+                              RadiusBottomLeft: =0.4
+                              RadiusBottomRight: =0.4
+                              RadiusTopLeft: =0.4
+                              RadiusTopRight: =0.4
+                              Size: =11
+                              Width: =250
+                              X: =1070
+                              Y: =TUATDDNonQAUserLbl.Y
+                  - DFDLinkBackgroundBlurEffectRectangle:
+                      Control: Classic/Button@2.2.0
+                      Group: DLinkDFGroup
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: =ColorFade(RGBA(230, 230, 230, 0.82), 35%)
+                        Font: =Font.'Open Sans'
+                        Height: =Parent.Height
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        Text: =""
+                        Visible: =varDlinkDF
+                        Width: =Parent.Width
+                  - DFDLinkbackgroundRectangle:
+                      Control: Classic/Button@2.2.0
+                      Group: DLinkDFGroup
+                      Properties:
+                        BorderColor: =RGBA(237, 237, 237, 1)
+                        BorderThickness: =1
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(241, 244, 249, 1)
+                        DisabledColor: =Color.White
+                        DisabledFill: =RGBA(255, 255, 255, 1)
+                        DisplayMode: =DisplayMode.Disabled
+                        Fill: =Color.White
+                        Font: =Font.'Segoe UI'
+                        Height: =200
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =30
+                        RadiusBottomRight: =30
+                        RadiusTopLeft: =30
+                        RadiusTopRight: =30
+                        Text: =""
+                        Visible: =varDlinkDF
+                        Width: =400
+                        X: =500
+                        Y: =DFDLinkBackgroundBlurEffectRectangle.Y + 270
+                  - DFDLinkYesButton:
+                      Control: Classic/Button@2.2.0
+                      Group: DLinkDFGroup
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        BorderThickness: =0.4
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(70, 189, 198, 1)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverBorderColor: =ColorFade(Self.HoverFill, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =RGBA(255, 152, 1, 1)
+                        OnSelect: |-
+                          =If(
+                              !IsBlank(varSelectedTestStepForDefect),
+
+                              'ITS-TCOE_OCTO_UATMain_V1'.RemoveObjectLink( constProjectInfo.id, "test-steps", varSelectedTestStepForDefect.test_step_log_id, {type: "defects", RemoveLinkedObjectsResuestBody: [First(colGetDef).id]});
+
+                              Clear( colFetchedTestStepLinkedDefectPid),
+
+                              'ITS-TCOE_OCTO_UATMain_V1'.RemoveObjectLink( constProjectInfo.id, "test-logs", First(colTestSteplog).id, {type: "defects", RemoveLinkedObjectsResuestBody: [First(colGetDef).id]})
+                          );
+
+                          Navigate('Test Execution Details')
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =4
+                        RadiusBottomRight: =4
+                        RadiusTopLeft: =4
+                        RadiusTopRight: =4
+                        Size: =10.5
+                        Text: ="YES"
+                        Visible: =varDlinkDF
+                        Width: =80
+                        X: =DFDLinkbackgroundRectangle.X + DFDLinkbackgroundRectangle.Width - (Self.Width + 150)
+                        Y: =DFDLinkbackgroundRectangle.Y + 130
+                  - DFDLinkNoButton:
+                      Control: Classic/Button@2.2.0
+                      Group: DLinkDFGroup
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        BorderThickness: =0.4
+                        Color: =RGBA(149, 149, 149, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(255, 255, 255, 1)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverBorderColor: =RGBA(0, 166, 255, 1)
+                        HoverColor: =RGBA(0, 166, 255, 1)
+                        HoverFill: =//ColorFade(Self.Fill , -20%)
+                        OnSelect: |-
+                          =UpdateContext({varDlinkDF: false})
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =RGBA(0, 166, 255, 1)
+                        PressedFill: =//Self.Color
+                        RadiusBottomLeft: =4
+                        RadiusBottomRight: =4
+                        RadiusTopLeft: =4
+                        RadiusTopRight: =4
+                        Size: =10.5
+                        Text: ="NO"
+                        Visible: =varDlinkDF
+                        Width: =80
+                        X: =DFDLinkYesButton.X + DFDLinkYesButton.Width + 20
+                        Y: =DFDLinkYesButton.Y
+                  - DFDLinkConfirmationMgsLbl:
+                      Control: Label@2.5.1
+                      Group: DLinkDFGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        Height: =35
+                        Size: =11
+                        Text: ="Are you sure you want to unlink the defect?"
+                        Visible: =varDlinkDF
+                        Width: =300
+                        X: =DFDLinkbackgroundRectangle.X + 50
+                        Y: =DFDLinkConfirmationLbl.Y + 40
+                  - DFDLinkConfirmationLbl:
+                      Control: Label@2.5.1
+                      Group: DLinkDFGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Bold
+                        Height: =35
+                        Size: =12
+                        Text: ="Confirmation"
+                        Visible: =varDlinkDF
+                        Width: =250
+                        X: =DFDLinkbackgroundRectangle.X + 50
+                        Y: =DFDLinkbackgroundRectangle.Y + 20
+                  - ED_Loading_Button:
+                      Control: Classic/Button@2.2.0
+                      Group: EDLoadingSpinerGroup
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        Color: =RGBA(107, 106, 106, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: =ColorFade(RGBA(230, 230, 230, 0.82), 35%)
+                        Font: =Font.'Open Sans'
+                        Height: =Parent.Height
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        Text: =
+                        Visible: =showddloadingspinner
+                        Width: =Parent.Width
+                        X: =
+                        Y: =
+                  - ED_Loading_Spinner:
+                      Control: Image@2.2.3
+                      Group: EDLoadingSpinerGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Image: ='Eclipse@1x'
+                        Visible: =showddloadingspinner
+                        X: =633
+                        Y: =308

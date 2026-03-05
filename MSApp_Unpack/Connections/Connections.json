@@ -1,0 +1,112 @@
+{
+  "1005c25e-1c24-4b69-bbb9-f2babc93486a": {
+    "appActions": [
+      "Run"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "Logic flows",
+      "iconUri": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1774/1.0.1774.4397/logicflows/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_logicflows",
+      "parameterHints": {
+        "workflowDisplayName": {
+          "value": "ITS-TCOE_OCTO_UATNext_Test_AttachmentUpload_Flow"
+        },
+        "workflowEntityId": {
+          "value": "f719c104-82d5-f011-8544-6045bdec137e"
+        },
+        "workflowName": {
+          "value": "b968224d-3b60-415c-afd2-4ba0fcd0d4c4"
+        }
+      },
+      "parameterHintsV2": {
+        "workflowDisplayName": {
+          "value": "ITS-TCOE_OCTO_UATNext_Test_AttachmentUpload_Flow"
+        },
+        "workflowEntityId": {
+          "value": "f719c104-82d5-f011-8544-6045bdec137e"
+        },
+        "workflowName": {
+          "value": "b968224d-3b60-415c-afd2-4ba0fcd0d4c4"
+        }
+      }
+    },
+    "datasets": {},
+    "dataSources": [
+      "ITS-TCOE_OCTO_UATNext_Test_AttachmentUpload_Flow"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "1005c25e-1c24-4b69-bbb9-f2babc93486a"
+  },
+  "4a04a10c-1450-4e22-a4d1-85ee37168733": {
+    "appActions": [
+      "GetAProject",
+      "GetFieldId",
+      "GetAModule",
+      "ListOfAllowedValue",
+      "GetARelease",
+      "GetTestcycle",
+      "GetModule",
+      "Search",
+      "GetAtestsuite",
+      "GetObjectLink",
+      "GetTestcase",
+      "CreateObjectLink",
+      "UpdateTestlogStatus",
+      "GetTestLog",
+      "CreateTestlog",
+      "UpdateTestrun",
+      "RemoveObjectLink",
+      "CreateTestcase",
+      "CreateDefect",
+      "CreateDefectComment",
+      "GetDefect",
+      "GetAllCommentsOfADefect",
+      "GetAttachments",
+      "UpdateTestcase",
+      "ApproveTestcase",
+      "DeleteTeststep",
+      "GetTestStep",
+      "CreateTeststep",
+      "UpdateDefect"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "ITS-TCOE_OCTO_UATMain_V1",
+      "iconUri": "https://defaulticons.powerapps.com/defaulticons/api-dedicated.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_its-2dtcoe-5focto-5fuatmain-5fv1-5fcbab90f57d62-84e505ab48bd7ff1",
+      "isCustomApiConnection": true,
+      "parameterHints": {},
+      "parameterHintsV2": {}
+    },
+    "datasets": {},
+    "dataSources": [
+      "ITS-TCOE_OCTO_UATMain_V1"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "4a04a10c-1450-4e22-a4d1-85ee37168733"
+  },
+  "68fc6b14-f9f7-4673-bd5c-d9691e162eef": {
+    "appActions": [
+      "ExecuteTestRun"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "ITS-TCOE_OCTO_UATELog_V1",
+      "iconUri": "https://defaulticons.powerapps.com/defaulticons/api-dedicated.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_its-2dtcoe-5focto-5fuatelog-5fv1-5fcbab90f57d62-984e676ea8cf5584",
+      "isCustomApiConnection": true,
+      "parameterHints": {},
+      "parameterHintsV2": {}
+    },
+    "datasets": {},
+    "dataSources": [
+      "ITS-TCOE_OCTO_UATELog_V1"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "68fc6b14-f9f7-4673-bd5c-d9691e162eef"
+  }
+}

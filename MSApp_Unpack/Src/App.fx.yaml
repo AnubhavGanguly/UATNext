@@ -1,0 +1,295 @@
+App As appinfo:
+    BackEnabled: =false
+    Formulas: |-
+        =//Store user object into this variable
+        nfUserObject = LookUp(Users,'User Name'=User().Email);
+        
+        //Determine whether to display Teams
+        nfTeamsInfo = LookUp('Environment Variable Values','Environment Variable Definition'. 'Display Name' = "ITS-TCOE_OCTO_UATNext_Test_UATNext_Teams", Value);
+        
+        //Determine wheather to enable the module selection drodpown in the defect related pages
+        nfModuleController = LookUp('Environment Variable Values','Environment Variable Definition'. 'Display Name' = "ITS-TCOE_OCTO_UATNext_Test_ModuleController", Value);
+        
+        //Store the base url of the sharepoint site
+        nfSharepointbaseUrl = "https://jmfamily.sharepoint.com/sites/TCOE/Shared%20Documents/UATNext/";
+        
+        //Store page size of Test runs gallery in Execute UAT Test Cases page
+        nfTRPageSize = 7;
+        
+        //Store page size of requirement gallery in Review SIT Test Case page
+        nfRequirementPageSize = 18;
+        
+        //Store page size of Test Cases gallery in Review SIT Test Case page
+        nfReviewTestCasePageSize = 8;
+        
+        //Store page size of Test Cases gallery in Author UAT Test Case page
+        nfAuthorTestCasePageSizeTC = 7;
+        
+        //Store the page number of Test Case gallery in Author Test Case
+        nfAuthorTestCasePageTC = 1;
+        
+        //Store page size of requirement gallery in Author UAT Test Case page
+        nfAUATTCRequirementPageSize = 14;
+        
+        //Store page size of defect gallery in Triage UAT defect page
+        nfDefectPageSize = 9;
+    OnError: =
+    OnStart: |+
+        =Set(varShowRec,true);
+        
+        Concurrent(
+            //Loading the header component
+            ClearCollect( ColTabMenuItems,
+                //{Id: 1, Name: "Review SIT Test Cases", Screen:'Review SIT Test Cases'},
+                {Id: 1, Name: "Author Test Cases", Screen:'Author Test Cases'},
+                {Id: 2, Name: "Execute Test Cases", Screen:'Execute Test Cases'},
+                {Id: 3, Name: "Create Defect", Screen: Create_Defect_Independent_Creation},
+                {Id: 4, Name: "Defect List", Screen: 'Defects Lists'},
+                {Id: 5, Name: "Anubhav Screen", Screen: 'Screen1'}
+            ),
+        
+            //Variable use for search functionality for Review SIT Test Cases
+            Set( varREnableSearch, false),
+        
+            //Variable use for search functionality for Author UAT Test Cases
+            Set( varAEnableSearch, false),
+        
+            //Author Test Case page number for test cases gallery
+            Set(varTCpageNumber, 1),
+        
+            //Author Test Case page number for requirement gallery
+            Set(varARQpageNumber, 1),
+        
+            //Set test run page number 1
+            Set( varTRpageNumber, 1),
+        
+            Set(varTestRunsID, ""),
+            
+            Set(varTestRunsStatus, ""),
+        
+            Set( varDFPageNumber, 1);
+        
+            //Store Project Details
+            Set( constProjectInfo, 'ITS-TCOE_OCTO_UATMain_V1'.GetAProject( LookUp( 'Environment Variable Values','Environment Variable Definition'. 'Display Name' = "ITS-TCOE_OCTO_UATNext_Test_qTestProjectID").Value)),
+        
+            Set( constTestcaseLoc, Int( LookUp( 'Environment Variable Values','Environment Variable Definition'. 'Display Name' = "ITS-TCOE_OCTO_UATNext_Test_TestCaseModuleID").Value))
+            
+        );
+        
+        Concurrent(
+            //Storing requirement properties field ids in the collection.
+            ClearCollect( colRequirementsFieldId, 'ITS-TCOE_OCTO_UATMain_V1'.GetFieldId( constProjectInfo.id, "requirements")),
+        
+            //Storing testcase properties field ids in the collection
+            ClearCollect( colTestcasesFieldId, 'ITS-TCOE_OCTO_UATMain_V1'.GetFieldId( constProjectInfo.id, "test-cases")),
+        
+            //Storing testrun properties field ids in the collection
+            ClearCollect( colTestrunsFieldId, 'ITS-TCOE_OCTO_UATMain_V1'.GetFieldId( constProjectInfo.id, "test-runs")),
+        
+            //Storing defects properties field ids in the collection
+            ClearCollect( colDefectsFieldId, 'ITS-TCOE_OCTO_UATMain_V1'.GetFieldId( constProjectInfo.id, "defects"))
+        );
+        
+        Concurrent(
+        
+            // Store Module Details
+            Set( constModuleInfo, 'ITS-TCOE_OCTO_UATMain_V1'.GetAModule( constProjectInfo.id, LookUp('Environment Variable Values','Environment Variable Definition'. 'Display Name' = "ITS-TCOE_OCTO_UATNext_Test_qTestModuleID").Value)),
+        
+            // Store the area path module
+            Set( constAreaPathModuleInfo, 'ITS-TCOE_OCTO_UATMain_V1'.GetAModule( constProjectInfo.id, LookUp('Environment Variable Values','Environment Variable Definition'.'Display Name' = "ITS-TCOE_OCTO_UATNext_Test_AQUAModuleID").Value)),
+        
+            //Store Defect fields Ids
+            ClearCollect(
+                colAllDefectFieldsId,
+                {
+                    Summary: LookUp( colDefectsFieldId, label = "Summary", id),
+                    AffectedReleaseBuild: LookUp( colDefectsFieldId, label = "Affected Release/Build", id),
+                    Severity: LookUp( colDefectsFieldId, label = "Severity", id),
+                    FixedReleaseBuild: LookUp(colDefectsFieldId,label="Fixed Release/Build",id),
+                    Priority: LookUp(colDefectsFieldId,label="Priority",id),
+                    RootCause: LookUp(colDefectsFieldId,label="Root Cause",id),
+                    Module: LookUp(colDefectsFieldId,label="Module",id),
+                    AssignedTo: LookUp(colDefectsFieldId,label="Assigned To",id),
+                    Status: LookUp(colDefectsFieldId,label="Status",id),
+                    Type: LookUp(colDefectsFieldId,label="Type",id),
+                    TargetReleaseBuild: LookUp(colDefectsFieldId,label="Target Release/Build",id),
+                    Reason: LookUp(colDefectsFieldId,label="Reason",id),
+                    TargetDate: LookUp(colDefectsFieldId,label="Target Date",id),
+                    ClosedDate: LookUp(colDefectsFieldId,label="Closed Date",id),
+                    Environment: LookUp(colDefectsFieldId,label="Environment",id),
+                    Category: LookUp(colDefectsFieldId,label="Category",id),
+                    Description: LookUp(colDefectsFieldId,label="Description",id),
+                    NonQAUser: LookUp(colDefectsFieldId,label="Non-QA User (UATNext Only)",id),
+                    CreatedByUAT: LookUp(colDefectsFieldId,label="Created By (UATNext Only)",id),
+                    UpdatedByUAT: LookUp( colDefectsFieldId,label="Updated By (UATNext Only)",id),
+                    Team: LookUp(colDefectsFieldId,label="Team",id)
+                }
+            ),
+            
+            //Store Test case field ids
+            ClearCollect( colAllTestCaseFieldId, 
+                {   
+                    AutomationProgress : Text( LookUp( colTestcasesFieldId, Lower(label) = Lower("Automation Progress"), id)),
+                    assignTo: Text( LookUp( colTestcasesFieldId, Lower(label) = Lower("Assigned To"), id)),
+                    priority: Text( LookUp( colTestcasesFieldId, Lower(label) = Lower("Priority"), id)), 
+                    status: LookUp( colTestcasesFieldId, Lower(label) = Lower("Status"), id),
+                    IncludedInUAT: LookUp( colTestcasesFieldId, Lower(label) =Lower("Included In UAT"), id),
+                    CreatedByUAT: Text( LookUp( colTestcasesFieldId, Lower(label) = Lower("Created By (UATNext Only)"), id)),
+                    UpdatedByUAT: LookUp( colTestcasesFieldId, label="Updated By (UATNext Only)",id),
+                    Type : Text( LookUp( colTestcasesFieldId, Lower(label) = Lower("Type"), id)),
+                    description : Text( LookUp( colTestcasesFieldId, Lower(label) = Lower("Description"), id)),
+                    precondition : Text( LookUp( colTestcasesFieldId, Lower(label) = Lower("Precondition"), id)),
+                    BusinessUser : Text( LookUp( colTestcasesFieldId, Lower(label) = Lower("Non-QA User (UATNext Only)"), id))
+                }
+            ),
+        
+            //Store Test run created by ID into this variable
+            Set( varTestRunCreatedByUAT, LookUp( colTestrunsFieldId, label = "Created By (UATNext Only)", id)),
+        
+            //Store Test run updated by ID into this variable
+            Set( varTestRunUpdatedByUAT,  LookUp( colTestrunsFieldId, label = "Updated By (UATNext Only)", id)), 
+            
+            //Store Test run nonqa user ID into this variable
+            Set( varTestRunNonQAUser, LookUp(colTestrunsFieldId,label = "Non-QA User (UATNext Only)", id)),
+           
+            //Store test-steps category
+            Set( TestStepUATCategory, LookUp('ITS-TCOE_OCTO_UATMain_V1'.GetFieldId(constProjectInfo.id,"test-steps"), Lower(label) = Lower("UAT Category"),id))
+        );
+        
+        //Collect custom filed values of site field values for test step business
+        ClearCollect( colBusinessValuesTS, Filter( 'ITS-TCOE_OCTO_UATMain_V1'.ListOfAllowedValue("test-steps", TestStepUATCategory), is_active));
+        
+        //Clear release details collection
+        Clear( colReleaseDetails);
+        
+        Clear( colReleaseIDs);
+        
+        //Store Release IDs for test run screen and triage screen
+        ClearCollect( Spreadvalue ,Split( LookUp( 'Environment Variable Values','Environment Variable Definition'. 'Display Name' = "ITS-TCOE_OCTO_UATNext_Test_Releases"). Value, ","));
+            
+        ForAll( Spreadvalue, Collect( colReleaseIDs,{ID: ThisRecord.Value}));
+        
+        //Store Release Details for test run screen and triage screen
+        ForAll( colReleaseIDs, Collect(colReleaseDetails,  'ITS-TCOE_OCTO_UATMain_V1'.GetARelease( constProjectInfo.id, ThisRecord.ID)));
+        
+        //Storing release record in the variable.
+        Set( constReleaseInfo, LookUp(colReleaseDetails, id = Int( First(colReleaseIDs).ID)));
+        
+        
+        //Collect all the 'cycle', 'cycle under parent cycle' under this release.
+        ClearCollect( colFirstCollectionAllTCycle,'ITS-TCOE_OCTO_UATMain_V1'.GetTestcycle( constProjectInfo.id, {parentId: constReleaseInfo.id, parentType:"release", expand: "descendants"}));
+        
+        
+        //Clear EpicModule collection
+        Clear( colallEpicModule);
+        
+        //Clear FeatureModule collection
+        Clear( colallFeatureModule);
+        
+        //Collect all module under the project
+        ClearCollect(colallEpicModule,'ITS-TCOE_OCTO_UATMain_V1'.GetModule(constProjectInfo.id, {parentId: constModuleInfo.id, expand: "descendants"}));
+        
+        //Collect team allowed values for requirements
+        ClearCollect(colRequrementsTeam, Filter( LookUp( colRequirementsFieldId, Lower(label) = Lower("Team"), allowed_values), is_active));
+        
+        Concurrent(
+            //Collect assigned to allowed values for test cases
+            ClearCollect( colAssigedToTC, Filter( LookUp( colTestcasesFieldId, Lower(label) = Lower("Assigned To"), allowed_values), is_active)),
+        
+            //Collect priority allowed values for test case
+            ClearCollect( colPriorityTC, Filter( LookUp( colTestcasesFieldId, Lower(label) = Lower("Priority"), allowed_values), is_active)),
+        
+            //Collect Status allowed values for test case
+            ClearCollect( colStatusTC, Filter( LookUp( colTestcasesFieldId, Lower(label) = Lower("Status"), allowed_values), is_active)),
+        
+            //Collect Type allowed values for test case
+            ClearCollect( colTypeTC, Filter( LookUp( colTestcasesFieldId, Lower(label) = Lower("Type"), allowed_values), is_active)),
+        
+            //Collect Automation Progress allowed values for test case
+            ClearCollect( colAutomationProgressTC, Filter( LookUp( colTestcasesFieldId, Lower(label) = Lower("Automation Progress"), allowed_values), is_active)),
+            
+            //Collect custom filed PromotedToUAT fields allowed values for test case
+            ClearCollect( colIncludedInUATTC, Filter( LookUp( colTestcasesFieldId, Lower(label) = Lower("Included In UAT"), allowed_values), is_active)),
+        
+             //Collect custom filed BusinessUser fields allowed values for test case
+            ClearCollect( colBusinessUserTC, Filter( LookUp( colTestcasesFieldId, Lower(label) = Lower("Non-QA User (UATNext Only)"), allowed_values), is_active))
+        );
+        
+        Concurrent(
+            //Collect Test Run status values
+            ClearCollect( colTestlogStatus, Filter( LookUp( colTestrunsFieldId, Lower(label) = Lower("Status"), allowed_values), is_active)),
+        
+            //Collect Test Run Non QA User Values
+             ClearCollect( colTRNonQaUser, Filter( LookUp( colTestrunsFieldId, Lower(label) = Lower("Non-QA User (UATNext Only)"), allowed_values), is_active)),
+            
+            //Collect AssignTo user for testrun.
+            ClearCollect( colTRAssignToUser, Filter( LookUp( colTestrunsFieldId, Lower(label) = Lower("Assigned To"), allowed_values), is_active))
+        );
+        
+        Concurrent(
+            //Collect Affected Release values for defects.
+            ClearCollect( colAllAffectReleaseValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Affected Release/Build"), allowed_values), is_active)),
+        
+            //Collect Severity values for defects.
+            ClearCollect( colSeverityValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Severity"), allowed_values), is_active)),
+        
+            //Collect Fixed Release values for defects.
+            ClearCollect( colFixedReleaseValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Fixed Release/Build"), allowed_values), is_active)),
+        
+            //Collect Root Cause values for defects.
+            ClearCollect( colRotCauseValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Root Cause"), allowed_values), is_active)),
+        
+            //Collect Priority values for defects.
+            ClearCollect( colPriorityValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Priority"), allowed_values), is_active)),
+        
+            //Collect Module values for defects.
+            ClearCollect( colModuleValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Module"), allowed_values), is_active)),
+        
+            //Collect AssignedTo values for defects.
+            Collect( colAssignToValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Assigned To"), allowed_values), is_active)),
+        
+            //Collect Status values for defects.
+            ClearCollect( colStatusValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Status"), allowed_values), is_active)),
+        
+            //Collect Type values for defects.
+            ClearCollect( colTypeValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Type"), allowed_values), is_active)),
+        
+            //Collect Target Release values for defects.
+            ClearCollect( colTargetReleaseBValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Target Release/Build"), allowed_values), is_active)),
+        
+            //Collect Reason values for defects.
+            ClearCollect( colReasonValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Reason"), allowed_values), is_active)),
+        
+            //Collect Category values for defects.
+            ClearCollect( colCategoryValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Category"), allowed_values), is_active)),
+        
+            //Collect Environment values for defects.
+            ClearCollect( colEnvValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Environment"), allowed_values), is_active)),
+            
+            //Collect Non QA Users values for defects.
+            ClearCollect( colNonQAUserValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Non-QA User (UATNext Only)"), allowed_values), is_active)),
+        
+            //Collect Team values for defects.
+            ClearCollect( colTeamValues, Filter( LookUp( colDefectsFieldId, Lower(label) = Lower("Team"), allowed_values), is_active))
+        );
+        
+        //Restructure Affected Release values for defects.
+        ClearCollect( colAffectReleaseValues, Filter( colAllAffectReleaseValues, Substitute( value, "-", "")  in colReleaseIDs));
+        
+        //Author Test Cases Requirement collect
+        Set( varATCRequirementRecords, 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, { object_type: "requirements", Page: varARQpageNumber, pageSize: nfAUATTCRequirementPageSize, fields: ["*"], query: $"'Module' in '{constModuleInfo.pid} {Trim(constModuleInfo.name)}'"}));
+        
+        Set( varATCRequirementsCount, varATCRequirementRecords.total);
+        
+        ClearCollect( colRequirement, varATCRequirementRecords.items);
+        
+    StartScreen: ='Author Test Cases'
+    Theme: =PowerAppsTheme
+
+    Host As hostControl.DefaultHostControlVariant:
+        OnCancel: =false
+        OnEdit: =false
+        OnNew: =false
+        OnSave: =false
+        OnView: =false
+

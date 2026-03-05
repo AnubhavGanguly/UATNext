@@ -1,0 +1,230 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+ComponentDefinitions:
+  Outer_Header_Component:
+    DefinitionType: CanvasComponent
+    CustomProperties:
+      OuterComponentPDFLink:
+        PropertyKind: Input
+        DisplayName: OuterComponentPDFLink
+        Description: A custom property for PDF
+        DataType: Text
+        Default: ="Text"
+      OuterComponentVideoLink:
+        PropertyKind: Input
+        DisplayName: OuterComponentVideoLink
+        Description: A custom property for video
+        DataType: Text
+        Default: ="Text"
+      TabMenuItems:
+        PropertyKind: Input
+        DisplayName: TabMenuItems
+        Description: Tab Menu Items
+        DataType: Table
+        Default: =ColTabMenuItems
+      conProjectID:
+        PropertyKind: Input
+        DisplayName: conProjectID
+        Description: project id
+        DataType: Text
+        Default: ="Text"
+    Properties:
+      Height: =50
+      Width: =1366
+    Children:
+      - OuterHeaderBackgroundRectangle:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Fill: =RGBA(70, 189, 198, 1)
+            Height: =50
+            Width: =Parent.Width
+      - PursuitLogoBackgroundRectangle:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Fill: =RGBA(0, 134, 146, 1)
+            Height: =50
+            Width: =50
+      - PDFImg:
+          Control: Image@2.2.3
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Height: =OuterHeaderBackgroundRectangle.Height
+            Image: ='reshot-icon-pdf-WFAVXEYNPZ'
+            OnSelect: =
+            PaddingBottom: =5
+            PaddingLeft: =5
+            PaddingRight: =5
+            PaddingTop: =5
+            Width: =50
+            X: =OuterHeaderBackgroundRectangle.Width-PDFImg.Width-5
+            Y: =OuterHeaderBackgroundRectangle.Y
+      - PursuitImg:
+          Control: Image@2.2.3
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Height: =OuterHeaderBackgroundRectangle.Height
+            Image: ='PursuitSoftwareLogo-White'
+            PaddingBottom: =6
+            PaddingLeft: =6
+            PaddingRight: =6
+            PaddingTop: =6
+            Width: =50
+            X: =Parent.X
+            Y: =OuterHeaderBackgroundRectangle.Y
+      - AppNameButton:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            BorderStyle: =BorderStyle.None
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisplayMode: =DisplayMode.View
+            Fill: =RGBA(0, 0, 0, 0)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            Height: =OuterHeaderBackgroundRectangle.Height / 2 + 5
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =//ColorFade(RGBA(56, 96, 178, 1), -20%)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =16
+            Text: ="UATNext"
+            Tooltip: =Outer_Header_Component.conProjectID
+            Width: =100
+            X: =PursuitImg.Width+20
+            Y: =OuterHeaderBackgroundRectangle.Y
+      - HeadderCTabMenuGallery:
+          Control: Gallery@2.15.0
+          Variant: Horizontal
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            DelayItemLoading: =false
+            Height: =OuterHeaderBackgroundRectangle.Height
+            Items: =Outer_Header_Component.TabMenuItems
+            LoadingSpinner: =LoadingSpinner.None
+            OnSelect: =
+            TemplateSize: =GallerySelectedBtn.Width
+            Width: =1000
+            X: =VersionIfoLbl.X+VersionIfoLbl.Width
+            Y: =OuterHeaderBackgroundRectangle.Y
+          Children:
+            - GallerySelectedBtn:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =ColorFade(Self.Fill, -15%)
+                  BorderStyle: =BorderStyle.None
+                  BorderThickness: =0
+                  Color: =RGBA(255, 255, 255, 1)
+                  DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                  Fill: =RGBA(70, 189, 198, 1)
+                  Font: =Font.'Segoe UI'
+                  FontWeight: =If(ThisItem.Screen = App.ActiveScreen,FontWeight.Bold,FontWeight.Normal)
+                  Height: =OuterHeaderBackgroundRectangle.Height-GallerySelectedDownRectangle.Height-5
+                  HoverBorderColor: =ColorFade(RGBA(70, 189, 198, 1), 20%)
+                  HoverColor: =Self.Color
+                  HoverFill: =ColorFade( Self.Fill,30%)
+                  OnSelect: =Navigate(ThisItem.Screen)
+                  PressedBorderColor: =Self.Fill
+                  PressedColor: =Self.HoverColor
+                  PressedFill: =Self.HoverFill
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Size: =12
+                  Text: =ThisItem.Name
+                  Width: =190
+            - GallerySelectedDownRectangle:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(1, 139, 152, 1)
+                  BorderStyle: =BorderStyle.None
+                  Fill: =RGBA(255, 152, 1, 1)
+                  Height: =5
+                  Visible: '=If(ThisItem.Screen = App.ActiveScreen,true,false) '
+                  Width: =GallerySelectedBtn.Width
+                  X: =GallerySelectedBtn.X
+                  Y: =GallerySelectedBtn.Height
+      - PlayImg:
+          Control: Image@2.2.3
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Height: =OuterHeaderBackgroundRectangle.Height
+            Image: ='Video Help'
+            OnSelect: =
+            PaddingBottom: =8
+            PaddingLeft: =8
+            PaddingRight: =8
+            PaddingTop: =8
+            Width: =50
+            X: =OuterHeaderBackgroundRectangle.Width-PlayImg.Width-5-PDFImg.Width
+            Y: =OuterHeaderBackgroundRectangle.Y
+      - PlayImfBtn:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =0
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(0, 0, 0, 0)
+            Font: =Font.'Segoe UI'
+            Height: =PlayImg.Height
+            HoverBorderColor: =
+            HoverColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =
+            OnSelect: =Launch(Outer_Header_Component.OuterComponentVideoLink)
+            PressedBorderColor: =
+            PressedColor: =Self.Fill
+            PressedFill: =
+            Size: =11
+            Text: =""
+            Width: =PlayImg.Width
+            X: =PlayImg.X
+            Y: =PlayImg.Y
+      - PDFImgBtn:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =0
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(0, 0, 0, 0)
+            Font: =Font.'Segoe UI'
+            Height: =PDFImg.Height
+            HoverBorderColor: =
+            HoverColor: =RGBA(0, 0, 0, 0)
+            HoverFill: =
+            OnSelect: =Launch(Outer_Header_Component.OuterComponentPDFLink)
+            PressedBorderColor: =
+            PressedColor: =Self.Fill
+            PressedFill: =
+            Size: =11
+            Text: =""
+            Width: =PDFImg.Width
+            X: =PDFImg.X
+            Y: =PDFImg.Y
+      - VersionIfoLbl:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =Parent.Height - AppNameButton.Height
+            LineHeight: =1
+            Size: =11
+            Text: ="3.4.0.2 11-FEB-26"
+            X: =PursuitImg.Width+20
+            Y: =AppNameButton.Y + AppNameButton.Height - 5

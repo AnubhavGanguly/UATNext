@@ -1,0 +1,1994 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  Author Test Case Details:
+    Properties:
+      LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
+      OnHidden: "=Concurrent(\r\n    Reset( TCDTitlevalueTxtinput),\r\n\r\n    Reset( ETCQAUserValueDrodpown),\r\n\r\n    Reset( TCDDescriptionValueTxtInput),\r\n\r\n    Reset( TCDAutomationProgressDrodpown),\r\n\r\n    Reset( ETCStatusValueDrodpown),\r\n\r\n    Reset( TCDPreconditionValueTxtInput),\r\n\r\n    Reset( ETCTypeValueDrodpown),\r\n\r\n    Reset( ETCNonQaUserValueDropdown),\r\n    \r\n    Clear(colTestStep)\r\n)"
+      OnVisible: "=//Enabling ReqLoading Spinnier\nUpdateContext({ showTCDLoadingSpinner: true});\n\nConcurrent(\n    Set(varScreenName, \"Author Test Case Details\"),\n\n    Set(varVideoLink, Concatenate(nfSharepointbaseUrl,\"video/Author_Test_Case_Details.mp4\")),\n        \n    Set(varPDFLink, Concatenate(nfSharepointbaseUrl,\"pdf/Author_Test_Case_Details.pdf\"))\n);\n\nUpdateContext({varAddTestCaseVisiblity: false});\n\nReset(TCDETSRadioButton);\n\nUpdateContext({showTestStep: false});\n\nClearCollect( colTCInfo, 'ITS-TCOE_OCTO_UATMain_V1'.GetTestcase( constProjectInfo.id, gallerySelectedTestcase.id, {expand:\"teststep\"}));\n\nClearCollect( colTCProperties, First( colTCInfo).properties);\n\n//Update the update by column\nUpdateIf(\n    colTCProperties, field_id = Value( First( colAllTestCaseFieldId).UpdatedByUAT),\n    {\n        field_id: Value (First( colAllTestCaseFieldId).UpdatedByUAT),\n        field_name: \"Updated By (UATNext Only)\",\n        field_value: nfUserObject.'Full Name'\n    }\n);\n\nClearCollect( colTestStep, AddColumns( First( colTCInfo).test_steps, Order, order));\n\nClearCollect( colTestStep1, colTestStep);\n\n//Enabling ReqLoading Spinnier\nUpdateContext({ showTCDLoadingSpinner: false});"
+    Children:
+      - TCDetailsCanvas:
+          Control: FluidGrid@2.3.0
+          Properties:
+            BorderThickness: =0
+            Height: =Parent.Height - AUATTCD_Inner_Header_Component.Height - 4
+            Width: =Parent.Width
+            Y: =AUATTCD_Inner_Header_Component.Y + AUATTCD_Inner_Header_Component.Height
+          Children:
+            - TCDetailsDataCard:
+                Control: DataCard@1.0.2
+                Properties:
+                  Fill: =ColorFade(RGBA(230, 230, 230, 0.82), 1000%)
+                  Height: =Parent.Height
+                  Width: =Parent.Width
+                  X: =0
+                  Y: =0
+                Children:
+                  - TextInputExpResult:
+                      Control: Classic/TextInput@2.3.2
+                      Group: GroupCreateTestStep
+                      Properties:
+                        BorderColor: =RGBA(177, 227, 230, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Default: =
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =80
+                        HoverBorderColor: =Self.BorderColor
+                        HoverFill: =//Color.Transparent
+                        Mode: =TextMode.MultiLine
+                        OnSelect: =
+                        RadiusBottomLeft: =0.4
+                        RadiusBottomRight: =0.4
+                        RadiusTopLeft: =0.4
+                        RadiusTopRight: =0.4
+                        Size: =11
+                        Tooltip: =
+                        Visible: =showTestStep
+                        Width: =ExpectedResultLbl.Width
+                        X: =ExpectedResultLbl.X
+                        Y: =NTSBusinessDrodpdown.Y
+                  - TextInputStepDes:
+                      Control: Classic/TextInput@2.3.2
+                      Group: GroupCreateTestStep
+                      Properties:
+                        BorderColor: =RGBA(177, 227, 230, 1)
+                        BorderThickness: =0.2
+                        Default: =
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =80
+                        HoverBorderColor: =Self.BorderColor
+                        HoverFill: =//Color.Transparent
+                        Mode: =TextMode.MultiLine
+                        OnSelect: =
+                        PaddingLeft: =10
+                        RadiusBottomLeft: =0.4
+                        RadiusBottomRight: =0.4
+                        RadiusTopLeft: =0.4
+                        RadiusTopRight: =0.4
+                        Size: =11
+                        Tooltip: =
+                        Visible: =showTestStep
+                        Width: =670
+                        X: =120
+                        Y: =NTSBusinessDrodpdown.Y
+                  - NTSBusinessDrodpdown:
+                      Control: Classic/ComboBox@2.4.0
+                      Group: GroupCreateTestStep
+                      Properties:
+                        BorderColor: =RGBA(177, 227, 230, 1)
+                        BorderThickness: =0.2
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronFill: =RGBA(211, 239, 241, 1)
+                        ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Color: =RGBA(107, 106, 106, 1)
+                        DefaultSelectedItems: = varDefaultCategory
+                        DisplayFields: =["label"]
+                        FocusedBorderThickness: =0.5
+                        Font: =Font.'Segoe UI'
+                        Height: =80
+                        HoverColor: =RGBA(128, 128, 128, 1)
+                        HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                        InputTextPlaceholder: ="UAT Category"
+                        IsSearchable: =false
+                        Items: =Filter(colBusinessValuesTS, !(label ="N/A") )
+                        OnChange: |-
+                          =UpdateContext({ varDefaultCategory: LookUp( colBusinessValuesTS, value = Self.Selected.value)});
+                        OnSelect: =
+                        PaddingBottom: =30
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        Reset: =true
+                        SearchFields: =["label"]
+                        SelectMultiple: =false
+                        SelectionColor: =RGBA(70, 189, 198, 1)
+                        SelectionFill: =RGBA(236, 248, 249, 1)
+                        SelectionTagColor: |-
+                          =RGBA(0, 0, 0, 1)
+                          //Self.HoverColor
+                        SelectionTagFill: =Color.Transparent
+                        Size: =11
+                        Visible: =showTestStep
+                        Width: =NTSCategoryLbl.Width
+                        Y: =NTSCategoryLbl.Y + NTSCategoryLbl.Height
+                  - GalleryExistTestStep:
+                      Control: Gallery@2.15.0
+                      Variant: BrowseLayout_Flexible_SocialFeed_ver5.0
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Height: |-
+                          =//If( GallerynewSteps.Visible = false, 380,121)
+                          If(showTestStep,185,380)
+                        Items: "=If( \r\n    TCDETSRadioButton.Selected.Value = \"Show All Test Steps\", \r\n    \r\n    SortByColumns( colTestStep,\"Order\",SortOrder.Ascending), \r\n    \r\n    SortByColumns( Filter( colTestStep, Not( LookUp( ThisRecord.customFieldInfo, Lower(name) = Lower(\"UAT Category\")).value = Text( LookUp( colBusinessValuesTS, label = \"Technical\",value)))),\"Order\",SortOrder.Ascending)\r\n)\r\n\r\n\r\n"
+                        TemplatePadding: =0
+                        TemplateSize: =232
+                        Width: =Parent.Width
+                        Y: =ETSHeaderbackgroundrectangle.Y+ETSHeaderbackgroundrectangle.Height
+                      Children:
+                        - GETSStepsDeleteIcon:
+                            Control: Classic/Icon@2.5.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(184, 0, 0, 1)
+                              Height: =30
+                              Icon: =Icon.Trash
+                              OnSelect: |-
+                                =UpdateContext({ showTCDLoadingSpinner: true});
+
+                                'ITS-TCOE_OCTO_UATMain_V1'.DeleteTeststep(constProjectInfo.id,gallerySelectedTestcase.id,ThisItem.id);
+
+                                If( IsBlank( LookUp( colTCProperties, field_id = Value( First( colAllTestCaseFieldId).Type)).field_value), Remove( colTCProperties, LookUp( colTCProperties, field_id = Value( First( colAllTestCaseFieldId).Type))));
+
+                                'ITS-TCOE_OCTO_UATMain_V1'.UpdateTestcase( constProjectInfo.id, gallerySelectedTestcase.id, {properties: colTCProperties});
+
+                                Clear(colTestStep);
+
+                                Collect(colTestStep, AddColumns('ITS-TCOE_OCTO_UATMain_V1'.GetTestStep(constProjectInfo.id,gallerySelectedTestcase.id),Order,order));
+
+                                ClearCollect(colTestStep1, colTestStep);
+
+                                UpdateContext({ showTCDLoadingSpinner: false});
+                              PaddingBottom: =5
+                              PaddingLeft: =5
+                              PaddingRight: =5
+                              PaddingTop: =5
+                              Tooltip: ="Delete"
+                              Width: =30
+                              X: =StepsUpIcon.X + StepsUpIcon.Width + 20
+                              Y: =15
+                        - GETSStepNumbervalueLblID:
+                            Control: Label@2.5.1
+                            Properties:
+                              Align: =Align.Center
+                              BorderColor: =RGBA(230, 230, 230, 1)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =0.4
+                              Font: =Font.'Segoe UI'
+                              Height: "=\r\nIf(\r\n    HtmlTextDescriptionValue_1.Height < 60 && HtmlTextExpectedResultValue_1.Height < 60,\r\n    60,\r\n    HtmlTextDescriptionValue_1.Height > HtmlTextExpectedResultValue_1.Height,\r\n    HtmlTextDescriptionValue_1.Height,\r\n    HtmlTextExpectedResultValue_1.Height\r\n)\r\n "
+                              OnSelect: =Select(Parent)
+                              Size: =11
+                              Text: =ThisItem.Order
+                              Width: =ETSStepNumberLbl.Width - 1
+                        - ETSBusinessDrodpdown:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(230, 230, 230, 1)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =Self.Fill
+                              ChevronFill: =RGBA(211, 239, 241, 1)
+                              ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                              ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                              DefaultSelectedItems: =LookUp(colBusinessValuesTS,value = Int( LookUp( ThisItem.customFieldInfo, Lower(name) = Lower("UAT Category")).value))
+                              DisabledBorderColor: =RGBA(230, 230, 230, 1)
+                              DisabledColor: =Self.Color
+                              DisabledFill: =Self.Fill
+                              DisplayFields: =["label"]
+                              DisplayMode: =If( IsBlank(ThisItem.called_test_case), DisplayMode.Edit, DisplayMode.Disabled)
+                              FocusedBorderThickness: =0.5
+                              Font: =Font.'Segoe UI'
+                              Height: =GETSStepNumbervalueLblID.Height
+                              HoverColor: =RGBA(128, 128, 128, 1)
+                              HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                              InputTextPlaceholder: =""
+                              IsSearchable: =false
+                              Items: =Filter(colBusinessValuesTS, !(label ="N/A"))
+                              OnChange: "=If(\r\n    IsBlank(ThisItem.called_test_case),\r\n    Patch(\r\n        colTestStep1,LookUp(colTestStep1,id = ThisItem.id),\r\n        {\r\n            id: ThisItem.id,\r\n            description: GETSStepDescriptionTxtBox.Text,\r\n            expected: GETSExpectedResultTxtbox.Text,\r\n            order: ThisItem.order,\r\n            plain_value_text: GETSExpectedResultTxtbox.Text,\r\n            Order: ThisItem.Order,\r\n            //UATCategoryValue: Int(Self.Selected.value),\r\n            customFieldInfo: [\r\n                {\r\n                    id: TestStepUATCategory,\r\n                    value: Text(Self.Selected.value),\r\n                    objectId: ThisItem.id,\r\n                    type: \"PropertyDropdownComponent\",\r\n                    name: \"UAT CATEGORY\",\r\n                    propertyEditorComponent: false,\r\n                    stripHTMLValue: Text(Self.Selected.value)\r\n                }\r\n            ]\r\n        }\r\n    ),\r\n    Patch(\r\n        colTestStep1,LookUp(colTestStep1,id = ThisItem.id),\r\n        {\r\n            id: ThisItem.id,\r\n            description: GETSStepDescriptionTxtBox.Text,\r\n            expected: GETSExpectedResultTxtbox.Text,\r\n            order: ThisItem.order,\r\n            plain_value_text: GETSExpectedResultTxtbox.Text,\r\n            Order: ThisItem.Order,\r\n            called_test_case: ThisItem.called_test_case,\r\n            customFieldInfo:ThisItem.customFieldInfo\r\n            //UATCategoryValue: \"\",\r\n            /*customFieldInfo: [\r\n                {\r\n                    id: TestStepUATCategory,\r\n                    value: \"\",\r\n                    objectId: ThisItem.id,\r\n                    type: \"PropertyDropdownComponent\",\r\n                    name: \"UAT CATEGORY\",\r\n                    propertyEditorComponent: true,\r\n                    stripHTMLValue:\"\"\r\n                }\r\n            ]*/\r\n        }\r\n    )\r\n);\r\n\r\n//ClearCollect(colTestStep, colTestStep1)\r\n\r\n/*If(\r\n    IsBlank(ThisItem.called_test_case) && !( Int( LookUp( ThisItem.customFieldInfo, true).value) = Self.Selected.value),\r\n\r\n    Patch(\r\n        colTestStep1,\r\n        LookUp(colTestStep1,id=ThisItem.id),\r\n        {\r\n            id: ThisItem.id,\r\n            description: GETSStepDescriptionTxtBox.Text,\r\n            expected: GETSExpectedResultTxtbox.Text,\r\n            order: ThisItem.order,\r\n            plain_value_text: GETSExpectedResultTxtbox.Text,\r\n            Order: ThisItem.Order,                            //Int(GETSStepNumbervalueLblID.Text),\r\n            customFieldInfo: [\r\n                {\r\n                    id: TestStepUATCategory,\r\n                    value: Text(Self.Selected.value),\r\n                    objectId: ThisItem.id,\r\n                    type: \"PropertyDropdownComponent\",\r\n                    name: \"UAT Category\",\r\n                    propertyEditorComponent: false,\r\n                    stripHTMLValue:Text( Self.Selected.value)\r\n                }\r\n            ]\r\n        }\r\n    ),\r\n\r\n    If(\r\n        !( Int( LookUp( ThisItem.customFieldInfo, true).value) = Self.Selected.value),\r\n            \r\n        Patch(\r\n                colTestStep1,\r\n                LookUp(colTestStep1,id=ThisItem.id),\r\n                {\r\n                    id: ThisItem.id,\r\n                    description: GETSStepDescriptionTxtBox.Text,\r\n                    expected: GETSExpectedResultTxtbox.Text,\r\n                    order: ThisItem.order,\r\n                    plain_value_text: GETSExpectedResultTxtbox.Text,\r\n                    Order: ThisItem.Order,                               //Int(GETSStepNumbervalueLblID.Text),\r\n                    called_test_case: ThisItem.called_test_case\r\n                }\r\n            )\r\n    )\r\n);\r\n*/\r\n//ClearCollect(colTestStep1,colTestStep);"
+                              PaddingBottom: =30
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(70, 189, 198, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(70, 189, 198, 1)
+                              SelectionFill: =RGBA(236, 248, 249, 1)
+                              SelectionTagColor: |-
+                                =RGBA(0, 0, 0, 1)
+                                //Self.HoverColor
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =120
+                              X: =GETSStepNumbervalueLblID.X + GETSStepNumbervalueLblID.Width
+                              Y: =GETSStepNumbervalueLblID.Y
+                        - HtmlTextDescriptionValue_1:
+                            Control: HtmlViewer@2.1.0
+                            Properties:
+                              AutoHeight: =true
+                              BorderColor: =RGBA(230, 230, 230, 1)
+                              BorderThickness: =0.4
+                              Color: =RGBA(255, 255, 255, 1)
+                              DisabledBorderColor: =RGBA(56, 56, 56, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =30
+                              HtmlText: =ThisItem.description
+                              OnSelect: =Select(Parent)
+                              Width: =ETSStepDescriptionLbl.Width - GETCalledTestCaseIcon.Width-10
+                              X: =ETSBusinessDrodpdown.X + ETSBusinessDrodpdown.Width
+                              Y: =ETSBusinessDrodpdown.Y
+                        - HtmlTextExpectedResultValue_1:
+                            Control: HtmlViewer@2.1.0
+                            Properties:
+                              AutoHeight: =true
+                              BorderColor: =RGBA(230, 230, 230, 1)
+                              BorderThickness: =0.4
+                              Color: =RGBA(255, 255, 255, 1)
+                              DisabledBorderColor: =RGBA(56, 56, 56, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              HtmlText: =PlainText(ThisItem.expected)
+                              OnSelect: =Select(Parent)
+                              Width: =ETSExpectedResultLbl.Width
+                              X: =StepDescriptionSeperator.X + StepDescriptionSeperator.Width
+                              Y: =HtmlTextDescriptionValue_1.Y
+                        - Step No Seperator:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Fill: =RGBA(230, 230, 230, 1)
+                              Height: =GETSStepNumbervalueLblID.Height
+                              OnSelect: =Select(Parent)
+                              Width: =1
+                              X: =GETSStepNumbervalueLblID.Width
+                              Y: =GETSStepNumbervalueLblID.Y
+                        - Category_Seperator:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Fill: =RGBA(230, 230, 230, 1)
+                              Height: =ETSBusinessDrodpdown.Height
+                              OnSelect: =Select(Parent)
+                              Width: =2
+                              X: =ETSBusinessDrodpdown.X + ETSBusinessDrodpdown.Width
+                              Y: =ETSBusinessDrodpdown.Y
+                        - StepDescriptionSeperator:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Fill: =RGBA(230, 230, 230, 1)
+                              Height: =ETSBusinessDrodpdown.Height
+                              OnSelect: =Select(Parent)
+                              Width: =2
+                              X: =HtmlTextDescriptionValue_1.X + HtmlTextDescriptionValue_1.Width + GETCalledTestCaseIcon.Width + 10
+                              Y: =ETSBusinessDrodpdown.Y
+                        - Expected Result Separator_1:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Fill: =RGBA(230, 230, 230, 1)
+                              Height: =ETSBusinessDrodpdown.Height
+                              OnSelect: =Select(Parent)
+                              Width: =2
+                              X: =HtmlTextExpectedResultValue_1.X + HtmlTextExpectedResultValue_1.Width
+                              Y: =ETSBusinessDrodpdown.Y
+                        - ATCDVertical Seperator:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Fill: =RGBA(230, 230, 230, 1)
+                              Height: =2
+                              OnSelect: =Select(Parent)
+                              Width: =Parent.Width
+                              Y: =GETSStepNumbervalueLblID.Height
+                        - StepsUpIcon:
+                            Control: Classic/Icon@2.5.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(19, 61, 83, 1)
+                              DisabledColor: =RGBA(179, 179, 179, 1)
+                              DisplayMode: =If( ThisItem.Order = 1, DisplayMode.Disabled, DisplayMode.Edit)
+                              Height: =20
+                              Icon: =Icon.ChevronUp
+                              OnSelect: |-
+                                =UpdateContext({ priviousRecord: LookUp( colTestStep, order = ThisItem.Order - 1)});
+
+                                If(
+                                    IsBlank(priviousRecord.called_test_case),
+                                    Update(
+                                        colTestStep,
+                                        priviousRecord,
+                                        {
+                                            customFieldInfo: priviousRecord.customFieldInfo,
+                                            id: priviousRecord.id,
+                                            description: priviousRecord.description,
+                                            expected: priviousRecord.expected,
+                                            group: ThisItem.Order,
+                                            links: priviousRecord.links,
+                                            order: ThisItem.Order,
+                                            plain_value_text: priviousRecord.plain_value_text,
+                                            //UATCategoryValue: priviousRecord.UATCategoryValue,
+                                            Order: ThisItem.Order
+                                        }
+                                    ),
+                                    Update(
+                                        colTestStep,
+                                        priviousRecord,
+                                        {
+                                            customFieldInfo: priviousRecord.customFieldInfo,
+                                            id: priviousRecord.id,
+                                            description: priviousRecord.description,
+                                            expected: priviousRecord.expected,
+                                            group: ThisItem.Order,
+                                            links: priviousRecord.links,
+                                            order: ThisItem.Order,
+                                            plain_value_text: priviousRecord.plain_value_text,
+                                            //called_test_case:priviousRecord.called_test_case
+                                            //UATCategoryValue: priviousRecord.UATCategoryValue,
+                                            Order: ThisItem.Order,
+                                            called_test_case: {
+                                                id: priviousRecord.called_test_case.id,
+                                                pid: priviousRecord.called_test_case.pid,
+                                                name: priviousRecord.called_test_case.name,
+                                                approved: true
+                                            }
+                                        }
+                                    )
+                                );
+
+                                If(
+                                    IsBlank(ThisItem.called_test_case),
+                                    Update(
+                                        colTestStep,
+                                        ThisItem,
+                                        {
+                                            customFieldInfo:ThisItem.customFieldInfo,
+                                            id: ThisItem.id,
+                                            description: ThisItem.description,
+                                            expected: ThisItem.expected,
+                                            group: priviousRecord.order,
+                                            links: ThisItem.links,
+                                            order: priviousRecord.order,
+                                            plain_value_text: ThisItem.plain_value_text,
+                                            //UATCategoryValue: ThisItem.UATCategoryValue,
+                                            Order: priviousRecord.Order
+                                        }
+                                    ),
+                                    Update(
+                                        colTestStep,
+                                        ThisItem,
+                                        {
+                                            customFieldInfo:ThisItem.customFieldInfo,
+                                            id: ThisItem.id,
+                                            description: ThisItem.description,
+                                            expected: ThisItem.expected,
+                                            group: priviousRecord.order, //ThisItem.group,
+                                            links: ThisItem.links,
+                                            order: priviousRecord.order,
+                                            plain_value_text: ThisItem.plain_value_text,
+                                            //UATCategoryValue: ThisItem.UATCategoryValue,
+                                            Order: priviousRecord.Order,
+                                            //called_test_case:ThisItem.called_test_case
+                                            called_test_case: {
+                                                id: ThisItem.called_test_case.id,
+                                                pid: ThisItem.called_test_case.pid,
+                                                name: ThisItem.called_test_case.name,
+                                                approved: true
+                                            }
+                                        }
+                                    )
+                                );
+
+                                ClearCollect( colTestStep1, colTestStep);
+                              PaddingBottom: =3
+                              PaddingLeft: =3
+                              PaddingRight: =3
+                              PaddingTop: =3
+                              Tooltip: ="Shift Up"
+                              Width: =20
+                              X: =1260
+                              Y: =10
+                        - StepsDownicon:
+                            Control: Classic/Icon@2.5.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(19, 61, 83, 1)
+                              DisabledColor: =RGBA(179, 179, 179, 1)
+                              DisplayMode: =If( ThisItem.Order = Last( SortByColumns( colTestStep, "Order", SortOrder.Ascending)).Order, DisplayMode.Disabled, DisplayMode.Edit)
+                              Height: =StepsUpIcon.Height
+                              Icon: =Icon.ChevronDown
+                              OnSelect: |-
+                                =UpdateContext({ nextRecord: LookUp( colTestStep, Order = ThisItem.Order + 1)});
+
+                                If(
+                                    IsBlank(nextRecord.called_test_case),
+                                    Update(
+                                        colTestStep,
+                                        nextRecord,
+                                        {
+                                            customFieldInfo: nextRecord.customFieldInfo,
+                                            id: nextRecord.id,
+                                            description: nextRecord.description,
+                                            expected: nextRecord.expected,
+                                            group: ThisItem.group,
+                                            links: nextRecord.links,
+                                            order: ThisItem.Order,
+                                            plain_value_text: nextRecord.plain_value_text,
+                                            Order: ThisItem.Order
+                                        }
+                                    ),
+                                    Update(
+                                        colTestStep,
+                                        nextRecord,
+                                        {   customFieldInfo:nextRecord.customFieldInfo,
+                                            id: nextRecord.id,
+                                            description: nextRecord.description,
+                                            expected: nextRecord.expected,
+                                            group: ThisItem.group,
+                                            links: nextRecord.links,
+                                            order: ThisItem.Order,
+                                            plain_value_text: nextRecord.plain_value_text,
+                                            Order: ThisItem.Order,
+                                            called_test_case: {
+                                                id: nextRecord.called_test_case.id,
+                                                pid: nextRecord.called_test_case.pid,
+                                                name: nextRecord.called_test_case.name,
+                                                approved: true
+                                            }
+                                        }
+                                    )
+                                );
+
+                                If(
+                                    IsBlank(ThisItem.called_test_case),
+                                    Update(
+                                        colTestStep,
+                                        ThisItem,
+                                        {
+                                            customFieldInfo:  ThisItem.customFieldInfo,
+                                            id: ThisItem.id,
+                                            description: ThisItem.description,
+                                            expected: ThisItem.expected,
+                                            group: nextRecord.Order,
+                                            links: ThisItem.links,
+                                            order: nextRecord.Order,
+                                            plain_value_text: ThisItem.plain_value_text,
+                                            Order: nextRecord.Order
+                                        }
+                                    ),
+                                    Update(
+                                        colTestStep,
+                                        ThisItem,
+                                        {
+                                            customFieldInfo: ThisItem.customFieldInfo,
+                                            id: ThisItem.id,
+                                            description: ThisItem.description,
+                                            expected: ThisItem.expected,
+                                            group: nextRecord.group,
+                                            links: ThisItem.links,
+                                            order: nextRecord.Order,
+                                            plain_value_text: ThisItem.plain_value_text,
+                                            Order: nextRecord.Order,
+                                            called_test_case: {
+                                                id: ThisItem.called_test_case.id,
+                                                pid: ThisItem.called_test_case.pid,
+                                                name: ThisItem.called_test_case.name,
+                                                approved: true
+                                            }
+                                        }
+                                    )
+                                );
+
+                                ClearCollect(colTestStep1,colTestStep);
+                              PaddingBottom: =3
+                              PaddingLeft: =3
+                              PaddingRight: =3
+                              PaddingTop: =3
+                              Tooltip: ="Shift Down"
+                              Width: =StepsUpIcon.Width
+                              X: =StepsUpIcon.X
+                              Y: =StepsUpIcon.Y+StepsUpIcon.Height
+                        - GETSStepDescriptionTxtBox:
+                            Control: Classic/TextInput@2.3.2
+                            Properties:
+                              BorderColor: =RGBA(230, 230, 230, 1)
+                              BorderStyle: =BorderStyle.None
+                              Default: =If( IsBlank(ThisItem.called_test_case), PlainText(ThisItem.description), ("Call " & ThisItem.called_test_case.pid & " - (" &ThisItem.called_test_case.name & ")"))
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(0, 0, 0, 0)
+                              DisplayMode: =If(!IsBlank(ThisItem.called_test_case), DisplayMode.Disabled, DisplayMode.Edit)
+                              Font: =Font.'Segoe UI'
+                              Height: =HtmlTextDescriptionValue_1.Height
+                              HoverBorderColor: =RGBA(179, 179, 179, 1)
+                              HoverFill: =RGBA(255, 255, 255, 1)
+                              LineHeight: =1
+                              Mode: =TextMode.MultiLine
+                              OnChange: "=If(\r\n    IsBlank(ThisItem.called_test_case),\r\n\r\n    Patch(\r\n        colTestStep1,\r\n        LookUp(colTestStep1,id=ThisItem.id),\r\n        {\r\n            id: ThisItem.id,\r\n            description: Self.Text,\r\n            expected: GETSExpectedResultTxtbox.Text,\r\n            order: ThisItem.order,\r\n            plain_value_text: GETSExpectedResultTxtbox.Text,\r\n            Order: ThisItem.Order,\r\n            //UATCategoryValue: ETSBusinessDrodpdown.Selected.value,\r\n            customFieldInfo: [\r\n                {\r\n                    id: TestStepUATCategory,\r\n                    value: Text(ETSBusinessDrodpdown.Selected.value),\r\n                    objectId: ThisItem.id,\r\n                    type: \"PropertyDropdownComponent\",\r\n                    name: \"UAT CATEGORY\",\r\n                    propertyEditorComponent: true,\r\n                    stripHTMLValue:Text( ETSBusinessDrodpdown.Selected.value)\r\n                }\r\n            ]\r\n        }\r\n    ),\r\n        \r\n    Patch(\r\n        colTestStep1,\r\n        LookUp(colTestStep1,id=ThisItem.id),\r\n        {\r\n            id: ThisItem.id,\r\n            description: Self.Text,\r\n            expected: GETSExpectedResultTxtbox.Text,\r\n            order: ThisItem.order,\r\n            plain_value_text: GETSExpectedResultTxtbox.Text,\r\n            Order: ThisItem.Order,\r\n            called_test_case: ThisItem.called_test_case,\r\n            customFieldInfo:ThisItem.customFieldInfo\r\n             //UATCategoryValue: \"\",\r\n            /*customFieldInfo: [\r\n                {\r\n                    id: TestStepUATCategory,\r\n                    value: \"\",\r\n                    objectId: ThisItem.id,\r\n                    type: \"PropertyDropdownComponent\",\r\n                    name: \"UAT Category\",\r\n                    propertyEditorComponent: true,\r\n                    stripHTMLValue:\"\"\r\n                }\r\n            ]*/\r\n        }\r\n    )  \r\n);\r\n\r\n//ClearCollect(colTestStep1,colTestStep);\r\n\r\n"
+                              OnSelect: =Select(Parent)
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =11
+                              Width: =ETSStepDescriptionLbl.Width - GETCalledTestCaseIcon.Width - 10
+                              X: =Category_Seperator.X + Category_Seperator.Width
+                        - GETSExpectedResultTxtbox:
+                            Control: Classic/TextInput@2.3.2
+                            Properties:
+                              BorderColor: =RGBA(230, 230, 230, 1)
+                              BorderStyle: =BorderStyle.None
+                              Default: =PlainText(ThisItem.expected)
+                              DisabledColor: =RGBA(0, 0, 0, 1)
+                              DisabledFill: =RGBA(0, 0, 0, 0)
+                              DisplayMode: =If(!IsBlank(ThisItem.called_test_case), DisplayMode.Disabled, DisplayMode.Edit)
+                              Font: =Font.'Segoe UI'
+                              Height: =HtmlTextExpectedResultValue_1.Height
+                              HoverBorderColor: =RGBA(0, 18, 107, 1)
+                              HoverFill: =RGBA(255, 255, 255, 1)
+                              Mode: =TextMode.MultiLine
+                              OnChange: "=If(\r\n    IsBlank(ThisItem.called_test_case),\r\n\r\n    Patch(\r\n        colTestStep1,\r\n        LookUp(colTestStep1,id=ThisItem.id),\r\n        {\r\n            id: ThisItem.id,\r\n            description: GETSStepDescriptionTxtBox.Text,\r\n            expected: Self.Text,\r\n            order: ThisItem.order,\r\n            plain_value_text: GETSExpectedResultTxtbox.Text,\r\n            Order: ThisItem.Order,\r\n            //UATCategoryValue: ETSBusinessDrodpdown.Selected.value,\r\n            customFieldInfo: [\r\n                {\r\n                    id:TestStepUATCategory,\r\n                    value: Text(ETSBusinessDrodpdown.Selected.value),\r\n                    objectId: ThisItem.id,\r\n                    type: \"PropertyDropdownComponent\",\r\n                    name: \"UAT CATEGORY\",\r\n                    propertyEditorComponent: true,\r\n                    stripHTMLValue:Text( ETSBusinessDrodpdown.Selected.value)\r\n                }\r\n            ]\r\n        }\r\n    ),\r\n        \r\n    Patch(\r\n        colTestStep1,\r\n        LookUp(colTestStep1,id=ThisItem.id),\r\n        {\r\n            id: ThisItem.id,\r\n            description: GETSStepDescriptionTxtBox.Text,\r\n            expected: Self.Text,\r\n            order: ThisItem.order,\r\n            plain_value_text: Self.Text,\r\n            Order: ThisItem.Order,\r\n            called_test_case: ThisItem.called_test_case,\r\n            customFieldInfo:ThisItem.customFieldInfo\r\n             //UATCategoryValue: \"\",\r\n            /*customFieldInfo: [\r\n                {\r\n                    id: TestStepUATCategory,\r\n                    value: \"\",\r\n                    objectId: ThisItem.id,\r\n                    type: \"PropertyDropdownComponent\",\r\n                    name: \"UAT CATEGORY\",\r\n                    propertyEditorComponent: true,\r\n                    stripHTMLValue:\"\"\r\n                }\r\n            ]*/\r\n        }\r\n    )  \r\n);\r\n\r\n//ClearCollect(colTestStep1,colTestStep);"
+                              OnSelect: =Select(Parent)
+                              Size: =11
+                              Width: =ETSExpectedResultLbl.Width
+                              X: =StepDescriptionSeperator.X + StepDescriptionSeperator.Width
+                        - GETCalledTestCaseIcon:
+                            Control: Classic/Icon@2.5.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(70, 189, 198, 1)
+                              Height: =20
+                              Icon: =Icon.Link
+                              OnSelect: |-
+                                =UpdateContext({ showTCDLoadingSpinner: true});
+
+                                Concurrent(
+                                    Reset( TCDTitlevalueTxtinput),
+                                    Reset( TCDDescriptionValueTxtInput),
+                                    Reset( TCDAutomationProgressDrodpown),
+                                    Reset( ETCStatusValueDrodpown),
+                                    Reset( TCDPreconditionValueTxtInput),
+                                    Reset( ETCTypeValueDrodpown)
+                                );
+
+                                Set(Index, CountRows(colTraceOfClickTC) + 1);
+
+                                Set( TempTcId, ThisItem.called_test_case.id);
+
+                                Collect( colTraceOfClickTC, {ID:Index, TC:TempTcId});
+
+                                UpdateContext({gallerySelectedTestcase: Blank()});
+
+                                UpdateContext({ gallerySelectedTestcase: 'ITS-TCOE_OCTO_UATMain_V1'.GetTestcase( constProjectInfo.id, TempTcId, {expand: "teststep"})});
+
+                                If(
+                                    !IsBlank(ThisItem.called_test_case),
+
+                                    ClearCollect( colRequirementTestcaseLink, 'ITS-TCOE_OCTO_UATMain_V1'.GetObjectLink( constProjectInfo.id, {type: "test-cases", ids: TempTcId}));
+
+                                    Clear( colTCProperties);
+
+                                    ClearCollect(colTCInfo, gallerySelectedTestcase);
+
+                                    ClearCollect(colTestStep, AddColumns( First(colTCInfo).test_steps, Order, order));
+
+                                    ClearCollect(colTestStep1, colTestStep)
+                                );
+
+                                UpdateContext({ showTCDLoadingSpinner: false});
+
+                                Navigate('Author Test Case Details')
+                              Visible: =If( !IsBlank(ThisItem.called_test_case), true, false)
+                              Width: =20
+                              X: =GETSStepDescriptionTxtBox.X + GETSStepDescriptionTxtBox.Width + 5
+                              Y: =10
+                  - TCDTestCaseIdLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(19, 61, 83, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Bold
+                        Height: =25
+                        Size: =12
+                        Text: ="Test Case Id :"
+                        Visible: =false
+                        Width: =120
+                        X: =302
+                        Y: =5
+                  - TCDTestCaseIdvalueTxtInput:
+                      Control: Classic/TextInput@2.3.2
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(19, 61, 83, 1)
+                        Default: =PlainText(First(colTCInfo).pid)
+                        DisabledBorderColor: =RGBA(230, 230, 230, 1)
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: =RGBA(0, 0, 0, 0)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Bold
+                        Height: =50
+                        HoverBorderColor: =RGBA(0, 18, 107, 1)
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        Mode: =TextMode.MultiLine
+                        PaddingLeft: =5
+                        RadiusBottomLeft: =2
+                        RadiusBottomRight: =2
+                        RadiusTopLeft: =2
+                        RadiusTopRight: =2
+                        Size: =14
+                        Tooltip: =PlainText(gallerySelectedTestcase.pid)
+                        Width: =Len(TCDTestCaseIdvalueTxtInput.Text)*14
+                        X: =24
+                        Y: =5
+                  - TCDTitlevalueTxtinput:
+                      Control: Classic/TextInput@2.3.2
+                      Properties:
+                        BorderColor: =RGBA(177, 227, 230, 1)
+                        BorderThickness: =1
+                        Color: =RGBA(19, 61, 83, 1)
+                        Default: =PlainText( First(colTCInfo).name)
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Bold
+                        Height: =50
+                        HoverBorderColor: =RGBA(153, 153, 153, 1)
+                        HoverFill: =RGBA(255, 255, 255, 1)
+                        Mode: =TextMode.MultiLine
+                        RadiusBottomLeft: =0.4
+                        RadiusBottomRight: =0.4
+                        RadiusTopLeft: =0.4
+                        RadiusTopRight: =0.4
+                        Size: =14
+                        Tooltip: =Self.Text
+                        Width: =Parent.Width-TCDTestCaseIdvalueTxtInput.Width-TCDTestCaseIdvalueTxtInput.X - 20
+                        X: =TCDTestCaseIdvalueTxtInput.X+TCDTestCaseIdvalueTxtInput.Width
+                        Y: =5
+                  - TCDQAUserLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="QA User :"
+                        Width: =75
+                        X: =TCDDescriptionValueTxtInput.X + TCDDescriptionValueTxtInput.Width
+                        Y: =TCDDescriptionValueTxtInput.Y
+                  - TCDLinkedRequirementIdLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =22
+                        Size: =11
+                        Text: ="Linked Requirement(s)"
+                        Visible: =false
+                        Width: =160
+                        X: '=TCDStatusLbl.X '
+                        Y: =TCDStatusLbl.Y + TCDStatusLbl.Height + 10
+                  - LinkedReqIdsGal:
+                      Control: Gallery@2.15.0
+                      Variant: Vertical
+                      Properties:
+                        BorderColor: =RGBA(177, 227, 230, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.1
+                        DelayItemLoading: =false
+                        Height: =30
+                        Items: =colRequirementTestcaseLink
+                        LoadingSpinner: =LoadingSpinner.None
+                        TemplatePadding: =0
+                        Visible: =false
+                        Width: =ETCQAUserValueDrodpown.Width
+                        WrapCount: =0
+                        X: =TCDLinkedRequirementIdLbl.X + TCDLinkedRequirementIdLbl.Width
+                        Y: =TCDLinkedRequirementIdLbl.Y
+                      Children:
+                        - NestedLinkedReqIdsGal:
+                            Control: Gallery@2.15.0
+                            Variant: Vertical
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DelayItemLoading: =false
+                              Height: =Parent.Height
+                              Items: =Filter(ThisItem.objects,StartsWith(pid,"rq"))
+                              LoadingSpinner: =LoadingSpinner.None
+                              TemplatePadding: =0
+                              TemplateSize: |-
+                                =//If(Self.Layout = Layout.Horizontal, Min(280, Self.Width - 60), Min(280, Self.Height - 60))
+                                30
+                              Width: =180
+                            Children:
+                              - LinkedRequirementIdvalueLbl:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    BorderColor: =RGBA(0, 18, 107, 1)
+                                    Font: =Font.'Segoe UI'
+                                    FontWeight: =FontWeight.Lighter
+                                    Height: =30
+                                    OnSelect: =Select(Parent)
+                                    PaddingBottom: =2
+                                    PaddingLeft: =2
+                                    PaddingRight: =2
+                                    PaddingTop: =0
+                                    Size: =11
+                                    Text: =ThisItem.pid
+                                    Width: =120
+                                    Wrap: =false
+                                    X: =5
+                  - TCDDescriptionLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Description"
+                        Width: =110
+                        X: =24
+                        Y: =62
+                  - TCDDescriptionValueTxtInput:
+                      Control: Classic/TextInput@2.3.2
+                      Properties:
+                        BorderColor: =RGBA(177, 227, 230, 1)
+                        BorderThickness: =1
+                        Default: =PlainText(First(colTCInfo).description)
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =60
+                        HoverBorderColor: =RGBA(153, 153, 153, 1)
+                        HoverFill: =RGBA(255, 255, 255, 1)
+                        Mode: =TextMode.MultiLine
+                        OnChange: |-
+                          =UpdateIf(
+                              colTCProperties, field_id = Value( First( colAllTestCaseFieldId).description),
+                              {
+                                  field_id: Value( First( colAllTestCaseFieldId).description),
+                                  field_name: "Description",
+                                  field_value: Self.Text
+                              }
+                          )
+                        RadiusBottomLeft: =4
+                        RadiusBottomRight: =4
+                        RadiusTopLeft: =4
+                        RadiusTopRight: =4
+                        Size: =11
+                        Tooltip: =Self.Text
+                        Width: =620
+                        X: =TCDDescriptionLbl.X + TCDDescriptionLbl.Width
+                        Y: =TCDDescriptionLbl.Y
+                  - ETSParentHeaderRectangle:
+                      Control: Rectangle@2.3.0
+                      Group: ETSParentGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        Height: =40
+                        Width: =Parent.Width
+                        Y: =TCDPreconditionLbl.Y+TCDPreconditionLbl.Height + 50
+                  - ETSLbl:
+                      Control: Label@2.5.1
+                      Group: ETSParentGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(19, 61, 83, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        PaddingLeft: =29
+                        Size: =12
+                        Text: ="Existing Test Steps"
+                        VerticalAlign: =VerticalAlign.Bottom
+                        Width: =Parent.Width
+                        Y: =ETSParentHeaderRectangle.Y
+                  - ATSBtn:
+                      Control: Classic/Button@2.2.0
+                      Group: ETSParentGroup
+                      Properties:
+                        BorderColor: =RGBA(70, 189, 198, 1)
+                        BorderThickness: =1
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(70, 189, 198, 1)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverBorderColor: =ColorFade(RGBA(255, 152, 1, 1), 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =RGBA(255, 152, 1, 1)
+                        OnSelect: |-
+                          =UpdateContext({ varDefaultCategory: LookUp( colBusinessValuesTS, value = 779257)});
+
+                          UpdateContext({showTestStep:true})
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =16
+                        RadiusBottomRight: =16
+                        RadiusTopLeft: =16
+                        RadiusTopRight: =16
+                        Size: =10.5
+                        Text: ="ADD TEST STEP"
+                        Width: =130
+                        X: =1020
+                        Y: =ETSParentHeaderRectangle.Y+10
+                  - TCDAutomationProgressLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Automation Progress :"
+                        Width: =159
+                        X: =TCDQAUserLbl.X
+                        Y: =TCDQAUserLbl. Y + TCDQAUserLbl.Height + 10
+                  - NTCHeader1Rectangle:
+                      Control: Rectangle@2.3.0
+                      Group: NTSgroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        Height: =40
+                        Visible: =showTestStep
+                        Width: =Parent.Width
+                        Y: =497
+                  - NTCLbl:
+                      Control: Label@2.5.1
+                      Group: NTSgroup
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(19, 61, 83, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        PaddingLeft: =30
+                        Size: =12
+                        Text: ="New Test Steps"
+                        Visible: =showTestStep
+                        Width: =Parent.Width
+                        Y: =NTCHeader1Rectangle.Y
+                  - TCDStatusLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Status :"
+                        Width: =TCDTypeLbl.Width
+                        X: =TCDAutomationProgressLbl.X
+                        Y: =TCDAutomationProgressLbl.Y + TCDAutomationProgressLbl.Height + 10
+                  - TCDTypeLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Type :"
+                        Width: =62
+                        X: =TCDAutomationProgressDrodpown.X + TCDAutomationProgressDrodpown.Width +15
+                        Y: =TCDNonQaUserLbl.Y + TCDNonQaUserLbl.Height + 10
+                  - NTSHeader2BackgroundRectangle:
+                      Control: Rectangle@2.3.0
+                      Group: GroupNewSPHeader
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Fill: =RGBA(240, 248, 254, 1)
+                        Height: =35
+                        Visible: =showTestStep
+                        Width: =Parent.Width
+                        Y: =NTCHeader1Rectangle.Y+NTCHeader1Rectangle.Height
+                  - StepDescriptionLbl:
+                      Control: Label@2.5.1
+                      Group: GroupNewSPHeader
+                      Properties:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =35
+                        PaddingLeft: =10
+                        Size: =11
+                        Text: ="Step Description"
+                        Visible: =showTestStep
+                        Width: =670
+                        X: =NTSCategoryLbl.X + NTSCategoryLbl.Width
+                        Y: =NTSHeader2BackgroundRectangle.Y
+                  - ExpectedResultLbl:
+                      Control: Label@2.5.1
+                      Group: GroupNewSPHeader
+                      Properties:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =35
+                        Size: =11
+                        Text: ="Expected Result"
+                        Visible: =showTestStep
+                        Width: =570
+                        X: =StepDescriptionLbl.X + StepDescriptionLbl.Width
+                        Y: =NTSHeader2BackgroundRectangle.Y
+                  - DiscardButton:
+                      Control: Classic/Button@2.2.0
+                      Group: GroupCreateTestStep
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        BorderThickness: =0.4
+                        Color: =RGBA(149, 149, 149, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(255, 255, 255, 1)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverBorderColor: =RGBA(0, 166, 255, 1)
+                        HoverColor: =RGBA(0, 166, 255, 1)
+                        HoverFill: =//ColorFade(Self.Fill , -20%)
+                        OnSelect: |+
+                          =Reset(NTSBusinessDrodpdown);
+
+                          Reset(TextInputStepDes);
+
+                          Reset(TextInputExpResult);
+
+                          UpdateContext({showTestStep:false});
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =RGBA(0, 166, 255, 1)
+                        PressedFill: =//Self.Color
+                        RadiusBottomLeft: =4
+                        RadiusBottomRight: =4
+                        RadiusTopLeft: =4
+                        RadiusTopRight: =4
+                        Size: =10.5
+                        Text: ="DISCARD"
+                        Visible: =showTestStep
+                        Width: =130
+                        X: =1050
+                        Y: =SaveButton.Y
+                  - SaveButton:
+                      Control: Classic/Button@2.2.0
+                      Group: GroupCreateTestStep
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        BorderThickness: =0.4
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        DisplayMode: |-
+                          =If( 
+                              !IsBlank( Substitute( TextInputStepDes.Text, " ", "")) && !IsBlank( Substitute( TextInputExpResult.Text, " ", "")), 
+                              DisplayMode.Edit, 
+                              DisplayMode.Disabled
+                          )
+                        Fill: =RGBA(84, 160, 254, 1)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverBorderColor: =ColorFade(RGBA(255, 152, 1, 1), 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =RGBA(255, 152, 1, 1)
+                        OnSelect: |-
+                          =UpdateContext({ showTCDLoadingSpinner: true});
+
+                          If(
+                              !IsBlank(NTSBusinessDrodpdown.Selected),
+
+                              'ITS-TCOE_OCTO_UATMain_V1'.CreateTeststep(
+                                  constProjectInfo.id,
+                                  gallerySelectedTestcase.id,
+                                  {
+                                      description: TextInputStepDes.Text,
+                                      expected: TextInputExpResult.Text,
+                                      customFieldInfo: [
+                                          {
+                                              id: TestStepUATCategory,
+                                              value: LookUp( colBusinessValuesTS, label = NTSBusinessDrodpdown.Selected.label, value),
+                                              objectId: 0,
+                                              type: "PropertyDropdownComponent",
+                                              name: "UAT Category",
+                                              propertyEditorComponent: false,
+                                              stripHTMLValue: LookUp( colBusinessValuesTS, label = NTSBusinessDrodpdown.Selected.label, value)
+                                          }
+                                      ]
+                                  }
+                              ),
+
+                              'ITS-TCOE_OCTO_UATMain_V1'.CreateTeststep( 
+                                  constProjectInfo.id, 
+                                  gallerySelectedTestcase.id, 
+                                  { 
+                                      description: TextInputStepDes.Text, 
+                                      expected: TextInputExpResult.Text,
+                                      customFieldInfo: 
+                                      [
+                                          {
+                                              id: TestStepUATCategory,
+                                              value: Text( LookUp( colBusinessValuesTS, value = 779257).value),
+                                              objectId: 0,
+                                              type: "PropertyDropdownComponent",
+                                              name: "UAT CATEGORY",
+                                              propertyEditorComponent: false,
+                                              stripHTMLValue: Text( LookUp( colBusinessValuesTS, value = 779257).value)
+                                          }
+                                      ]
+                                  }
+                              )
+                          );
+
+                          If( IsBlank( LookUp( colTCProperties, field_id = Value( First( colAllTestCaseFieldId).Type)).field_value), Remove( colTCProperties, LookUp( colTCProperties, field_id = Value( First( colAllTestCaseFieldId).Type))));
+
+                          'ITS-TCOE_OCTO_UATMain_V1'.UpdateTestcase( constProjectInfo.id, gallerySelectedTestcase.id, {properties: colTCProperties});
+
+                          ClearCollect( colTestStep, AddColumns( 'ITS-TCOE_OCTO_UATMain_V1'.GetTestStep( constProjectInfo.id, gallerySelectedTestcase.id), Order,order));
+
+                          ClearCollect(colTestStep1, colTestStep);
+
+                          Reset(NTSBusinessDrodpdown);
+
+                          Reset(TextInputStepDes);
+
+                          Reset(TextInputExpResult);
+
+                          Notify( "Test step added successfully.", NotificationType.Success, 4000);
+
+                          UpdateContext({ showTCDLoadingSpinner: false});
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =4
+                        RadiusBottomRight: =4
+                        RadiusTopLeft: =4
+                        RadiusTopRight: =4
+                        Size: =10.5
+                        Text: ="SAVE"
+                        Visible: =showTestStep
+                        Width: =130
+                        X: =1200
+                        Y: =TextInputExpResult.Y + TextInputExpResult.Height + 15
+                  - ATCBtn:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =RGBA(70, 189, 198, 1)
+                        BorderThickness: =1
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(70, 189, 198, 1)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverBorderColor: =ColorFade(RGBA(255, 152, 1, 1), 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =RGBA(255, 152, 1, 1)
+                        OnSelect: |-
+                          =Reset(ATCTestCaseSearchTxtBox);
+                          Clear(colSearchTestCase);
+                          UpdateContext({varAddTestCaseVisiblity: true})
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =16
+                        RadiusBottomRight: =16
+                        RadiusTopLeft: =16
+                        RadiusTopRight: =16
+                        Size: =10.5
+                        Text: ="ADD CALLED TEST CASE"
+                        Width: =180
+                        X: =1160
+                        Y: =ATSBtn.Y
+                  - NotestCaseFoundLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =34
+                        Text: ="No Testcase Found"
+                        Visible: |-
+                          =/*If(
+                              !IsBlank(
+                                  Concatenate(
+                                      ATCTestCaseSearchTxtBox.Text,
+                                      " ",
+                                      ""
+                                  )
+                              ) && varAddTestCaseVisiblity = true || ATCSearchTestCaseGal.AllItemsCount > 0 && varAddTestCaseVisiblity = true,
+                              false,
+                              true
+                          )*/
+                          If( varAddTestCaseVisiblity = true && varErrorMsg = true, true, false)
+                        Width: =390
+                        X: =490
+                        Y: =187
+                  - TCDSaveTestCaseBtn:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        BorderThickness: =0.4
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(70, 189, 198, 1)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverBorderColor: =ColorFade(RGBA(255, 152, 1, 1), 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =RGBA(255, 152, 1, 1)
+                        OnSelect: "=UpdateContext({ showTCDLoadingSpinner: true});\n\n//Set variable to decide network call or back func\nSet(checkUpdateTestCase,true);\n\nClear(colEXPSO);\n\nForAll( \n    colTestStep1,\n\n    If( \n        IsBlank( ThisRecord.called_test_case) && IsBlank( LookUp( ThisRecord.customFieldInfo, true).value),\n\n        Collect( \n            colEXPSO, \n            {\n                id: ThisRecord.id, \n                description: ThisRecord.description, \n                expected: ThisRecord.expected, \n                order: ThisRecord.order,\n                customFieldInfo: [\n                    {\n                        id: TestStepUATCategory,\n                        value: Text( LookUp( colBusinessValuesTS, value = 779257).value),\n                        objectId:ThisRecord.id,\n                        type: \"PropertyDropdownComponent\",\n                        name: \"UAT CATEGORY\",\n                        propertyEditorComponent: false,\n                        stripHTMLValue: Text( LookUp( colBusinessValuesTS, value = 779257).value)\n                    }\n                ]\n            }\n        )\n    );\n\n    If( \n        IsBlank(ThisRecord.called_test_case) && !IsBlank( LookUp( ThisRecord.customFieldInfo, true).value), \n        \n        Collect( \n            colEXPSO, \n            { \n                id: ThisRecord.id, \n                description: ThisRecord.description, \n                expected: ThisRecord.expected, \n                order: ThisRecord.order,\n                customFieldInfo:ThisRecord.customFieldInfo\n            }\n        )\n    ); \n\n    If( \n        !IsBlank(ThisRecord.called_test_case),\n\n        Collect( \n            colEXPSO, \n            {   \n                id:ThisRecord.id,\n                description: ThisRecord.description, \n                expected: ThisRecord.expected,\n                order: ThisRecord.order,\n                called_test_case: { id: ThisRecord.called_test_case.id, approved: true },\n                customFieldInfo: [\n                    {\n                        id: TestStepUATCategory,\n                        value: Text( LookUp( colBusinessValuesTS, value = 779257).value),\n                        objectId:ThisRecord.id,\n                        type: \"PropertyDropdownComponent\",\n                        name: \"UAT CATEGORY\",\n                        propertyEditorComponent: false,\n                        stripHTMLValue: Text( LookUp( colBusinessValuesTS, value = 779257).value)\n                    }\n                ]\n            }\n        )\n    ) \n);\n\nIf( IsBlank( LookUp( colTCProperties, field_id = Value( First( colAllTestCaseFieldId).Type)).field_value), Remove( colTCProperties, LookUp( colTCProperties, field_id = Value( First( colAllTestCaseFieldId).Type))));\n\nUpdateContext({ varUpdatedTestcaseDetails: 'ITS-TCOE_OCTO_UATMain_V1'.UpdateTestcase( constProjectInfo.id, gallerySelectedTestcase.id, {name: TCDTitlevalueTxtinput.Text, description: TCDDescriptionValueTxtInput.Text, precondition: TCDPreconditionValueTxtInput.Text, properties: colTCProperties, test_steps: colEXPSO })});\n\nIf( !IsBlank( LookUp( colUpdatedTestCaseDetail, id = gallerySelectedTestcase.id)), Update( colUpdatedTestCaseDetail, LookUp( colUpdatedTestCaseDetail, id = gallerySelectedTestcase.id), varUpdatedTestcaseDetails),   Collect( colUpdatedTestCaseDetail, varUpdatedTestcaseDetails));\n\nNotify( \"Successfully updated.\", NotificationType.Success, 4000);\n\nClearCollect( colTestStep, AddColumns( 'ITS-TCOE_OCTO_UATMain_V1'.GetTestStep( constProjectInfo.id, gallerySelectedTestcase.id), Order, order));\n\n//ClearCollect( colTestStep, AddColumns( varUpdatedTestcaseDetails.test_steps, Order, order));\n    \nClearCollect( colTestStep1, colTestStep);\n\nClearCollect( colTestCase1, colTestCase);\n\nIf(\n    CountRows(colTraceOfClickTC) = 1,\n\n    ForAll( \n        colTestCase1,\n        \n        UpdateIf( \n            colTestCase, id = LookUp( colUpdatedTestCaseDetail, id = ThisRecord.id).id,\n            {\n                description: LookUp( colUpdatedTestCaseDetail, id = ThisRecord.id).description,\n                id: LookUp( colUpdatedTestCaseDetail, id = ThisRecord.id).id,\n                name: LookUp( colUpdatedTestCaseDetail, id = ThisRecord.id).name,\n                order: LookUp( colUpdatedTestCaseDetail, id = ThisRecord.id).order,\n                parent_id: LookUp( colUpdatedTestCaseDetail, id = ThisRecord.id).parent_id,\n                pid: LookUp( colUpdatedTestCaseDetail, id = ThisRecord.id).pid,\n                properties: LookUp( colUpdatedTestCaseDetail, id = ThisRecord.id).properties\n            }\n        )\n    )\n);\n\nUpdateContext({ showTCDLoadingSpinner: false});\n"
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =4
+                        RadiusBottomRight: =4
+                        RadiusTopLeft: =4
+                        RadiusTopRight: =4
+                        Size: =10.5
+                        Text: ="SAVE"
+                        Visible: |-
+                          =true
+                          //If( GalleryExistTestStep_1.AllItemsCount > 0, true, false)
+                        Width: =130
+                        X: =1200
+                        Y: =GalleryExistTestStep.Y + GalleryExistTestStep.Height + 10
+                  - ETSHeaderbackgroundrectangle:
+                      Control: Rectangle@2.3.0
+                      Group: ETSChildHeaderaGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Fill: =RGBA(240, 248, 254, 1)
+                        Height: =35
+                        Width: =Parent.Width
+                        Y: =ETSParentHeaderRectangle.Y+ETSParentHeaderRectangle.Height+5
+                  - ETSStepNumberLbl:
+                      Control: Label@2.5.1
+                      Group: ETSChildHeaderaGroup
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =35
+                        PaddingLeft: =10
+                        Size: =11
+                        Text: ="Step No"
+                        Width: =110
+                        Y: =ETSHeaderbackgroundrectangle.Y
+                  - ETSStepDescriptionLbl:
+                      Control: Label@2.5.1
+                      Group: ETSChildHeaderaGroup
+                      Properties:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =35
+                        PaddingLeft: =12
+                        Size: =11
+                        Text: ="Step Description"
+                        Width: =500
+                        X: =ETSCategoryLbl.X + ETSCategoryLbl.Width
+                        Y: =ETSHeaderbackgroundrectangle.Y
+                  - ETSExpectedResultLbl:
+                      Control: Label@2.5.1
+                      Group: ETSChildHeaderaGroup
+                      Properties:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =35
+                        PaddingLeft: =12
+                        Size: =11
+                        Text: ="Expected Result"
+                        Width: =515
+                        X: =ETSStepDescriptionLbl.X + ETSStepDescriptionLbl.Width
+                        Y: =ETSHeaderbackgroundrectangle.Y
+                  - ETSActionLbl:
+                      Control: Label@2.5.1
+                      Group: ETSChildHeaderaGroup
+                      Properties:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =ETSExpectedResultLbl.Height
+                        PaddingLeft: =12
+                        Size: =11
+                        Text: ="Actions"
+                        Width: =118
+                        X: =ETSExpectedResultLbl.X + ETSExpectedResultLbl.Width
+                        Y: =ETSHeaderbackgroundrectangle.Y
+                  - ETSBtn:
+                      Control: Classic/Button@2.2.0
+                      Group: ETSParentGroup
+                      Properties:
+                        AutoDisableOnSelect: =false
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        BorderThickness: =0
+                        Color: =RGBA(19, 61, 83, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        DisabledColor: =RGBA(19, 61, 83, 1)
+                        DisabledFill: =Self.Fill
+                        DisplayMode: =DisplayMode.Disabled
+                        Fill: =RGBA(255, 255, 255, 1)
+                        Font: =Font.'Segoe UI'
+                        Height: =50
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        PaddingTop: =8
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =8
+                        RadiusBottomRight: =8
+                        RadiusTopLeft: =8
+                        RadiusTopRight: =8
+                        Size: =12
+                        Text: ="Existing Test Case"
+                        VerticalAlign: =VerticalAlign.Top
+                        Visible: =false
+                        Width: =200
+                        Y: =ETSParentHeaderRectangle.Y+10
+                  - TCDETSRadioButton:
+                      Control: Classic/Radio@2.3.0
+                      Group: ETSParentGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        BorderStyle: =BorderStyle.None
+                        Color: =RGBA(19, 61, 83, 0.75)
+                        Default: ="Hide Technical Test Steps"
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =40
+                        HoverColor: =RGBA(0, 18, 107, 1)
+                        Items: =["Hide Technical Test Steps", "Show All Test Steps"]
+                        Items.Value: =Value
+                        Layout: =Layout.Horizontal
+                        LineHeight: =1
+                        PaddingBottom: =5
+                        PaddingLeft: =5
+                        PaddingRight: =5
+                        PaddingTop: =5
+                        RadioBorderColor: =RGBA(0, 18, 107, 1)
+                        RadioSelectionFill: =ColorValue("#6B6A6A")
+                        RadioSize: =12
+                        Size: =10.5
+                        Width: =428
+                        X: =230
+                        Y: =ETSParentHeaderRectangle.Y+10
+                  - NTCSeperator:
+                      Control: Rectangle@2.3.0
+                      Group: NTSgroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Fill: =RGBA(255, 152, 1, 1)
+                        Height: =5
+                        Visible: =showTestStep
+                        Width: =200
+                        Y: =NTCHeader1Rectangle.Y+NTCHeader1Rectangle.Height-NTCSeperator.Height
+                  - TCDETSHeaderSeperatorRectangle:
+                      Control: Rectangle@2.3.0
+                      Properties:
+                        BorderColor: =RGBA(255, 152, 1, 1)
+                        BorderThickness: =1
+                        Fill: =RGBA(255, 152, 1, 1)
+                        Height: =5
+                        Width: =200
+                        Y: =ETSHeaderbackgroundrectangle.Y-TCDETSHeaderSeperatorRectangle.Height
+                  - TCDNoSearchRequirementFoundLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Size: =11
+                        Text: ="Sorry! No Test Cases found for the given input."
+                        Visible: =If( varErrorMsg = true, true, false)
+                        Width: =ATCTestCaseSearchTxtBox.Width
+                        X: =ATCTestCaseSearchTxtBox.X
+                        Y: =ATCTestCaseSearchTxtBox.Y + ATCTestCaseSearchTxtBox.Height
+                  - NTSCategoryLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =35
+                        Size: =11
+                        Text: ="UAT Category"
+                        Visible: =showTestStep
+                        Width: =120
+                        Y: =NTSHeader2BackgroundRectangle.Y
+                  - ETSCategoryLbl:
+                      Control: Label@2.5.1
+                      Group: ETSChildHeaderaGroup
+                      Properties:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =35
+                        Size: =11
+                        Text: ="UAT Category"
+                        Width: =120
+                        X: =ETSStepNumberLbl.X + ETSStepNumberLbl.Width
+                        Y: =ETSHeaderbackgroundrectangle.Y
+                  - ETCQAUserValueDrodpown:
+                      Control: Classic/ComboBox@2.4.0
+                      Properties:
+                        BorderColor: =RGBA(177, 227, 230, 1)
+                        BorderThickness: =1
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronDisabledBackground: =Self.Fill
+                        ChevronFill: =RGBA(211, 239, 241, 1)
+                        ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        DefaultSelectedItems: =Filter(colAssigedToTC,label = Mid( LookUp( First( colTCInfo).properties, field_name = "Assigned To", field_value_name), 2, ( Find( "]", LookUp( First(colTCInfo).properties, field_name = "Assigned To", field_value_name)) - 2)))
+                        DisabledBorderColor: =Self.BorderColor
+                        DisabledColor: =Self.Color
+                        DisabledFill: =Self.Fill
+                        DisplayFields: =["label"]
+                        FocusedBorderThickness: =0.5
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverColor: =RGBA(128, 128, 128, 1)
+                        HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                        InputTextPlaceholder: ="Assigned To"
+                        Items: =colAssigedToTC
+                        OnChange: |-
+                          =UpdateIf(
+                              colTCProperties, field_id = Value( First( colAllTestCaseFieldId).assignTo),
+                              {
+                                field_id: Value( First( colAllTestCaseFieldId).assignTo),
+                                field_name: "Assigned To",
+                                field_value: Concatenate( "[", Self.Selected.value, "]"),
+                                field_value_name: Concatenate( "[", Self.Selected.label, "]")
+                              }
+                          )
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        SearchFields: =["label"]
+                        SelectMultiple: =false
+                        SelectionColor: =RGBA(70, 189, 198, 1)
+                        SelectionFill: =RGBA(236, 248, 249, 1)
+                        SelectionTagColor: |-
+                          =//Self.HoverColor
+                          RGBA(0, 0, 0, 1)
+                        SelectionTagFill: =Color.Transparent
+                        Size: =11
+                        Tooltip: =Self.Selected.label
+                        Width: =180
+                        X: =TCDQAUserLbl.X + TCDQAUserLbl.Width +39
+                        Y: =TCDQAUserLbl.Y
+                  - ETCTypeValueDrodpown:
+                      Control: Classic/ComboBox@2.4.0
+                      Properties:
+                        BorderColor: =RGBA(177, 227, 230, 1)
+                        BorderThickness: =1
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronDisabledBackground: =Self.Fill
+                        ChevronFill: =RGBA(211, 239, 241, 1)
+                        ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        DefaultSelectedItems: =Filter( colTypeTC, label = LookUp( First( colTCInfo).properties, field_name = "Type", field_value_name))
+                        DisabledBorderColor: =Self.BorderColor
+                        DisabledColor: =Self.Color
+                        DisabledFill: =Self.Fill
+                        DisplayFields: =["label"]
+                        FocusedBorderThickness: =0.5
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverColor: =RGBA(128, 128, 128, 1)
+                        HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                        InputTextPlaceholder: ="Type"
+                        Items: =colTypeTC
+                        OnChange: |-
+                          =UpdateIf(
+                              colTCProperties, field_id = Value( First( colAllTestCaseFieldId).Type),
+                              {
+                                field_id: Value( First( colAllTestCaseFieldId).Type),
+                                field_name: "Type",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Text( Self.Selected.label)
+                              }
+                          )
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        SearchFields: =["label"]
+                        SelectMultiple: =false
+                        SelectionColor: =RGBA(70, 189, 198, 1)
+                        SelectionFill: =RGBA(236, 248, 249, 1)
+                        SelectionTagColor: |-
+                          =//Self.HoverColor
+                          RGBA(0, 0, 0, 1)
+                        SelectionTagFill: =Color.Transparent
+                        Size: =11
+                        Tooltip: =Self.Selected.label
+                        Width: =146
+                        X: =TCDTypeLbl.X + TCDTypeLbl.Width + 75
+                        Y: =TCDTypeLbl.Y
+                  - ETCStatusValueDrodpown:
+                      Control: Classic/ComboBox@2.4.0
+                      Properties:
+                        BorderColor: =RGBA(177, 227, 230, 1)
+                        BorderThickness: =1
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronDisabledBackground: =Self.Fill
+                        ChevronFill: =RGBA(211, 239, 241, 1)
+                        ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        DefaultSelectedItems: =Filter( colStatusTC, label = LookUp( First( colTCInfo).properties, field_name = "Status", field_value_name))
+                        DisabledBorderColor: =Self.BorderColor
+                        DisabledColor: =Self.Color
+                        DisabledFill: =Self.Fill
+                        DisplayFields: =["label"]
+                        FocusedBorderThickness: =0.5
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverColor: =RGBA(128, 128, 128, 1)
+                        HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                        InputTextPlaceholder: ="Status"
+                        Items: =colStatusTC
+                        OnChange: |-
+                          =UpdateIf(
+                              colTCProperties, field_id = Value( First( colAllTestCaseFieldId).status),
+                              {
+                                field_id: Value( First( colAllTestCaseFieldId).status),
+                                field_name: "Status",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Text( Self.Selected.label)
+                              }
+                          )
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        SearchFields: =["label"]
+                        SelectMultiple: =false
+                        SelectionColor: =RGBA(70, 189, 198, 1)
+                        SelectionFill: =RGBA(236, 248, 249, 1)
+                        SelectionTagColor: |-
+                          =//Self.HoverColor
+                          RGBA(0, 0, 0, 1)
+                        SelectionTagFill: =Color.Transparent
+                        Size: =11
+                        Tooltip: =Self.Selected.label
+                        Width: =170
+                        X: =TCDStatusLbl.X + TCDStatusLbl.Width + 64
+                        Y: =TCDStatusLbl.Y
+                  - TCDPreconditionLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Precondition"
+                        Width: =110
+                        X: =24
+                        Y: =TCDDescriptionLbl. Y + TCDDescriptionLbl.Height + 40
+                  - TCDPreconditionValueTxtInput:
+                      Control: Classic/TextInput@2.3.2
+                      Properties:
+                        BorderColor: =RGBA(177, 227, 230, 1)
+                        BorderThickness: =1
+                        Default: =PlainText(First(colTCInfo).precondition)
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =78
+                        HoverBorderColor: =RGBA(153, 153, 153, 1)
+                        HoverFill: =RGBA(255, 255, 255, 1)
+                        Mode: =TextMode.MultiLine
+                        OnChange: |-
+                          =UpdateIf(
+                              colTCProperties, field_id = Value( First( colAllTestCaseFieldId).precondition),
+                              {
+                                  field_id: Value( First( colAllTestCaseFieldId).precondition),
+                                  field_name: "Precondition",
+                                  field_value: Self.Text,
+                                  field_value_name: ""
+                              }
+                          )
+                        RadiusBottomLeft: =4
+                        RadiusBottomRight: =4
+                        RadiusTopLeft: =4
+                        RadiusTopRight: =4
+                        Size: =11
+                        Tooltip: =Self.Text
+                        Width: =TCDDescriptionValueTxtInput.Width
+                        X: =134
+                        Y: =TCDPreconditionLbl.Y
+                  - TCDAutomationProgressDrodpown:
+                      Control: Classic/ComboBox@2.4.0
+                      Properties:
+                        BorderColor: =RGBA(177, 227, 230, 1)
+                        BorderThickness: =1
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronDisabledBackground: =Self.Fill
+                        ChevronFill: =RGBA(211, 239, 241, 1)
+                        ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        DefaultSelectedItems: =Filter( colAutomationProgressTC, label = LookUp( First( colTCInfo).properties, field_name = "Automation Progress", field_value_name))
+                        DisabledBorderColor: =Self.BorderColor
+                        DisabledColor: =Self.Color
+                        DisabledFill: =Self.Fill
+                        DisplayFields: =["label"]
+                        FocusedBorderThickness: =0.5
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverColor: =RGBA(128, 128, 128, 1)
+                        HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                        InputTextPlaceholder: ="Select"
+                        Items: =colAutomationProgressTC
+                        OnChange: |-
+                          =UpdateIf(
+                              colTCProperties, field_id = Value( First( colAllTestCaseFieldId).AutomationProgress),
+                              {
+                                field_id: Value( First( colAllTestCaseFieldId).AutomationProgress),
+                                field_name: "Automation Progress",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Text( Self.Selected.label)
+                              })
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        SearchFields: =["color"]
+                        SelectMultiple: =false
+                        SelectionColor: =RGBA(70, 189, 198, 1)
+                        SelectionFill: =RGBA(236, 248, 249, 1)
+                        SelectionTagColor: |-
+                          =//Self.HoverColor
+                          RGBA(0, 0, 0, 1)
+                        SelectionTagFill: =Color.Transparent
+                        Size: =11
+                        Tooltip: =Self.Selected.label
+                        Width: =135
+                        X: =TCDAutomationProgressLbl.X + TCDAutomationProgressLbl.Width
+                        Y: =TCDAutomationProgressLbl.Y
+                  - TCDNonQaUserLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Business User :"
+                        Width: =109
+                        X: =ETCQAUserValueDrodpown.X + ETCQAUserValueDrodpown.Width + 15
+                        Y: =TCDQAUserLbl.Y
+                  - ETCNonQaUserValueDropdown:
+                      Control: Classic/ComboBox@2.4.0
+                      Properties:
+                        BorderColor: =RGBA(177, 227, 230, 1)
+                        BorderThickness: =1
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronDisabledBackground: =Self.Fill
+                        ChevronFill: =RGBA(211, 239, 241, 1)
+                        ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        DefaultSelectedItems: =Filter( colBusinessUserTC, label = LookUp( First( colTCInfo).properties, field_name = "Non-QA User (UATNext Only)", field_value_name))
+                        DisabledBorderColor: =Self.BorderColor
+                        DisabledColor: =Self.Color
+                        DisabledFill: =Self.Fill
+                        DisplayFields: =["label"]
+                        FocusedBorderThickness: =0.5
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverColor: =RGBA(128, 128, 128, 1)
+                        HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                        InputTextPlaceholder: ="Business User"
+                        Items: =colBusinessUserTC
+                        OnChange: |-
+                          =UpdateIf(
+                              colTCProperties, field_id = Value( First( colAllTestCaseFieldId).BusinessUser),
+                              {
+                                field_id: Value( First( colAllTestCaseFieldId).BusinessUser),
+                                field_name: "Non-QA User (UATNext Only)",
+                                field_value: Text( Self.Selected.value),
+                                field_value_name: Text( Self.Selected.label)
+                              }
+                          )
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        SearchFields: =["label"]
+                        SelectMultiple: =false
+                        SelectionColor: =RGBA(70, 189, 198, 1)
+                        SelectionFill: =RGBA(236, 248, 249, 1)
+                        SelectionTagColor: |-
+                          =//Self.HoverColor
+                          RGBA(0, 0, 0, 1)
+                        SelectionTagFill: =Color.Transparent
+                        Size: =11
+                        Tooltip: =Self.Selected.label
+                        Width: =174
+                        X: =TCDNonQaUserLbl.X + TCDNonQaUserLbl.Width
+                        Y: =TCDNonQaUserLbl.Y
+                  - ATCBackgroundBlurEffectBtn:
+                      Control: Classic/Button@2.2.0
+                      Group: AddCalledTestCaseGroup
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: =ColorFade(RGBA(230, 230, 230, 0.82), 35%)
+                        Font: =Font.'Open Sans'
+                        Height: =Parent.Height
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        Text: =""
+                        Visible: =varAddTestCaseVisiblity
+                        Width: =Parent.Width
+                        X: =Parent.X
+                        Y: =Parent.Y
+                  - ATCRequirementSearchbackgroundBtn:
+                      Control: Classic/Button@2.2.0
+                      Group: AddCalledTestCaseGroup
+                      Properties:
+                        BorderColor: =RGBA(237, 237, 237, 1)
+                        BorderThickness: =1
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(241, 244, 249, 1)
+                        DisabledColor: =Color.White
+                        DisabledFill: =RGBA(255, 255, 255, 1)
+                        DisplayMode: =DisplayMode.Disabled
+                        Fill: =Color.White
+                        Font: =Font.'Segoe UI'
+                        Height: =450
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =30
+                        RadiusBottomRight: =30
+                        RadiusTopLeft: =30
+                        RadiusTopRight: =30
+                        Text: =""
+                        Visible: =varAddTestCaseVisiblity
+                        Width: =600
+                        X: =390
+                        Y: =100
+                  - ATCClosePopupIcon:
+                      Control: Classic/Icon@2.5.0
+                      Group: AddCalledTestCaseGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(70, 189, 198, 1)
+                        Height: =30
+                        Icon: =Icon.Cancel
+                        OnSelect: |-
+                          =UpdateContext({varAddTestCaseVisiblity: false});
+                          UpdateContext({varErrorMsg: false})
+                        Visible: =varAddTestCaseVisiblity
+                        Width: =30
+                        X: =ATCTestCaseSearchTxtBox.X + ATCTestCaseSearchTxtBox.Width + 50
+                        Y: =ATCRequirementSearchbackgroundBtn.Y + 15
+                  - ATCTestCaseSearchTxtBox:
+                      Control: Classic/TextInput@2.3.2
+                      Group: AddCalledTestCaseGroup
+                      Properties:
+                        BorderColor: =RGBA(211, 239, 241, 1)
+                        BorderThickness: =0.4
+                        Default: =""
+                        DelayOutput: =true
+                        DisabledFill: =RGBA(236, 248, 249, 1)
+                        FocusedBorderThickness: =1
+                        Font: =Font.'Segoe UI'
+                        Height: =35
+                        HintText: ="Search Test Cases"
+                        HoverBorderColor: =RGBA(70, 189, 198, 1)
+                        HoverFill: =Self.Fill
+                        OnChange: |-
+                          =If( IsBlank( Substitute( ATCTestCaseSearchTxtBox.Text, " ", "")), Clear(colSearchTestCase));
+                          UpdateContext({varErrorMsg: false})
+                        PaddingLeft: =5
+                        PaddingRight: =40
+                        PressedBorderColor: =RGBA(0, 134, 146, 1)
+                        RadiusBottomLeft: =4
+                        RadiusBottomRight: =4
+                        RadiusTopLeft: =4
+                        RadiusTopRight: =4
+                        Size: =12
+                        Visible: =varAddTestCaseVisiblity
+                        Width: =400
+                        X: =ATCRequirementSearchbackgroundBtn.X + 95
+                        Y: =ATCRequirementSearchbackgroundBtn.Y + 30
+                  - ATCTestCaseSearchIcon:
+                      Control: Classic/Icon@2.5.0
+                      Group: AddCalledTestCaseGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =If(ATCTestCaseSearchTxtBox.DisplayMode = DisplayMode.Edit,RGBA(70, 189, 198, 1), RGBA(153, 153, 153, 1))
+                        DisabledColor: =RGBA(153, 153, 153, 1)
+                        DisplayMode: =If( !IsBlank( Substitute( ATCTestCaseSearchTxtBox.Text, " ", "")), DisplayMode.Edit, DisplayMode.Disabled)
+                        Height: =ATCTestCaseSearchTxtBox.Height
+                        Icon: =Icon.Search
+                        OnSelect: |-
+                          =UpdateContext({ showACTCLoadingSpinner: true});
+
+                          If(
+                              !IsBlank(
+                                  Substitute(
+                                      ATCTestCaseSearchTxtBox.Text,
+                                      " ",
+                                      ""
+                                  )
+                              ),
+                              If( StartsWith(ATCTestCaseSearchTxtBox.Text,"TC-"),
+                                  ClearCollect(
+                                      colSearchTestCase,
+                                      'ITS-TCOE_OCTO_UATMain_V1'.Search(
+                                          constProjectInfo.id,
+                                          {
+                                              pageSize: 999,
+                                              page: 1,
+                                              object_type: "test-cases",
+                                              fields: ["*"],
+                                              query: Concatenate(" 'Id' ", "=", " '" & ATCTestCaseSearchTxtBox.Text & "'")
+                                          }
+                                      ).items
+                                  ),
+                                  ClearCollect(
+                                      colSearchTestCase,
+                                      'ITS-TCOE_OCTO_UATMain_V1'.Search(
+                                          constProjectInfo.id,
+                                          {
+                                              pageSize: 999,
+                                              page: 1,
+                                              object_type: "test-cases",
+                                              fields: ["*"],
+                                              query: Concatenate( "'Name' ", "~"," '" & ATCTestCaseSearchTxtBox.Text & "'")
+                                          }
+                                      ).items
+                                  )
+                              )
+                          );
+                          If( CountRows(colSearchTestCase) = 0, UpdateContext({varErrorMsg: true}), UpdateContext({varErrorMsg: false}));
+
+                          UpdateContext({ showACTCLoadingSpinner: false});
+                        PaddingBottom: =5
+                        PaddingLeft: =5
+                        PaddingRight: =5
+                        PaddingTop: =5
+                        Visible: =varAddTestCaseVisiblity
+                        Width: =30
+                        X: =ATCTestCaseSearchTxtBox.X + 365
+                        Y: =ATCTestCaseSearchTxtBox.Y
+                  - ATCSearchTestCaseGal:
+                      Control: Gallery@2.15.0
+                      Variant: VariableHeight
+                      Group: AddCalledTestCaseGroup
+                      Properties:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        BorderStyle: =BorderStyle.None
+                        DelayItemLoading: =false
+                        Height: =295
+                        Items: =colSearchTestCase
+                        LoadingSpinner: =LoadingSpinner.None
+                        TemplateFill: =If(ThisItem.IsSelected,ColorFade(RGBA(236, 248, 249, 1), 40%),RGBA(0, 0, 0, 0))
+                        TemplatePadding: =0
+                        TemplateSize: =30
+                        Visible: =varAddTestCaseVisiblity
+                        Width: =ATCTestCaseSearchTxtBox.Width
+                        X: =ATCTestCaseSearchTxtBox.X
+                        Y: =ATCTestCaseSearchTxtBox.Y + ATCTestCaseSearchTxtBox.Height + 10
+                      Children:
+                        - ATCTestCaseIcon:
+                            Control: Classic/Icon@2.5.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(0, 166, 255, 1)
+                              Height: =20
+                              Icon: =Icon.Link
+                              OnSelect: =Select(Parent)
+                              Width: =20
+                              X: =15
+                              Y: =5
+                        - SearchTestCaseValueLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(255, 255, 255, 1)
+                              Color: =RGBA(107, 106, 106, 1)
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =30
+                              Size: =11
+                              Text: =ThisItem.name
+                              Tooltip: =ThisItem.pid
+                              Width: =340
+                              Wrap: =false
+                              X: =ATCTestCaseIcon.X + ATCTestCaseIcon.Width
+                  - AddTestCaseBtn:
+                      Control: Classic/Button@2.2.0
+                      Group: AddCalledTestCaseGroup
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        BorderThickness: =0.4
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        DisplayMode: =If(!IsBlank(ATCSearchTestCaseGal.Selected.id) ,DisplayMode.Edit,DisplayMode.Disabled  )
+                        Fill: =RGBA(70, 189, 198, 1)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverBorderColor: =ColorFade(Self.HoverFill, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =RGBA(255, 152, 1, 1)
+                        OnSelect: "=UpdateContext({ showACTCLoadingSpinner: true});\n\n'ITS-TCOE_OCTO_UATMain_V1'.ApproveTestcase( constProjectInfo.id, ATCSearchTestCaseGal.Selected.id);\n\nClear(colEXPSO);\n\nForAll(\n    colTestStep,\n\n    If(\n        IsBlank( ThisRecord.called_test_case) && IsBlank( LookUp( ThisRecord.customFieldInfo,  Lower(name) = Lower(\"UAT Category\")).value),\n        \n        Collect(\n            colEXPSO,\n            {\n                description: ThisRecord.description,\n                expected: ThisRecord.expected,\n                order: ThisRecord.order, \n                customFieldInfo: [\n                    {\n                        id: TestStepUATCategory,\n                        value: Text( LookUp( colBusinessValuesTS, value = 779257).value),\n                        objectId: 0,\n                        type: \"PropertyDropdownComponent\",\n                        name: \"UAT CATEGORY\",\n                        propertyEditorComponent: false,\n                        stripHTMLValue: Text( LookUp( colBusinessValuesTS, value = 779257).value)\n                    }\n                ]\n            }\n        ),\n       \n        IsBlank(ThisRecord.called_test_case) && !IsBlank( LookUp( ThisRecord.customFieldInfo, Lower(name) = Lower(\"UAT Category\")).value),\n\n        Collect(\n            colEXPSO,\n            {\n                description: ThisRecord.description,\n                expected: ThisRecord.expected,\n                order: ThisRecord.Order,\n                customFieldInfo: ThisRecord.customFieldInfo\n            }\n        ),\n\n        !IsBlank( ThisRecord.called_test_case),\n\n        Collect(\n            colEXPSO,\n            {\n                description: ThisRecord.description,\n                expected: ThisRecord.expected,\n                order: ThisRecord.Order,\n                called_test_case: {\n                    id: ThisRecord.called_test_case.id,\n                    approved: true\n                }, \n                customFieldInfo: \n                [\n                    {\n                        id: TestStepUATCategory,\n                        value: Text( LookUp( colBusinessValuesTS, value = 779257).value),\n                        objectId: 0,\n                        type: \"PropertyDropdownComponent\",\n                        name: \"UAT CATEGORY\",\n                        propertyEditorComponent: false,\n                        stripHTMLValue: Text( LookUp( colBusinessValuesTS, value = 779257).value)\n                    }\n                ]\n            }\n        )\n    )\n);\n\nCollect(\n    colEXPSO,\n    {\n        description: ATCSearchTestCaseGal.Selected.name,\n        expected: \"Look into the called test case.\",\n        order: CountRows(colTestStep) + 1,\n        called_test_case: {\n            id: ATCSearchTestCaseGal.Selected.id,\n            approved: true\n        }, \n        customFieldInfo: \n        [\n            {\n                id: TestStepUATCategory,\n                value: Text( LookUp( colBusinessValuesTS, value = 779257).value),\n                objectId: 0,\n                type: \"PropertyDropdownComponent\",\n                name: \"UAT CATEGORY\",\n                propertyEditorComponent: false,\n                stripHTMLValue: Text( LookUp( colBusinessValuesTS, value = 779257).value)\n            }\n        ]\n    }\n);\n\nIf( IsBlank( LookUp( colTCProperties, field_id = Value( First( colAllTestCaseFieldId).Type)).field_value), Remove( colTCProperties, LookUp( colTCProperties, field_id = Value( First( colAllTestCaseFieldId).Type))));\n\n'ITS-TCOE_OCTO_UATMain_V1'.UpdateTestcase( constProjectInfo.id, gallerySelectedTestcase.id, {properties: colTCProperties, test_steps: colEXPSO});\n\n//'ITS-TCOE_OCTO_UATMain_V1'.ApproveTestcase( constProjectInfo.id, gallerySelectedTestcase.id);\n\nNavigate('Author Test Case Details');\n\nUpdateContext({varAddTestCaseVisiblity: false});\n\nNotify( \"Test case added successfully.\", NotificationType.Success, 4000);\n\nUpdateContext({ showACTCLoadingSpinner: false});"
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =4
+                        RadiusBottomRight: =4
+                        RadiusTopLeft: =4
+                        RadiusTopRight: =4
+                        Size: =10.5
+                        Text: ="SAVE"
+                        Visible: =varAddTestCaseVisiblity
+                        Width: =130
+                        X: =755
+                        Y: =ATCSearchTestCaseGal.Y + ATCSearchTestCaseGal.Height + 15
+                  - TCDetailsLoadingSpinnerBackground:
+                      Control: Classic/Button@2.2.0
+                      Group: GroupTCDetailsLoadingSpinner
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: |-
+                          =ColorFade(RGBA(255, 255, 255, 0.6),90%)
+                          //ColorFade(RGBA(230, 230, 230, 0.82), 35%)
+                        Font: =Font.'Open Sans'
+                        Height: =Parent.Height
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        Text: =
+                        Visible: =showTCDLoadingSpinner
+                        Width: =Parent.Width
+                        Y: =
+                  - TCDetailsLoadingSpinner:
+                      Control: Image@2.2.3
+                      Group: GroupTCDetailsLoadingSpinner
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Image: ='Eclipse@1x'
+                        Visible: =showTCDLoadingSpinner
+                        Width: =164
+                        X: =600
+                        Y: =300
+                  - ACTCDetailsLoadingSpinnerBackground:
+                      Control: Classic/Button@2.2.0
+                      Group: GroupACTCLoadingSpinner
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: |-
+                          =ColorFade(RGBA(255, 255, 255, 0.6),90%)
+                          //ColorFade(RGBA(230, 230, 230, 0.82), 35%)
+                        Font: =Font.'Open Sans'
+                        Height: =ATCSearchTestCaseGal.Height
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        Text: =
+                        Visible: =showACTCLoadingSpinner
+                        Width: =ATCSearchTestCaseGal.Width
+                        X: =ATCSearchTestCaseGal.X
+                        Y: =ATCSearchTestCaseGal.Y
+                  - ACTCDetailsLoadingSpinner:
+                      Control: Image@2.2.3
+                      Group: GroupACTCLoadingSpinner
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Image: ='Eclipse@1x'
+                        Visible: =showACTCLoadingSpinner
+                        Width: =140
+                        X: =610
+                        Y: =280
+                  - NoSearchTCFoundLbl:
+                      Control: Label@2.5.1
+                      Group: AddCalledTestCaseGroup
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Size: =11
+                        Text: ="Sorry! No search result found"
+                        Visible: =If( varErrorMsg = true, true, false)
+                        Width: =ATCSearchTestCaseGal.Width
+                        X: =ATCSearchTestCaseGal.X
+                        Y: =ATCSearchTestCaseGal.Y
+      - AUATTCD_Inner_Header_Component:
+          Control: CanvasComponent
+          ComponentName: Inner_Header_Component
+          Properties:
+            Height: =50
+            PDFLink: =varPDFLink
+            ScreenName: =varScreenName
+            VideoLink: =varVideoLink
+            Width: =1366
+      - TCDBackIcon:
+          Control: Classic/Icon@2.5.0
+          Properties:
+            BorderColor: =RGBA(0, 18, 107, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            Fill: =RGBA(0, 134, 146, 1)
+            Height: =50
+            Icon: =Icon.BackArrow
+            OnSelect: "=If(\r\n    CountRows(colTraceOfClickTC) > 1 || checkUpdateTestCase = true,\r\n\r\n    // Enabling TCDLoading Spinner\r\n    UpdateContext({ showTCDLoadingSpinner: true});\r\n\r\n    Concurrent(\r\n        Reset( TCDTitlevalueTxtinput),\r\n        Reset( ETCQAUserValueDrodpown),\r\n        Reset( TCDDescriptionValueTxtInput),\r\n        Reset( TCDAutomationProgressDrodpown),\r\n        Reset( ETCStatusValueDrodpown),\r\n        Reset( TCDPreconditionValueTxtInput),\r\n        Reset( ETCTypeValueDrodpown)\r\n    );\r\n\r\n    If(\r\n        CountRows(colTraceOfClickTC) = 1,\r\n\r\n        Navigate('Author Test Cases'),\r\n    \r\n        Set( TempTcId, LookUp( colTraceOfClickTC, ID = Last(colTraceOfClickTC).ID - 1).TC);\r\n\r\n        UpdateContext({ gallerySelectedTestcase: 'ITS-TCOE_OCTO_UATMain_V1'.GetTestcase( constProjectInfo.id, TempTcId, {expand: \"teststep\"})});\r\n\r\n        ClearCollect(colTCInfo, gallerySelectedTestcase);\r\n    \r\n        ClearCollect( colTestStep, AddColumns( First(colTCInfo).test_steps, Order, order));\r\n\r\n        ClearCollect(colTestStep1,colTestStep);\r\n    \r\n        ClearCollect( colRequirementTestcaseLink, 'ITS-TCOE_OCTO_UATMain_V1'.GetObjectLink( constProjectInfo.id, { type: \"test-cases\", ids: TempTcId}));\r\n        \r\n        RemoveIf( colTraceOfClickTC, ID = LookUp( colTraceOfClickTC, ID = Last(colTraceOfClickTC).ID).ID)\r\n    );\r\n\r\n    //Disabling TCDLoading Spinner\r\n    UpdateContext({ showTCDLoadingSpinner: false}),\r\n\r\n    Navigate('Author Test Cases')\r\n);\r\n"
+            PaddingBottom: =8
+            PaddingLeft: =8
+            PaddingRight: =8
+            PaddingTop: =8
+            Width: =50

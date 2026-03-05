@@ -1,0 +1,2184 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  Review SIT Test Cases:
+    Properties:
+      LoadingSpinnerColor: =RGBA(56, 96, 178, 1)
+      OnHidden: |-
+        =UpdateContext({varReqGallerySelected: false});
+
+        Concurrent(
+            Clear(ColABC),
+
+            Clear(colReviewTestCase),
+
+            Clear(colRequirementProperties),
+
+            Clear(colRequirement),
+
+            UpdateContext({varModulename: Blank()})
+        )
+      OnVisible: "=Concurrent(   \n    Set(varScreenName, \"Review SIT Test Cases\"),\n    \n    Set(varVideoLink, Concatenate(nfSharepointbaseUrl,\"video/Review_SIT_Test_Cases.mp4\")),\n\n    Set(varPDFLink, Concatenate(nfSharepointbaseUrl,\"pdf/Review_SIT_Test_Cases.pdf\"))\n);\nConcurrent(\n    //Reseting the module combobox\n    Reset(RSITTCModuleCombobox),\n\n    //Updaing collection with blank value\n    //ClearCollect( colEmpty, Blank()),\n\n    //Set variable value to false\n    Set( varREnableSearch, false);\n\n    UpdateContext(\n        {\n            //Update the variable value to true\n            ResetCheckBox: true,\n\n            //Update variable value with number\n            varRQpageNumber: 1,\n\n            //Update variable value with number\n            ReviewTestCasePageNumber: 1,\n\n            //Update variable value with blank value \n            varModule: Blank()\n        }\n    )\n);\n\n//Update requiremnt info in this variable \nUpdateContext({varRequirementRecords: 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, { object_type: \"requirements\", Page: varRQpageNumber, pageSize: nfRequirementPageSize, fields: [\"*\"], query: $\"'Module' in '{constModuleInfo.pid} {constModuleInfo.name}'\"})});\n\n//Update total number of requirement in this variable.\nUpdateContext({ RequirementsCount: varRequirementRecords.total});\n\n//Update total requirement info in this variable.\nClearCollect( colRequirement, varRequirementRecords.items)"
+    Children:
+      - RSITTCCanvas:
+          Control: FluidGrid@2.3.0
+          Properties:
+            BorderThickness: =0
+            Height: =Parent.Height - 50 /*- UATBackgroundRectangle.Height + 50*/
+            Width: =Parent.Width
+            Y: =RSITTC_Outer_Header_Component.Y + RSITTC_Outer_Header_Component.Height
+          Children:
+            - RSITTCDataCard:
+                Control: DataCard@1.0.2
+                Properties:
+                  Fill: |-
+                    =//RGBA(241, 244, 249, 1)
+                    ColorFade(RGBA(70, 189, 198, 1), 90%)
+                  Height: =Parent.Height
+                  Width: =Parent.Width
+                  X: =0
+                  Y: =0
+                Children:
+                  - TCLDataCardbackgroundRectabgle_2:
+                      Control: Rectangle@2.3.0
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Fill: =RGBA(255, 255, 255, 1)
+                        Height: =Parent.Height
+                        Width: =939
+                        X: =427
+                        Y: =Parent.Y
+                  - RSITTCRequirementSearchTxtBox:
+                      Control: Classic/TextInput@2.3.2
+                      Properties:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(153, 153, 153, 1)
+                        Default: =""
+                        DelayOutput: =true
+                        Fill: =Color.White
+                        FocusedBorderThickness: =1
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Lighter
+                        HintText: ="Search Requirement"
+                        HoverBorderColor: =RGBA(0, 0, 0, 0)
+                        HoverFill: =Self.Fill
+                        OnChange: "=If( \n    IsBlank( Substitute( RSITTCRequirementSearchTxtBox.Text, \" \", \"\")),\n    If(\n        RSITTCModuleCombobox.Selected.name = Blank(),\n\n        UpdateContext(\n            { \n                varRQpageNumber: 1,\n                varModulename: Blank(),\n                varReqGallerySelected: false\n            }\n        );\n\n        Set( varREnableSearch, false);\n\n        Clear(colReviewTestCase);\n\n        Clear(colRequirement);\n\n        Clear(colRequirementProperties);\n\n        UpdateContext({varRequirementRecords: 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, { object_type: \"requirements\", Page: varRQpageNumber, pageSize: nfRequirementPageSize, fields: [\"*\"], query: Concatenate( \"'Module' \",\"in\", \" '\" & constModuleInfo.pid & \" \" & constModuleInfo.name & \"'\")})});\n\n        UpdateContext({ RequirementsCount: varRequirementRecords.total});\n\n        ClearCollect( colRequirement, varRequirementRecords.items);\n        \n        UpdateContext({varErrorMsg: false}),\n\n        UpdateContext(\n            {\n                varRQpageNumber: 1,\n                varModulename: Blank(),\n                varReqGallerySelected: false\n            }\n        );\n\n        Set( varREnableSearch, false);\n\n        Clear(colReviewTestCase);\n\n        Clear(colRequirement);\n\n        Clear(colRequirementProperties);\n\n        UpdateContext({varRequirementRecords: 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, { object_type: \"requirements\", Page: varRQpageNumber, pageSize: nfRequirementPageSize, fields: [\"*\"], query: Concatenate( \"'Module' \",\"in\", \" '\" & RSITTCModuleCombobox.Selected.pid & \" \" & RSITTCModuleCombobox.Selected.name & \"'\")})});\n\n        UpdateContext({ RequirementsCount: varRequirementRecords.total});\n\n        ClearCollect( colRequirement, varRequirementRecords.items);\n\n        UpdateContext({varErrorMsg: false})\n    )\n);\n\nUpdateContext({reqid: Blank()})"
+                        OnSelect: |-
+                          =If( IsBlank( Substitute( RSITTCRequirementSearchTxtBox.Text, " ", "")), 
+
+                              Clear(colReviewTestCase);
+
+                              UpdateContext({varModulename: Blank()});
+
+                              Clear(colRequirementProperties);
+
+                              UpdateContext({varReqGallerySelected: false})
+                          )
+                        PaddingLeft: =10
+                        RadiusBottomLeft: =6
+                        RadiusBottomRight: =6
+                        RadiusTopLeft: =6
+                        RadiusTopRight: =6
+                        Size: =11
+                        Width: =400
+                        X: =RSITTCProjectLbl.X
+                        Y: =RSITTCModuleLbl.Y + RSITTCModuleLbl.Height + 5
+                  - RSITTCRequirementSearchIcon:
+                      Control: Classic/Icon@2.5.0
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =If(RSITTCRequirementSearchTxtBox.DisplayMode = DisplayMode.Edit,RGBA(70, 189, 198, 1), RGBA(153, 153, 153, 1))
+                        DisabledColor: =RGBA(153, 153, 153, 1)
+                        DisplayMode: =If( !IsBlank( Substitute( RSITTCRequirementSearchTxtBox.Text, " ", "")), DisplayMode.Edit, DisplayMode.Disabled)
+                        Height: =40
+                        Icon: =Icon.Search
+                        OnSelect: "=Set( varREnableSearch, true);\r\n\r\nReset(RSITTCModuleCombobox);\r\n\r\nUpdateContext(\r\n    { \r\n        varRQpageNumber: 1, \r\n        varModulename: Blank(), \r\n        varReqGallerySelected: false\r\n    }\r\n);\r\n\r\nClear(colReviewTestCase);\r\n\r\nClear(colRequirement);\r\n\r\nClear(colRequirementProperties);\r\n\r\nIf( \r\n    !IsBlank( Substitute( RSITTCRequirementSearchTxtBox.Text, \" \", \"\")) && StartsWith(RSITTCRequirementSearchTxtBox.Text, \"RQ-\"),\r\n\r\n    UpdateContext({varRequirementRecords: 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, { object_type: \"requirements\", pageSize: nfRequirementPageSize, page: varRQpageNumber, fields: [\"*\"], query: Concatenate(\"'Module' \",\"in\",\" '\" & constModuleInfo.pid & \" \" & constModuleInfo.name & \"' And 'id' =\" & \" '\" & RSITTCRequirementSearchTxtBox.Text & \"'\")})});\r\n\r\n    UpdateContext({ RequirementsCount: varRequirementRecords.total});\r\n\r\n    ClearCollect( colRequirement, varRequirementRecords.items),\r\n    \r\n    !IsBlank( Substitute( RSITTCRequirementSearchTxtBox.Text, \" \", \"\")),\r\n\r\n    UpdateContext({varRequirementRecords: 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, { object_type: \"requirements\", pageSize: nfRequirementPageSize, page: varRQpageNumber, fields: [\"*\"], query: Concatenate(\"'Module' \",\"in\",\" '\" & constModuleInfo.pid & \" \" & constModuleInfo.name & \"' And 'name' \", \"~\",\" '\" & RSITTCRequirementSearchTxtBox.Text & \"' \")})});\r\n\r\n    UpdateContext({ RequirementsCount: varRequirementRecords.total});\r\n\r\n    ClearCollect( colRequirement, varRequirementRecords.items)\r\n);\r\n\r\nIf( CountRows(colRequirement) = 0, UpdateContext({varErrorMsg: true}), UpdateContext({varErrorMsg: false}))"
+                        PaddingBottom: =10
+                        PaddingLeft: =10
+                        PaddingRight: =10
+                        PaddingTop: =10
+                        Width: =40
+                        X: =371
+                        Y: =RSITTCRequirementSearchTxtBox.Y
+                  - RSITTCGalleryRequirement:
+                      Control: Gallery@2.15.0
+                      Variant: VariableHeight
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Default: ={}
+                        DelayItemLoading: =false
+                        Height: =550
+                        Items: =colRequirement
+                        LoadingSpinner: =LoadingSpinner.None
+                        OnSelect: =
+                        TemplateFill: |-
+                          =//If(ThisItem.IsSelected,Color.AliceBlue,RGBA(0, 0, 0, 0))
+                          If(ThisItem.IsSelected,ColorFade(RGBA(70, 189, 198, 1), 100%),RGBA(0, 0, 0, 0))
+                        TemplatePadding: =0
+                        TemplateSize: =30
+                        Width: =424
+                        Y: =RSITTCRequirementSearchTxtBox.Y + RSITTCRequirementSearchTxtBox.Height + 5
+                      Children:
+                        - RSITTCGMSeperatorRectangle:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              BorderStyle: =BorderStyle.None
+                              Fill: =RGBA(204, 204, 204, 1)
+                              FocusedBorderThickness: =0
+                              Height: =0.4
+                              OnSelect: =Select(Parent)
+                              Width: =Parent.Width
+                              Y: =29.6
+                        - RSITTCGMFilderIcon:
+                            Control: Classic/Icon@2.5.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(0, 134, 146, 1)
+                              Height: =20
+                              Icon: =Icon.DocumentWithContent
+                              OnSelect: =Select(Parent)
+                              Width: =20
+                              X: =15
+                              Y: =5
+                        - RSITTCLabelRequirementName:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: |-
+                                =If(RSITTCLabelRequirementName.Text=RSITTCGalleryRequirement.Selected.name,
+                                RGBA(17, 192, 190, 1), 
+                                RGBA(107, 106, 106, 1)
+                                )
+                              Font: =Font.'Segoe UI'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =30
+                              HoverColor: =RGBA(70, 189, 198, 1)
+                              OnSelect: |-
+                                =UpdateContext({ReviewTestCasePageNumber: 1});
+
+                                ClearCollect( colRequirementProperties, ThisItem.properties);
+
+                                ClearCollect( CollectTestcaseId, 'ITS-TCOE_OCTO_UATMain_V1'.GetObjectLink( constProjectInfo.id, { type: "requirements", ids: ThisItem.id}));
+
+                                Clear(colPTUTestCase);
+
+                                Clear(ColABC);
+
+                                ForAll( CollectTestcaseId, Collect( ColABC, objects));
+
+                                ClearCollect(colTestCaseIdQuery, {Id: 1, TC: ""});
+
+                                ForAll( Filter(ColABC, StartsWith(pid, "TC")), Patch(colTestCaseIdQuery, First(colTestCaseIdQuery),{TC: Concatenate(First(colTestCaseIdQuery).TC, " or ", Concatenate("'Id' = '",ThisRecord.pid,"'" ))}));
+
+                                If(
+                                    !IsBlank(Right(First(colTestCaseIdQuery).TC, Len( First(colTestCaseIdQuery).TC)-3)),
+
+                                    UpdateContext({ReviewTestCaseRecord: 'ITS-TCOE_OCTO_UATMain_V1'.Search(constProjectInfo.id,{object_type:"test-cases", page: ReviewTestCasePageNumber, pageSize: nfReviewTestCasePageSize, fields:["*"],query:Right(First(colTestCaseIdQuery).TC, Len( First(colTestCaseIdQuery).TC)-3)})});
+
+                                    UpdateContext({ReviewTestCaseCount: ReviewTestCaseRecord.total});
+
+                                    ClearCollect(colReviewTestCase, ReviewTestCaseRecord.items),
+
+                                    Clear(colReviewTestCase)
+                                );
+
+                                UpdateContext({varReqGallerySelected: true});
+
+                                UpdateContext({reqid: ThisItem.id});
+
+                                UpdateContext({varModulename: 'ITS-TCOE_OCTO_UATMain_V1'.GetAModule( constProjectInfo.id, ThisItem.parent_id)})
+                              Size: =11
+                              Text: ="(" & ThisItem.pid & ") "& ThisItem.name
+                              Tooltip: =ThisItem.name
+                              VerticalAlign: =VerticalAlign.Top
+                              Width: =380
+                              Wrap: =false
+                              X: =RSITTCGMFilderIcon.X + RSITTCGMFilderIcon.Width
+                  - RSITTCGalleryExistingTestCase:
+                      Control: Gallery@2.15.0
+                      Variant: Vertical
+                      Properties:
+                        BorderColor: =RGBA(232, 244, 217, 1)
+                        DelayItemLoading: =false
+                        Height: =480
+                        Items: =Sort(colReviewTestCase,id,SortOrder.Descending)
+                        LoadingSpinner: =LoadingSpinner.None
+                        OnSelect: =//Navigate('TestCase Details')
+                        TemplatePadding: =0
+                        TemplateSize: =60
+                        Width: =939
+                        X: =RSITTCETCBackgroundRectangle.X
+                        Y: =RSITTCETCBackgroundRectangle.Y + RSITTCETCBackgroundRectangle.Height
+                      Children:
+                        - RSITTCETSNameValueLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(240, 248, 255, 1)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =0.2
+                              Color: =RGBA(107, 106, 106, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              OnSelect: =Select(Parent)
+                              Overflow: =Overflow.Scroll
+                              Size: =10.5
+                              Text: =PlainText(ThisItem.name)
+                              Tooltip: =PlainText(ThisItem.name)
+                              VerticalAlign: =VerticalAlign.Top
+                              Width: =160
+                              X: =RSITTCETSTestCaseIdvalueLbl.X + RSITTCETSTestCaseIdvalueLbl.Width
+                        - RSITTCETSTestCaseIdvalueLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(240, 248, 255, 1)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =0.2
+                              Color: =RGBA(107, 106, 106, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              PaddingLeft: =12
+                              Size: =10.5
+                              Text: =ThisItem.pid
+                              VerticalAlign: =VerticalAlign.Top
+                              Width: =90
+                        - RSITTCETSDescriptionValueLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(240, 248, 255, 1)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =0.2
+                              Color: =RGBA(107, 106, 106, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              OnSelect: =Select(Parent)
+                              Overflow: =Overflow.Scroll
+                              Size: =10.5
+                              Text: =PlainText(ThisItem.description)
+                              Tooltip: =PlainText(ThisItem.description)
+                              VerticalAlign: =VerticalAlign.Top
+                              Width: =160
+                              X: =RSITTCETSNameValueLbl.X + RSITTCETSNameValueLbl.Width
+                        - RSITTCETSTestStepsValueLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              Align: =Align.Center
+                              BorderColor: =RGBA(240, 248, 255, 1)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =0.2
+                              Color: =RGBA(0, 166, 255, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              OnSelect: =Select(Parent)
+                              Size: =10.5
+                              Text: =CountRows(ThisItem.test_steps)
+                              Width: =80
+                              X: =RSITTCETSPriorityValueLbl.X + RSITTCETSPriorityValueLbl.Width
+                        - RSITTCETSTypeValueLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              Align: =Align.Center
+                              BorderColor: =RGBA(240, 248, 255, 1)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =0.2
+                              Color: =RGBA(107, 106, 106, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              OnSelect: =Select(Parent)
+                              Size: =10.5
+                              Text: =LookUp(ThisItem.properties,field_name="Type",field_value_name)
+                              Width: =70
+                              Wrap: =false
+                              X: =RSITTCETCStatusValueBtn.X + RSITTCETCStatusValueBtn.Width+15
+                        - RSITTCETSPriorityValueLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              Align: =Align.Center
+                              BorderColor: =RGBA(240, 248, 255, 1)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =0.2
+                              Color: =RGBA(107, 106, 106, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              OnSelect: =Select(Parent)
+                              Size: =10.5
+                              Text: =LookUp(ThisItem.properties,field_name="Priority",field_value_name)
+                              Width: =80
+                              Wrap: =false
+                              X: =RSITTCETSTypeValueLbl.X + RSITTCETSTypeValueLbl.Width
+                        - RSITTCETSAssignedToValueLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              Align: =Align.Center
+                              BorderColor: =RGBA(240, 248, 255, 1)
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =0.2
+                              Color: =RGBA(107, 106, 106, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              OnSelect: =Select(Parent)
+                              Size: =10.5
+                              Text: =Mid( LookUp( ThisItem.properties, field_name = "Assigned To", field_value_name), 2, ( Find( "]", LookUp( ThisItem.properties,field_name = "Assigned To", field_value_name)) - 2))
+                              Width: =100
+                              X: =RSITTCETSTestStepsValueLbl.X + RSITTCETSTestStepsValueLbl.Width
+                        - RSITTCETCSeperator:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Fill: =RGBA(235, 248, 249, 1)
+                              Height: =2
+                              OnSelect: =Select(Parent)
+                              Width: =RSITTCGalleryExistingTestCase.Width
+                              X: =RSITTCETSTestCaseIdvalueLbl.X
+                              Y: =RSITTCETSDescriptionValueLbl.Y+RSITTCETSDescriptionValueLbl.Height-2
+                        - RSITTCETCStatusValueBtn:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              BorderColor: |-
+                                =Switch(
+                                    RSITTCETCStatusValueBtn.Text,
+                                    "New", RGBA(0, 166, 255, 1),//ColorValue("#54A0FE"), 
+                                    "In Progress", ColorValue("#81A489"),
+                                    "Ready For Baseline", ColorValue("#F1C40F"),
+                                    "Baselined", ColorValue("#34495E")
+                                )
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =0.5
+                              Color: |-
+                                =Switch(
+                                    RSITTCETCStatusValueBtn.Text,
+                                    "New", ColorValue("#3468C0"), 
+                                    "In Progress", ColorValue("#54A0FE"),
+                                    "Ready For Baseline", ColorValue("#E3651D"),
+                                    "Baselined", ColorValue("#F39F5A")
+                                )
+                              DisabledBorderColor: |-
+                                =RGBA(255, 255, 255, 1)
+                                /*If(Button2.Text="New",ColorValue("#1F4172"), 
+                                If(Button2.Text="In Progress",ColorValue("#81A489"),
+                                If(Button2.Text="Ready For Baseline",ColorValue("#B06161"),
+                                If(Button2.Text="Baselined",ColorValue("#776B5D")
+                                ))))*/
+                              DisabledColor: |-
+                                =Switch(
+                                    RSITTCETCStatusValueBtn.Text,
+                                    "New", ColorValue("#3468C0"), 
+                                    "In Progress", ColorValue("#54A0FE"),
+                                    "Ready For Baseline", ColorValue("#E3651D"),
+                                    "Baselined", ColorValue("#E94560")
+                                )
+                              DisabledFill: |-
+                                =Switch(
+                                    RSITTCETCStatusValueBtn.Text,
+                                    "New", ColorValue("#D8DEFE"), 
+                                    "In Progress", ColorValue("#D5F0C1"),
+                                    "Ready For Baseline", ColorValue("#FFDBAA"),
+                                    "Baselined", ColorFade(ColorValue("#FF9B9B"),30%)
+                                )
+                              DisplayMode: =DisplayMode.Disabled
+                              Fill: |-
+                                =Switch(
+                                    RSITTCETCStatusValueBtn.Text,
+                                    "New", ColorValue("#D8DEFE"), 
+                                    "In Progress", ColorValue("#D5F0C1"),
+                                    "Ready For Baseline", ColorValue("#FFDBAA"),
+                                    "Baselined", ColorValue("#FDFFAB")
+                                )
+                              Font: =Font.'Segoe UI'
+                              Height: =25
+                              HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                              HoverColor: =RGBA(255, 255, 255, 1)
+                              HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                              OnSelect: =Select(Parent)
+                              PressedBorderColor: =Self.Fill
+                              PressedColor: =Self.Fill
+                              PressedFill: =Self.Color
+                              RadiusBottomLeft: =5
+                              RadiusBottomRight: =5
+                              RadiusTopLeft: =5
+                              RadiusTopRight: =5
+                              Size: =7
+                              Text: =LookUp(ThisItem.properties,field_name="Status",field_value_name)
+                              Width: =RSITTCETCStatusLbl.Width-20
+                              X: =RSITTCETSDescriptionValueLbl.X + RSITTCETSDescriptionValueLbl.Width+10
+                              Y: =18
+                        - RSITTCShowTestStepCountValuebtn:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              BorderColor: =ColorFade(Self.Fill, -15%)
+                              BorderStyle: =BorderStyle.None
+                              Color: =Color.Transparent
+                              DisabledBorderColor: =Self.Fill
+                              DisabledColor: =Self.Color
+                              DisabledFill: =Self.Fill
+                              Fill: =Color.Transparent
+                              Font: =Font.'Segoe UI'
+                              Height: =RSITTCETSTestStepsValueLbl.Height
+                              HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                              HoverColor: =Self.Color
+                              HoverFill: =Self.Fill
+                              OnSelect: |-
+                                =Reset(RSITTSRadioButton);
+
+                                Set(TempTcId,ThisItem.id);
+
+                                ClearCollect( colRequirementTestcaseLink, 'ITS-TCOE_OCTO_UATMain_V1'.GetObjectLink(constProjectInfo.id, { type: "test-cases", ids: TempTcId}));
+
+                                ClearCollect(colTCInfo, 'ITS-TCOE_OCTO_UATMain_V1'.GetTestcase(constProjectInfo.id,TempTcId, {expand: "teststep"}));
+
+                                ClearCollect( colSITTestSteps, First(colTCInfo).test_steps);
+
+                                Set(Index,1);
+
+                                ClearCollect(colTraceOfClickTC,{ID:Index,TC:ThisItem.id});
+
+                                UpdateContext({varShowTestSteps: true})
+                              PressedBorderColor: =Self.Fill
+                              PressedFill: =Self.Fill
+                              Text: =""
+                              Width: =RSITTCETSTestStepsValueLbl.Width
+                              X: =RSITTCETSTestStepsValueLbl.X
+                              Y: =RSITTCETSTestStepsValueLbl.Y
+                        - RSITTCPromoteToUatCheckBox:
+                            Control: Classic/CheckBox@2.1.0
+                            Properties:
+                              BorderColor: =RGBA(236, 248, 249, 1)
+                              BorderStyle: =BorderStyle.None
+                              CheckboxBackgroundFill: =If( Self.DisplayMode = DisplayMode.Edit, RGBA(255, 255, 255, 1), RGBA(186, 186, 186, 1))
+                              CheckboxBorderColor: =If( Self.DisplayMode = DisplayMode.Edit, RGBA(70, 189, 198, 1), RGBA(186, 186, 186, 1))
+                              CheckboxSize: =25
+                              CheckmarkFill: =RGBA(107, 106, 106, 1)
+                              Color: =RGBA(107, 106, 106, 1)
+                              DisplayMode: =If(LookUp(ThisItem.properties,field_id=First(colAllTestCaseFieldId).IncludedInUAT,field_value_name)="Promoted",DisplayMode.Disabled, DisplayMode.Edit)
+                              FocusedBorderThickness: =0.4
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              HoverColor: =RGBA(0, 18, 107, 1)
+                              OnCheck: |-
+                                =Collect(colPTUTestCase, { Value: ThisItem.id})
+                              OnSelect: =Select(Parent)
+                              OnUncheck: =RemoveIf(colPTUTestCase, Value=ThisItem.id)
+                              Reset: =ResetCheckBox
+                              Size: =11
+                              Text: =""
+                              Width: =28
+                              X: =RSITTCETSAssignedToValueLbl.X + RSITTCETSAssignedToValueLbl.Width + 30
+                  - RSITTCETCBackgroundRectangle:
+                      Control: Rectangle@2.3.0
+                      Group: RSITTCETCTableHeaderGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        BorderStyle: =BorderStyle.None
+                        Fill: |-
+                          =RGBA(236, 248, 249, 1)
+                          //ColorFade(RGBA(70, 189, 198, 1), 90%)
+                        Height: =35
+                        Width: =940
+                        X: =425
+                        Y: =RSITTCETSBackgroundRectangle.Y + RSITTCETSBackgroundRectangle.Height
+                  - RSITTCETCTestCaseIdLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCETCTableHeaderGroup
+                      Properties:
+                        BorderColor: =RGBA(241, 244, 249, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =36
+                        Size: =11
+                        Text: ="Test Case Id"
+                        Width: =90
+                        X: =RSITTCETCBackgroundRectangle.X
+                        Y: =RSITTCETCBackgroundRectangle.Y
+                  - RSITTCETCNameLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCETCTableHeaderGroup
+                      Properties:
+                        BorderColor: =RGBA(241, 244, 249, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =36
+                        Size: =11
+                        Text: ="Name"
+                        Width: =160
+                        X: =RSITTCETCTestCaseIdLbl.X+RSITTCETCTestCaseIdLbl.Width-3
+                        Y: =RSITTCETCBackgroundRectangle.Y
+                  - RSITTCETCDescriptionLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCETCTableHeaderGroup
+                      Properties:
+                        BorderColor: =RGBA(241, 244, 249, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =36
+                        Size: =11
+                        Text: ="Description"
+                        Width: =160
+                        X: =RSITTCETCNameLbl.X+RSITTCETCNameLbl.Width
+                        Y: =RSITTCETCBackgroundRectangle.Y
+                  - RSITTCETCTestStepsLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCETCTableHeaderGroup
+                      Properties:
+                        BorderColor: =RGBA(241, 244, 249, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =36
+                        Size: =11
+                        Text: ="Test Steps"
+                        Width: =80
+                        X: =RSITTCETCPriorityLbl.X + RSITTCETCPriorityLbl.Width
+                        Y: =RSITTCETCBackgroundRectangle.Y
+                  - RSITTCETCTypeLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCETCTableHeaderGroup
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(241, 244, 249, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =36
+                        Size: =11
+                        Text: ="Type"
+                        Width: =75
+                        X: =RSITTCETCStatusLbl.X + RSITTCETCStatusLbl.Width
+                        Y: =RSITTCETCBackgroundRectangle.Y
+                  - RSITTCETCStatusLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCETCTableHeaderGroup
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(241, 244, 249, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =36
+                        Size: =11
+                        Text: ="Status"
+                        Width: =100
+                        X: =RSITTCETCDescriptionLbl.X + RSITTCETCDescriptionLbl.Width
+                        Y: =RSITTCETCBackgroundRectangle.Y
+                  - RSITTCETCPriorityLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCETCTableHeaderGroup
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(241, 244, 249, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =36
+                        Size: =11
+                        Text: ="Priority"
+                        Width: =80
+                        X: =RSITTCETCTypeLbl.X +RSITTCETCTypeLbl.Width
+                        Y: =RSITTCETCBackgroundRectangle.Y
+                  - RSITTCETCAssignedToLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCETCTableHeaderGroup
+                      Properties:
+                        BorderColor: =RGBA(241, 244, 249, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =36
+                        PaddingLeft: =8
+                        Size: =11
+                        Text: ="Assigned To"
+                        Width: =100
+                        X: =RSITTCETCTestStepsLbl.X + RSITTCETCTestStepsLbl.Width
+                        Y: =RSITTCETCBackgroundRectangle.Y
+                  - RSITTCReqTitleLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(19, 61, 83, 0.75)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Bold
+                        Height: =25
+                        Size: =11
+                        Text: ="Title"
+                        Width: =160
+                        X: =432
+                        Y: =RSITTCRequirmentIdLbl.Y + RSITTCRequirmentIdLbl.Height + 5
+                  - RSITTCReqTitleValueLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(153, 153, 153, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(128, 124, 124, 1)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        Height: =25
+                        Size: =11
+                        Text: =If( varReqGallerySelected = true, PlainText(LookUp(colRequirement,id=reqid,name)))
+                        Tooltip: =PlainText(LookUp(colRequirement,id=reqid,name))
+                        Width: =280
+                        Wrap: =false
+                        X: =RSITTCRequirementIdValueLbl.X
+                        Y: =RSITTCReqTitleLbl.Y
+                  - RSITTCDescriptionLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(19, 61, 83, 0.75)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Bold
+                        Height: =25
+                        Size: =11
+                        Text: ="Description"
+                        Width: =110
+                        X: =890
+                        Y: =RSITTCReqTitleLbl.Y
+                  - RSITTCDescriptionvalueLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(153, 153, 153, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(128, 124, 124, 1)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        Height: =25
+                        Size: =11
+                        Text: =If( varReqGallerySelected = true, PlainText(LookUp(LookUp(colRequirement,id=reqid,properties),field_name="Description",field_value)))
+                        Tooltip: =PlainText(LookUp(LookUp(colRequirement,id=reqid,properties),field_name="Description",field_value))
+                        Width: =300
+                        Wrap: =false
+                        X: =RSITTCDescriptionLbl.X+RSITTCDescriptionLbl.Width
+                        Y: =RSITTCReqTitleLbl.Y
+                  - RSITTCETSBackgroundRectangle:
+                      Control: Rectangle@2.3.0
+                      Group: RSITTCETSGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        Height: =40
+                        Width: =940
+                        X: =432
+                        Y: =120
+                  - RSITTCETSValueLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCETSGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(19, 61, 83, 0.75)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Bold
+                        Height: =RSITTCETSBackgroundRectangle.Height
+                        Size: =12
+                        Text: ="Existing Test Cases"
+                        Width: =RSITTCETSBackgroundRectangle.Width
+                        X: =RSITTCETSBackgroundRectangle.X
+                        Y: =RSITTCETSBackgroundRectangle.Y
+                  - RSITTCRequirmentIdLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(19, 61, 83, 0.75)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Bold
+                        Height: =25
+                        Size: =11
+                        Text: ="Requirement"
+                        Width: =160
+                        X: =432
+                        Y: =20
+                  - RSITTCNoSearchRequirementFoundLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Size: =11
+                        Text: ="Sorry! No requirements found for the given input."
+                        Visible: =If( varErrorMsg = true, true, false)
+                        Width: =RSITTCGalleryRequirement.Width
+                        X: =RSITTCGalleryRequirement.X
+                        Y: =RSITTCGalleryRequirement.Y
+                  - RSITTCRequirementIdValueLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        Height: =RSITTCRequirmentIdLbl.Height
+                        Size: =11
+                        Text: =If( varReqGallerySelected = true, PlainText( LookUp( colRequirement, id = reqid, pid)))
+                        Width: =280
+                        X: =RSITTCRequirmentIdLbl.X + RSITTCRequirmentIdLbl.Width
+                        Y: =RSITTCRequirmentIdLbl.Y
+                  - RSITTCLinkedSystemLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(19, 61, 83, 0.75)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Bold
+                        Height: =25
+                        Size: =11
+                        Text: ="Linked System"
+                        Width: =160
+                        X: =432
+                        Y: =RSITTCReqTitleLbl.Y + RSITTCReqTitleLbl.Height + 5
+                  - RSITTCLinkedIdLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(19, 61, 83, 0.75)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Bold
+                        Height: =25
+                        Size: =11
+                        Text: ="Link ID"
+                        Width: =110
+                        X: =890
+                        Y: =RSITTCLinkedSystemLbl.Y
+                  - RSITTCLinkedIdvalueLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(153, 153, 153, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(128, 124, 124, 1)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        Height: =25
+                        Size: =11
+                        Text: =LookUp(colRequirementProperties, field_name = "Link ID", field_value )
+                        Width: =300
+                        Wrap: =false
+                        X: =RSITTCDescriptionvalueLbl.X
+                        Y: =RSITTCLinkedSystemLbl.Y
+                  - RSITTCLinkedSystemvalueLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(153, 153, 153, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(128, 124, 124, 1)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        Height: =25
+                        Size: =11
+                        Text: =LookUp(colRequirementProperties, field_name = "Linked System", field_value )
+                        Width: =280
+                        Wrap: =false
+                        X: =RSITTCRequirementIdValueLbl.X
+                        Y: =RSITTCLinkedSystemLbl.Y
+                  - RSITTCProjectIdCombobox:
+                      Control: Classic/ComboBox@2.4.0
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        BorderThickness: =1
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronFill: =RGBA(179, 179, 179, 1)
+                        ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                        ChevronHoverFill: =RGBA(70, 189, 198, 1)
+                        Color: =RGBA(102, 102, 106, 1)
+                        DefaultSelectedItems: |-
+                          =//constProjectInfo
+                          constModuleInfo
+                        DisplayFields: =["name"]
+                        DisplayMode: =DisplayMode.View
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =1
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Lighter
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        IsSearchable: =false
+                        Items: |-
+                          =//Showing the module details
+                          constModuleInfo
+                        OnSelect: =
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        SearchFields: =["name"]
+                        SelectMultiple: =false
+                        SelectionColor: =RGBA(0, 0, 0, 1)
+                        SelectionFill: =RGBA(0, 0, 0, 1)
+                        SelectionTagFill: =Color.Transparent
+                        Size: =11
+                        Tooltip: =constProjectInfo.id
+                        Width: =250
+                        X: =RSITTCProjectLbl.X + RSITTCProjectLbl.Width
+                  - RSITTCProjectLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(102, 102, 102, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Size: =11
+                        Text: ="Project"
+                        Width: =70
+                        X: =13
+                  - RSITTCRQGalPageLeftNavIcon:
+                      Control: Classic/Icon@2.5.0
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(128, 128, 128, 1)
+                        DisplayMode: |-
+                          =//If((Defectstart+19)=defectCount,DisplayMode.Disabled,DisplayMode.Edit)
+                          DisplayMode.Edit
+                        Height: =35
+                        Icon: =Icon.ArrowLeft
+                        OnSelect: "=UpdateContext({varReqGallerySelected: false});\r\n\r\nUpdateContext({varRQpageNumber: varRQpageNumber-1});\r\n\r\nConcurrent(\r\n    Clear(colReviewTestCase),\r\n\r\n    Clear(colRequirementProperties),\r\n\r\n    UpdateContext({varModulename: Blank()})\r\n);\r\n\r\nIf(\r\n    RSITTCModuleCombobox.Selected.name = Blank(),\r\n    UpdateContext({varModule: constModuleInfo}),\r\n    UpdateContext({varModule: RSITTCModuleCombobox.Selected})\r\n);\r\n\r\nIf( \r\n    varREnableSearch = false,\r\n\r\n    ClearCollect( colRequirement, 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, { pageSize: nfRequirementPageSize, page: varRQpageNumber, object_type: \"requirements\", fields: [\"*\"], query: Concatenate(\"'Module' \",\"in\",\" '\" & varModule.pid & \" \" & varModule.name & \"'\")}).items),\r\n\r\n    If( \r\n        varREnableSearch = true && !IsBlank( Substitute( RSITTCRequirementSearchTxtBox.Text, \" \", \"\")) && StartsWith(RSITTCRequirementSearchTxtBox.Text, \"RQ-\"),\r\n            \r\n            ClearCollect( colRequirement, 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, { pageSize: nfRequirementPageSize, page: varRQpageNumber, object_type: \"requirements\", fields: [\"*\"], query: Concatenate(\"'Module' \",\"in\",\" '\" & varModule.pid & \" \" & varModule.name & \"' And 'id' =\" & \" '\" & RSITTCRequirementSearchTxtBox.Text & \"'\")}).items),\r\n    \r\n        varREnableSearch = true && !IsBlank( Substitute( RSITTCRequirementSearchTxtBox.Text, \" \", \"\")),\r\n\r\n            ClearCollect( colRequirement, 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, { pageSize: nfRequirementPageSize, page: varRQpageNumber,object_type: \"requirements\", fields: [\"*\"], query: Concatenate(\"'Module' \",\"in\",\" '\" & varModule.pid & \" \" & varModule.name & \"' And 'name' \", \"~\",\" '\" & RSITTCRequirementSearchTxtBox.Text & \"' \")}).items)  \r\n    )\r\n)"
+                        Visible: =If(varRQpageNumber = 1 || RSITTCGalleryRequirement.AllItemsCount = 0, false, true)
+                        Width: =35
+                        X: =98
+                        Y: =RSITTCRQGalPageInfoLbl.Y + 5
+                  - RSITTCRQGalPageRightNavicon:
+                      Control: Classic/Icon@2.5.0
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(128, 128, 128, 1)
+                        Height: =35
+                        Icon: =Icon.ArrowRight
+                        OnSelect: "=UpdateContext({varRQpageNumber: varRQpageNumber+1});\n\nIf(\n    RSITTCModuleCombobox.Selected.name = Blank(),\n    UpdateContext({varModule: constModuleInfo}),\n    UpdateContext({varModule: RSITTCModuleCombobox.Selected})\n);\n\nConcurrent(\n    Clear(colReviewTestCase),\n\n    Clear(colRequirementProperties),\n\n    UpdateContext({varReqGallerySelected: false}),\n\n    UpdateContext({varModulename: Blank()})\n);\n\nIf( varREnableSearch = false,\n\n    ClearCollect( colRequirement, 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, { pageSize: nfRequirementPageSize, page: varRQpageNumber, object_type: \"requirements\", fields: [\"*\"], query: Concatenate(\"'Module' \",\"in\",\" '\" & varModule.pid & \" \" & varModule.name & \"'\")}).items),\n\n    If( \n        varREnableSearch = true && !IsBlank( Substitute( RSITTCRequirementSearchTxtBox.Text, \" \", \"\")) && StartsWith(RSITTCRequirementSearchTxtBox.Text, \"RQ-\"),\n            \n            ClearCollect( colRequirement, 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, { pageSize: nfRequirementPageSize, page: varRQpageNumber,\nobject_type: \"requirements\", fields: [\"*\"], query: Concatenate(\"'Module' \",\"in\",\" '\" & varModule.pid & \" \" & varModule.name & \"' And 'id' =\" & \" '\" & RSITTCRequirementSearchTxtBox.Text & \"'\")}).items),\n    \n        varREnableSearch = true && !IsBlank( Substitute( RSITTCRequirementSearchTxtBox.Text, \" \", \"\")),\n\n            ClearCollect( colRequirement, 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id,{ pageSize: nfRequirementPageSize, page: varRQpageNumber,\nobject_type: \"requirements\", fields: [\"*\"], query: Concatenate(\"'Module' \",\"in\",\" '\" & varModule.pid & \" \" & varModule.name & \"' And 'name' \", \"~\",\" '\" & RSITTCRequirementSearchTxtBox.Text & \"' \")}).items)  \n    )\n)"
+                        Visible: =If( CountRows(colRequirement) = 0 || varRQpageNumber = RoundUp( RequirementsCount / nfRequirementPageSize, 0), false,true)
+                        Width: =35
+                        X: =283
+                        Y: =RSITTCRQGalPageInfoLbl.Y + 5
+                  - RSITTCRQGalPageInfoLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(19, 61, 83, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Lighter
+                        Size: =10
+                        Text: ="Page " & varRQpageNumber & " of " & RoundUp( RequirementsCount / nfRequirementPageSize, 0) & " Pages"
+                        Visible: =If(CountRows(colRequirement) > 0 , true, false)
+                        X: =133
+                        Y: =675
+                  - RSITTCTCGalPageLeftNavIcon:
+                      Control: Classic/Icon@2.5.0
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(128, 128, 128, 1)
+                        DisplayMode: |-
+                          =//If((Defectstart+19)=defectCount,DisplayMode.Disabled,DisplayMode.Edit)
+                          DisplayMode.Edit
+                        Height: =25
+                        Icon: =Icon.ArrowLeft
+                        OnSelect: |-
+                          =UpdateContext({ReviewTestCasePageNumber: ReviewTestCasePageNumber - 1});
+
+                          ClearCollect(colReviewTestCase, 'ITS-TCOE_OCTO_UATMain_V1'.Search(constProjectInfo.id,{object_type:"test-cases", page: ReviewTestCasePageNumber, pageSize: nfReviewTestCasePageSize, fields:["*"],query:Right(First(colTestCaseIdQuery).TC, Len( First(colTestCaseIdQuery).TC)-3)  }).items)
+                        PaddingTop: =7
+                        Visible: =If(ReviewTestCasePageNumber = 1 || CountRows(colReviewTestCase) = 0, false, true)
+                        Width: =25
+                        X: =800
+                        Y: =RSITTCGalleryExistingTestCase.Y+RSITTCGalleryExistingTestCase.Height + 2
+                  - RSITTCTCGalPageRightNavicon:
+                      Control: Classic/Icon@2.5.0
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(128, 128, 128, 1)
+                        Height: =25
+                        Icon: =Icon.ArrowRight
+                        OnSelect: |-
+                          =UpdateContext({ReviewTestCasePageNumber: ReviewTestCasePageNumber + 1});
+
+                          ClearCollect( colReviewTestCase, 'ITS-TCOE_OCTO_UATMain_V1'.Search(constProjectInfo.id,{object_type:"test-cases", page: ReviewTestCasePageNumber, pageSize: nfReviewTestCasePageSize, fields:["*"],query:Right(First(colTestCaseIdQuery).TC, Len( First(colTestCaseIdQuery).TC)-3)  }).items)
+                        PaddingTop: =7
+                        Visible: =If( CountRows(colReviewTestCase) = 0 || ReviewTestCasePageNumber = RoundUp( ReviewTestCaseCount/ nfReviewTestCasePageSize, 0), false, true)
+                        Width: =25
+                        X: =RSITTCTCGalPageInfoLbl.X + RSITTCTCGalPageInfoLbl.Width + 5
+                        Y: =RSITTCGalleryExistingTestCase.Y+RSITTCGalleryExistingTestCase.Height + 2
+                  - RSITTCTCGalPageInfoLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(19, 61, 83, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Lighter
+                        Height: =30
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        Size: =10
+                        Text: ="Page " & ReviewTestCasePageNumber & " of " & RoundUp( ReviewTestCaseCount/ nfReviewTestCasePageSize, 0) & " Pages"
+                        Visible: =If(CountRows( colReviewTestCase) > 0 , true, false)
+                        Width: =120
+                        X: =RSITTCTCGalPageLeftNavIcon.X + RSITTCTCGalPageLeftNavIcon.Width + 5
+                        Y: =RSITTCGalleryExistingTestCase.Y+RSITTCGalleryExistingTestCase.Height + 2
+                  - RSITTCModuleIdLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(19, 61, 83, 0.75)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Bold
+                        Height: =25
+                        Size: =11
+                        Text: ="Module"
+                        Width: =110
+                        X: =890
+                        Y: =20
+                  - RSITTCModuleIdValueLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        Height: =RSITTCModuleIdLbl.Height
+                        Size: =11
+                        Text: =PlainText(varModulename.name)
+                        Width: =300
+                        Wrap: =false
+                        X: =RSITTCModuleIdLbl.X + RSITTCModuleIdLbl.Width
+                        Y: =RSITTCModuleIdLbl.Y
+                  - RSITTCModuleCombobox:
+                      Control: Classic/ComboBox@2.4.0
+                      Properties:
+                        BorderColor: =RGBA(211, 239, 241, 1)
+                        BorderThickness: =0.4
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronFill: =RGBA(211, 239, 241, 1)
+                        ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Color: =RGBA(107, 106, 106, 1)
+                        DisplayFields: =["name"]
+                        DisplayMode: =If( varREnableSearch = false, DisplayMode.Edit, DisplayMode.View)
+                        FocusedBorderThickness: =1
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Lighter
+                        Height: =36
+                        HoverColor: =RGBA(128, 128, 128, 1)
+                        HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                        InputTextPlaceholder: ="Module"
+                        Items: |-
+                          =//Showing submodule in the dropdown
+                          Sort( colallEpicModule, name, SortOrder.Ascending)
+                        OnChange: "=If( \r\n    //Checking this variable value\r\n    varREnableSearch = false,\r\n\r\n    //if true start\r\n    Concurrent(\r\n        //Update the variable value\r\n        UpdateContext({varReqGallerySelected: false}),\r\n\r\n        //Clear the collection\r\n        Clear(ColABC),\r\n\r\n        //Clear the collection.\r\n        Clear(colReviewTestCase),\r\n\r\n        //Clear the collection.\r\n        Clear(colRequirementProperties),\r\n\r\n        //Clear the collection.\r\n        Clear(colRequirement),\r\n\r\n        //Update variable value to blank\r\n        UpdateContext({varModulename: Blank()})\r\n    )\r\n    //if true end\r\n);\r\n\r\nIf(\r\n    //Checking if the dropdown is blank and variable value is false\r\n    Self.Selected.name = Blank() && varREnableSearch = false,\r\n\r\n    //if true Start\r\n\r\n    //Update variable with number\r\n    UpdateContext({ varRQpageNumber: 1});\r\n\r\n    //Update variable with requirement record\r\n    UpdateContext({varRequirementRecords: 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, { object_type: \"requirements\", Page: varRQpageNumber, pageSize: nfRequirementPageSize, fields: [\"*\"], query: $\"'Module' in '{constModuleInfo.pid} {constModuleInfo.name}'\"})});\r\n\r\n    //Store total number of requirement in variable.\r\n    UpdateContext({ RequirementsCount: varRequirementRecords.total});\r\n\r\n    //Storing requirement details in this variable.\r\n    ClearCollect( colRequirement, varRequirementRecords.items),\r\n    //if true end\r\n    \r\n    //if false start\r\n    If(\r\n        varREnableSearch = false,\r\n\r\n        UpdateContext({ varRQpageNumber: 1});\r\n\r\n        UpdateContext({varRequirementRecords: 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, { object_type: \"requirements\", Page: varRQpageNumber, pageSize: nfRequirementPageSize, fields: [\"*\"], query: Concatenate( \"'Module' \",\"in\", \" '\" & RSITTCModuleCombobox.Selected.pid & \" \" & Trim(RSITTCModuleCombobox.Selected.name) & \"'\")})});\r\n\r\n        UpdateContext({ RequirementsCount: varRequirementRecords.total});\r\n\r\n        ClearCollect( colRequirement, varRequirementRecords.items)\r\n    )\r\n);\r\n\r\n//Set variable value with false\r\nSet(varShowRec,false);"
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        SearchFields: =["name"]
+                        SelectMultiple: =false
+                        SelectionColor: =RGBA(70, 189, 198, 1)
+                        SelectionFill: =RGBA(236, 248, 249, 1)
+                        SelectionTagFill: =Color.Transparent
+                        Size: =9
+                        Tooltip: ="Select Module"
+                        Width: =280
+                        X: =RSITTCModuleLbl.X + RSITTCModuleLbl.Width
+                        Y: =RSITTCModuleLbl.Y + 3
+                  - RSITTCModuleLbl:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(222, 220, 220, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Size: =11
+                        Text: ="Select Module"
+                        Width: =120
+                        X: =RSITTCProjectLbl.X
+                        Y: =RSITTCProjectLbl.Y + RSITTCProjectLbl.Height
+                  - RSITTCSaveBtn:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        BorderThickness: =0.4
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        DisplayMode: =If( IsEmpty(colPTUTestCase), DisplayMode.Disabled, DisplayMode.Edit)
+                        Fill: =RGBA(70, 189, 198, 1)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =25
+                        HoverBorderColor: =ColorFade(Self.HoverFill, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =RGBA(255, 152, 1, 1)
+                        OnSelect: "=ForAll(\n    colPTUTestCase,\n    \n    'ITS-TCOE_OCTO_UATMain_V1'.UpdateTestcase( constProjectInfo.id, ThisRecord.Value, {properties: {field_id: First(colAllTestCaseFieldId).IncludedInUAT, field_name: \"Included In UAT\", field_value: LookUp(colIncludedInUATTC,label=\"Promoted\", value), field_value_name: \"Promoted\"}});\n    \n'ITS-TCOE_OCTO_UATMain_V1'.ApproveTestcase( constProjectInfo.id, ThisRecord.Value);\n);\n\nRemoveIf( colPTUTestCase, true);\n\nUpdateContext({ResetCheckBox: false});\n\nUpdateContext({ResetCheckBox: true});\n\nUpdateContext({ReviewTestCaseRecord : 'ITS-TCOE_OCTO_UATMain_V1'.Search(constProjectInfo.id,{object_type:\"test-cases\", page: ReviewTestCasePageNumber, pageSize: nfReviewTestCasePageSize, fields:[\"*\"],query:Right(First(colTestCaseIdQuery).TC, Len( First(colTestCaseIdQuery).TC)-3)})});\n\nUpdateContext({ ReviewTestCaseCount: ReviewTestCaseRecord.total});\n\nClearCollect( colReviewTestCase, ReviewTestCaseRecord.items);\n\n//Using this variable to reset all the textbox and dropdowns.\nUpdateContext({RTCReset: false});\nUpdateContext({RTCReset: true});\n\nNotify(\"Successfully Promoted\", NotificationType.Success, 4000)"
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =4
+                        RadiusBottomRight: =4
+                        RadiusTopLeft: =4
+                        RadiusTopRight: =4
+                        Size: =9.5
+                        Text: ="SAVE"
+                        Visible: =If( RSITTCGalleryExistingTestCase.AllItemsCount > 0, true, false)
+                        Width: =110
+                        X: =RSITTCTCGalPageRightNavicon.X + RSITTCTCGalPageRightNavicon.Width + 260
+                        Y: =RSITTCGalleryExistingTestCase.Y+RSITTCGalleryExistingTestCase.Height + 5
+                  - RSITTCTextInputTCId:
+                      Control: Classic/TextInput@2.3.2
+                      Group: RSITTCGroupFilter
+                      Properties:
+                        BorderColor: =RGBA(211, 239, 241, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(107, 106, 106, 1)
+                        Default: =""
+                        FocusedBorderThickness: =1
+                        Font: =Font.'Segoe UI'
+                        Height: =36
+                        HintText: ="Test Case Id"
+                        HoverBorderColor: =Self.BorderColor
+                        HoverColor: =Self.Color
+                        HoverFill: =Self.Fill
+                        Mode: =TextMode.MultiLine
+                        RadiusBottomLeft: =0.4
+                        RadiusBottomRight: =0.4
+                        RadiusTopLeft: =0.4
+                        RadiusTopRight: =0.4
+                        Reset: =RTCReset
+                        Size: =9
+                        Tooltip: ="Search By Test Case Id"
+                        Visible: =false
+                        Width: =RSITTCETCTestCaseIdLbl.Width
+                        X: =RSITTCETCTestCaseIdLbl.X
+                        Y: =159
+                  - RSITTCTextInputSummery:
+                      Control: Classic/TextInput@2.3.2
+                      Group: RSITTCGroupFilter
+                      Properties:
+                        BorderColor: =RGBA(211, 239, 241, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(107, 106, 106, 1)
+                        Default: =""
+                        FocusedBorderThickness: =1
+                        Font: =Font.'Segoe UI'
+                        Height: =36
+                        HintText: ="Title"
+                        HoverBorderColor: =Self.BorderColor
+                        HoverColor: =Self.Color
+                        HoverFill: =Self.Fill
+                        Mode: =TextMode.MultiLine
+                        OnSelect: =
+                        RadiusBottomLeft: =0.4
+                        RadiusBottomRight: =0.4
+                        RadiusTopLeft: =0.4
+                        RadiusTopRight: =0.4
+                        Reset: =RTCReset
+                        Size: =9
+                        Tooltip: ="Search By Title"
+                        Visible: =false
+                        Width: =RSITTCETCNameLbl.Width+RSITTCETCDescriptionLbl.Width
+                        X: =RSITTCTextInputTCId.X + RSITTCTextInputTCId.Width
+                        Y: =159
+                  - RSITTCFilterStatus:
+                      Control: Classic/ComboBox@2.4.0
+                      Group: RSITTCGroupFilter
+                      Properties:
+                        BorderColor: =RGBA(211, 239, 241, 1)
+                        BorderThickness: =0.4
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronFill: =RGBA(211, 239, 241, 1)
+                        ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Color: =RGBA(107, 106, 106, 1)
+                        DisplayFields: =["label"]
+                        FocusedBorderThickness: =1
+                        Font: =Font.'Segoe UI'
+                        Height: =36
+                        HoverColor: =RGBA(128, 128, 128, 1)
+                        HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                        InputTextPlaceholder: ="Status"
+                        IsSearchable: =false
+                        Items: =colStatusTC
+                        OnSelect: =
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        Reset: =RTCReset
+                        SearchFields: =["label"]
+                        SelectMultiple: =false
+                        SelectionColor: =RGBA(70, 189, 198, 1)
+                        SelectionFill: =RGBA(236, 248, 249, 1)
+                        SelectionTagFill: =Color.Transparent
+                        Size: =9
+                        Tooltip: ="Filter By Status"
+                        Visible: =false
+                        Width: =RSITTCETCStatusLbl.Width
+                        X: =RSITTCTextInputSummery.X + RSITTCTextInputSummery.Width
+                        Y: =159
+                  - RSITTCFilterPriority:
+                      Control: Classic/ComboBox@2.4.0
+                      Group: RSITTCGroupFilter
+                      Properties:
+                        BorderColor: =RGBA(211, 239, 241, 1)
+                        BorderThickness: =0.4
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronFill: =RGBA(211, 239, 241, 1)
+                        ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Color: =RGBA(107, 106, 106, 1)
+                        DisplayFields: =["label"]
+                        FocusedBorderThickness: =1
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Lighter
+                        Height: =36
+                        HoverColor: =RGBA(128, 128, 128, 1)
+                        HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                        InputTextPlaceholder: ="Priority"
+                        IsSearchable: =false
+                        Items: =colPriorityTC
+                        OnSelect: =
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        Reset: =RTCReset
+                        SearchFields: =["label"]
+                        SelectMultiple: =false
+                        SelectionColor: =RGBA(70, 189, 198, 1)
+                        SelectionFill: =RGBA(236, 248, 249, 1)
+                        SelectionTagFill: =Color.Transparent
+                        Size: =9
+                        Tooltip: ="Filter By Priority"
+                        Visible: =false
+                        Width: =100
+                        X: =RSITTCFilterStatus.X + RSITTCFilterStatus.Width
+                        Y: =159
+                  - RSITTTCSearchBtn:
+                      Control: Classic/Button@2.2.0
+                      Group: RSITTCGroupFilter
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        BorderThickness: =0.1
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(70, 189, 198, 1)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =31
+                        HoverBorderColor: =ColorFade(Self.HoverFill, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =RGBA(255, 152, 1, 1)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =4
+                        RadiusBottomRight: =4
+                        RadiusTopLeft: =4
+                        RadiusTopRight: =4
+                        Size: =9.5
+                        Text: ="SEARCH"
+                        Visible: =false
+                        Width: =100
+                        X: =RSITTCSearchAssignedToCombobox.X + RSITTCSearchAssignedToCombobox.Width + 30
+                        Y: =161
+                  - RSITTCSearchResetIcon:
+                      Control: Classic/Icon@2.5.0
+                      Group: RSITTCGroupFilter
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(153, 153, 153, 1)
+                        DisabledColor: =RGBA(153, 153, 153, 1)
+                        Height: =RSITTTCSearchBtn.Height
+                        Icon: =Icon.Reset
+                        OnSelect: "=false\n/*\n//Using this variable to define the page inside the search api\nUpdateContext({ ReviewTestCasePageNumber: 1});\n\nIf(\n    searchOn = true,\n\n    //Store Review test Case records\n    UpdateContext({ReviewTestCaseRecord: UATV1.Search(constProjectInfo.id,{object_type:\"test-cases\", page: ReviewTestCasePageNumber, pageSize: ReviewTestCasePageSize, fields:[\"*\"],query:Right(First(colTestCaseIdQuery).TC, Len( First(colTestCaseIdQuery).TC)-3)})});\n\n    //Store total number of Test cases present in the PromoteToUATModule.    \n    UpdateContext({ ReviewTestCaseCount: ReviewTestCaseRecord.total});\n\n    //Collect test cases\n    ClearCollect( colReviewTestCase, ReviewTestCaseRecord.items);\n\n    //Reset all the variable used in the testbox's & drododown's on change property to collect the latest value.\n    Concurrent( UpdateContext({TestCaseId: \"\"}), UpdateContext({TestCaseName: \"\"}), UpdateContext({TestCaseStatus: \"\"}), UpdateContext({TestCasePriority: \"\"}), UpdateContext({TestCaseAssignedTo: \"\"}));\n    \n    //Using this variable to reset all the textbox and dropdowns.\n    UpdateContext({RTCReset: false});\n    UpdateContext({RTCReset: true}),\n\n    //Using this variable to reset all the textbox and dropdowns.\n    UpdateContext({RTCReset: false});\n    UpdateContext({RTCReset: true})\n);\n\n//Using this variable in the search button to identify if the search button is clicked or not.\nUpdateContext({searchOn: false})*/"
+                        PaddingBottom: =5
+                        PaddingLeft: =5
+                        PaddingRight: =5
+                        PaddingTop: =5
+                        Visible: =false
+                        Width: =30
+                        X: =RSITTTCSearchBtn.X + RSITTTCSearchBtn.Width + 10
+                        Y: =RSITTTCSearchBtn.Y
+                  - RSITTCSearchAssignedToCombobox:
+                      Control: Classic/ComboBox@2.4.0
+                      Group: RSITTCGroupFilter
+                      Properties:
+                        BorderColor: =RGBA(211, 239, 241, 1)
+                        BorderThickness: =0.4
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                        ChevronDisabledFill: =RGBA(255, 255, 255, 1)
+                        ChevronFill: =RGBA(211, 239, 241, 1)
+                        ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        Color: =RGBA(107, 106, 106, 1)
+                        DisabledBorderColor: =RGBA(255, 255, 255, 1)
+                        DisabledColor: =RGBA(255, 255, 255, 1)
+                        DisabledFill: =RGBA(255, 255, 255, 1)
+                        DisplayFields: =["label"]
+                        FocusedBorderThickness: =1
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Lighter
+                        Height: =36
+                        HoverColor: =RGBA(128, 128, 128, 1)
+                        HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                        InputTextPlaceholder: ="Assigned To"
+                        IsSearchable: =false
+                        Items: =colAssigedToTC
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        Reset: =RTCReset
+                        SearchFields: =["label"]
+                        SelectMultiple: =false
+                        SelectionColor: =RGBA(70, 189, 198, 1)
+                        SelectionFill: =RGBA(236, 248, 249, 1)
+                        SelectionTagFill: =Color.Transparent
+                        Size: =9
+                        Tooltip: ="Filter By Assigned To"
+                        Visible: =false
+                        Width: =140
+                        X: =RSITTCFilterPriority.X + RSITTCFilterPriority.Width
+                        Y: '=RSITTCTextInputTCId.Y '
+                  - RSITTCETCPromotedToUATLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCETCTableHeaderGroup
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(241, 244, 249, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =36
+                        Size: =11
+                        Text: ="Included In UAT"
+                        Width: =80
+                        X: =RSITTCETCAssignedToLbl.X + RSITTCETCAssignedToLbl.Width
+                        Y: =RSITTCETCBackgroundRectangle.Y
+                  - RSITTCBackgroundBlurEffectBtn:
+                      Control: Classic/Button@2.2.0
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: =ColorFade(RGBA(230, 230, 230, 0.82), 35%)
+                        Font: =Font.'Open Sans'
+                        Height: =Parent.Height
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        Text: =""
+                        Visible: =varShowTestSteps
+                        Width: =Parent.Width
+                        X: =Parent.X
+                        Y: =Parent.Y
+                  - RSITTCTSRequirementSearchbackgroundBtn:
+                      Control: Classic/Button@2.2.0
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(237, 237, 237, 1)
+                        BorderThickness: =1
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(241, 244, 249, 1)
+                        DisabledColor: =Color.White
+                        DisabledFill: =RGBA(255, 255, 255, 1)
+                        DisplayMode: =DisplayMode.Disabled
+                        Fill: =Color.White
+                        Font: =Font.'Segoe UI'
+                        Height: =630
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =30
+                        RadiusBottomRight: =30
+                        RadiusTopLeft: =30
+                        RadiusTopRight: =30
+                        Text: =""
+                        Visible: =varShowTestSteps
+                        Width: =1285
+                        X: =35
+                        Y: =40
+                  - RSITTCCloseTestStepDetailsPopupBtn:
+                      Control: Classic/Button@2.2.0
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        BorderThickness: =0.4
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(70, 189, 198, 1)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverBorderColor: =ColorFade(Self.HoverFill, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =RGBA(255, 152, 1, 1)
+                        OnSelect: "=If(\n    Last(colTraceOfClickTC).ID = 1,\n \n    UpdateContext({varShowTestSteps: false}),\n \n    Set( TempTcId, LookUp( colTraceOfClickTC, ID = Last(colTraceOfClickTC).ID - 1).TC);\n \n    ClearCollect(colTCInfo, 'ITS-TCOE_OCTO_UATMain_V1'.GetTestcase(constProjectInfo.id,TempTcId, {expand: \"teststep\"}));\n \n    ClearCollect( colSITTestSteps, First(colTCInfo).test_steps);\n \n    ClearCollect( colRequirementTestcaseLink, 'ITS-TCOE_OCTO_UATMain_V1'.GetObjectLink(constProjectInfo.id, { type: \"test-cases\", ids: TempTcId}));\n\n    RemoveIf( colTraceOfClickTC, ID = LookUp( colTraceOfClickTC, ID = Last(colTraceOfClickTC).ID).ID)\n)"
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =4
+                        RadiusBottomRight: =4
+                        RadiusTopLeft: =4
+                        RadiusTopRight: =4
+                        Size: =10.5
+                        Text: ="CLOSE"
+                        Visible: =varShowTestSteps
+                        Width: =130
+                        X: =1102
+                        Y: =RSITTCGalleryExistTestStepModal.Y + RSITTCGalleryExistTestStepModal.Height + 15
+                  - RSITTCGalleryExistTestStepModal:
+                      Control: Gallery@2.15.0
+                      Variant: Vertical
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(56, 96, 178, 1)
+                        DelayItemLoading: =false
+                        Height: =360
+                        Items: "=If( \r\n    RSITTSRadioButton.Selected.Value = \"Show All Test Steps\", \r\n    \r\n    colSITTestSteps, \r\n    \r\n    Filter(colSITTestSteps, Not( LookUp( ThisRecord.customFieldInfo, Lower(name) = Lower(\"UAT Category\")).value = Text( LookUp(colBusinessValuesTS, label = \"Technical\", value))))\r\n)"
+                        LoadingSpinner: =LoadingSpinner.None
+                        TemplatePadding: =0
+                        TemplateSize: =60
+                        Visible: =varShowTestSteps
+                        Width: =RSITTCETSHeaderbackgroundrectangle.Width
+                        X: =RSITTCETSHeaderbackgroundrectangle.X
+                        Y: =RSITTCETSHeaderbackgroundrectangle.Y+RSITTCETSHeaderbackgroundrectangle.Height
+                      Children:
+                        - RSITTCGETSSeperaterRectangle:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Fill: =RGBA(236, 248, 249, 1)
+                              FocusedBorderThickness: =0
+                              Height: =0.4
+                              OnSelect: =Select(Parent)
+                              Width: =RSITTCGalleryExistTestStepModal.TemplateWidth
+                              Y: =59.6
+                        - RSITTCGETSStepNumbervalueLbl:
+                            Control: Label@2.5.1
+                            Properties:
+                              Align: =Align.Center
+                              BorderColor: =RGBA(236, 248, 249, 1)
+                              BorderThickness: =0.4
+                              Color: =RGBA(43, 43, 43, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              OnSelect: =Select(Parent)
+                              Size: =11
+                              Text: =ThisItem.order
+                              Width: =110
+                        - RSITTCGETSStepDescriptionvalueLbl:
+                            Control: Classic/TextInput@2.3.2
+                            Properties:
+                              BorderColor: =RGBA(236, 248, 249, 1)
+                              BorderThickness: =0.4
+                              Color: |-
+                                =//If(IsBlank(ThisItem.called_test_case),RGBA(94, 93, 93, 1),RGBA(56, 96, 178, 100))
+                                RGBA(94, 93, 93, 1)
+                              Default: |-
+                                =If(
+                                    IsBlank(ThisItem.called_test_case),
+                                    PlainText(ThisItem.description),
+                                    ("Call " & ThisItem.called_test_case.pid & " - (" & ThisItem.called_test_case.name & ")")
+                                )
+                              DisabledBorderColor: =RGBA(236, 248, 249, 1)
+                              DisabledColor: |-
+                                =//If(IsBlank(ThisItem.called_test_case),RGBA(94, 93, 93, 1),RGBA(56, 96, 178, 100))
+                                RGBA(94, 93, 93, 1)
+                              DisabledFill: =Self.Fill
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =0.4
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              HoverBorderColor: =RGBA(179, 179, 179, 1)
+                              HoverFill: =RGBA(255, 255, 255, 1)
+                              Mode: =TextMode.MultiLine
+                              PaddingRight: =40
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =11
+                              Tooltip: |-
+                                =If(
+                                    IsBlank(ThisItem.called_test_case),
+                                    PlainText(ThisItem.description),
+                                    ("Call " & ThisItem.called_test_case.pid & " - (" & ThisItem.called_test_case.name & ")")
+                                )
+                              Visible: =false
+                              Width: =RSITTCETSStepDescriptionLbl.Width
+                              X: =RSITTCTSBusinessDrodpdown.X + RSITTCTSBusinessDrodpdown.Width
+                        - RSITTCGETSExpectedResultvalue:
+                            Control: Classic/TextInput@2.3.2
+                            Properties:
+                              BorderColor: =RGBA(236, 248, 249, 1)
+                              BorderThickness: =0.4
+                              Color: =RGBA(94, 93, 93, 1)
+                              Default: =PlainText(ThisItem.expected)
+                              DisabledBorderColor: =Self.BorderColor
+                              DisabledColor: =RGBA(94, 93, 93, 1)
+                              DisabledFill: =RGBA(255, 255, 255, 1)
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =0.4
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              HoverBorderColor: =RGBA(179, 179, 179, 1)
+                              HoverFill: =RGBA(255, 255, 255, 1)
+                              Mode: =TextMode.MultiLine
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =11
+                              Tooltip: =PlainText(ThisItem.expected)
+                              Visible: =false
+                              Width: =RSITTCETCExpectedResultLbl.Width
+                              X: =RSITTCGETSStepDescriptionvalueLbl.X + RSITTCGETSStepDescriptionvalueLbl.Width
+                        - RSITTCTSBusinessDrodpdown:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              BorderColor: =RGBA(235, 248, 249, 1)
+                              BorderThickness: =0.4
+                              ChevronBackground: =RGBA(255, 255, 255, 1)
+                              ChevronDisabledBackground: =Self.Fill
+                              ChevronFill: =RGBA(211, 239, 241, 1)
+                              ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                              ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                              Color: =RGBA(107, 106, 106, 1)
+                              DefaultSelectedItems: =LookUp(colBusinessValuesTS,value = Int( LookUp( ThisItem.customFieldInfo, Lower(name) = Lower("UAT Category")).value))
+                              DisabledBorderColor: =Self.BorderColor
+                              DisabledColor: =Self.Color
+                              DisabledFill: =Self.Fill
+                              DisplayFields: =["label"]
+                              DisplayMode: =DisplayMode.Disabled
+                              FocusedBorderThickness: =0.5
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              HoverColor: =RGBA(128, 128, 128, 1)
+                              HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                              InputTextPlaceholder: =""
+                              IsSearchable: =false
+                              Items: =colBusinessValuesTS
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(70, 189, 198, 1)
+                              SearchFields: =["label"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(70, 189, 198, 1)
+                              SelectionFill: =RGBA(236, 248, 249, 1)
+                              SelectionTagFill: =Color.Transparent
+                              Size: =11
+                              Width: =RSITTCETSStepNumberLbll.Width
+                              X: =RSITTCGETSStepNumbervalueLbl.X + RSITTCGETSStepNumbervalueLbl.Width
+                        - HtmlText4:
+                            Control: HtmlViewer@2.1.0
+                            Properties:
+                              DisabledBorderColor: =RGBA(56, 56, 56, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              HtmlText: |-
+                                =If(IsBlank(ThisItem.called_test_case),ThisItem.description,("Call " & ThisItem.called_test_case.pid & " - (" & ThisItem.called_test_case.name & ")"))
+                                //"Show your <b><font color=blue>HTML</font></b> text here."
+                              OnSelect: =Select(Parent)
+                              PaddingRight: =10
+                              Width: =RSITTCETSStepDescriptionLbl.Width - RSITTCShowTestStepsGalGETCalledTestCaseIcon.Width
+                              X: =RSITTCTSBusinessDrodpdown.X + RSITTCTSBusinessDrodpdown.Width
+                        - HtmlText5:
+                            Control: HtmlViewer@2.1.0
+                            Properties:
+                              DisabledBorderColor: =RGBA(56, 56, 56, 1)
+                              Font: =Font.'Segoe UI'
+                              Height: =60
+                              HtmlText: |-
+                                =ThisItem.expected
+                                //"Show your <b><font color=blue>HTML</font></b> text here."
+                              OnSelect: =Select(Parent)
+                              Width: =RSITTCETCExpectedResultLbl.Width
+                              X: =RSITTCGETSStepDescriptionvalueLbl.X + RSITTCGETSStepDescriptionvalueLbl.Width
+                        - RSITTCShowTestStepsGalGETCalledTestCaseIcon:
+                            Control: Classic/Icon@2.5.0
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              Color: =RGBA(70, 189, 198, 1)
+                              Height: =20
+                              Icon: =Icon.Link
+                              OnSelect: |-
+                                =Set(TempTcId,ThisItem.called_test_case.id);
+
+                                ClearCollect(colTCInfo, 'ITS-TCOE_OCTO_UATMain_V1'.GetTestcase(constProjectInfo.id,TempTcId, {expand: "teststep"}));
+
+                                ClearCollect( colSITTestSteps, First(colTCInfo).test_steps);
+
+
+
+                                ClearCollect(
+                                    colRequirementTestcaseLink,
+                                    'ITS-TCOE_OCTO_UATMain_V1'.GetObjectLink(
+                                        constProjectInfo.id,
+                                        {
+                                            type: "test-cases",
+                                            ids: TempTcId
+                                        }
+                                    )
+                                );
+                                Set(Index, CountRows(colTraceOfClickTC) + 1);
+
+                                Collect(colTraceOfClickTC,{ID:Index,TC:TempTcId});
+                              Visible: =If(!IsBlank(ThisItem.called_test_case), true, false)
+                              Width: =20
+                              X: =RSITTCGETSStepDescriptionvalueLbl.X + RSITTCGETSStepDescriptionvalueLbl.Width - Self.Width -5
+                              Y: =5
+                  - RSITTCETSHeaderbackgroundrectangle:
+                      Control: Rectangle@2.3.0
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Fill: =RGBA(240, 248, 254, 1)
+                        Height: =35
+                        Visible: =varShowTestSteps
+                        Width: =RSITTCETSStepNumberLbl.Width + RSITTCETSStepDescriptionLbl.Width + RSITTCETCExpectedResultLbl.Width + RSITTCETSStepNumberLbll.Width
+                        X: =RSITTCTSRequirementSearchbackgroundBtn.X + 35
+                        Y: =RSITTSRadioButton.Y + RSITTSRadioButton.Height
+                  - RSITTCETSStepNumberLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =35
+                        PaddingLeft: =10
+                        Size: =11
+                        Text: ="Step No"
+                        Visible: =varShowTestSteps
+                        Width: =110
+                        X: =RSITTCETSHeaderbackgroundrectangle.X
+                        Y: =RSITTCETSHeaderbackgroundrectangle.Y
+                  - RSITTCETSStepDescriptionLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =35
+                        PaddingLeft: =12
+                        Size: =11
+                        Text: ="Step Description"
+                        Visible: =varShowTestSteps
+                        Width: =480
+                        X: =RSITTCETSStepNumberLbll.X + RSITTCETSStepNumberLbll.Width
+                        Y: =RSITTCETSHeaderbackgroundrectangle.Y
+                  - RSITTCETCExpectedResultLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =35
+                        PaddingLeft: =12
+                        Size: =11
+                        Text: ="Expected Result"
+                        Visible: =varShowTestSteps
+                        Width: =510
+                        X: =RSITTCETSStepDescriptionLbl.X + RSITTCETSStepDescriptionLbl.Width
+                        Y: =RSITTCETSHeaderbackgroundrectangle.Y
+                  - RSITTCTestCaseIdvalueTxtInput:
+                      Control: Classic/TextInput@2.3.2
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(19, 61, 83, 1)
+                        Default: =If(!IsBlank(TempTcId),PlainText(First(colTCInfo).pid))
+                        DisabledBorderColor: =RGBA(230, 230, 230, 1)
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: =RGBA(0, 0, 0, 0)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Bold
+                        Height: =25
+                        HoverBorderColor: =RGBA(0, 18, 107, 1)
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        PaddingLeft: =5
+                        RadiusBottomLeft: =2
+                        RadiusBottomRight: =2
+                        RadiusTopLeft: =2
+                        RadiusTopRight: =2
+                        Size: =14
+                        Tooltip: =If(!IsBlank(TempTcId),PlainText(First(colTCInfo).pid))
+                        Visible: =varShowTestSteps
+                        Width: =Len(RSITTCTestCaseIdvalueTxtInput.Text)*14
+                        X: =RSITTCTSRequirementSearchbackgroundBtn.X + 30
+                        Y: =RSITTCTSRequirementSearchbackgroundBtn.Y + 10
+                  - RSITTCTestCaseTitleTitleValueTxtinput:
+                      Control: Classic/TextInput@2.3.2
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.4
+                        Color: =RGBA(19, 61, 83, 1)
+                        Default: |-
+                          =PlainText(First(colTCInfo).name)
+                          //If(!IsBlank(TempTcId),PlainText(First(colTCInfo).name))
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Bold
+                        Height: =25
+                        HoverBorderColor: =RGBA(153, 153, 153, 1)
+                        HoverFill: =RGBA(255, 255, 255, 1)
+                        OnChange: |-
+                          =//If(Self.Text=GalleryExistingTestCase.Selected.name,UpdateContext({ButtonUpdateTestcase:false}),UpdateContext({ButtonUpdateTestcase:true}))
+                          false
+                        RadiusBottomLeft: =0.4
+                        RadiusBottomRight: =0.4
+                        RadiusTopLeft: =0.4
+                        RadiusTopRight: =0.4
+                        Size: =14
+                        Tooltip: |-
+                          =PlainText(First(colTCInfo).name)
+                          //If(!IsBlank(TempTcId),PlainText(First(colTCInfo).name))
+                        Visible: =varShowTestSteps
+                        Width: =RSITTCTSRequirementSearchbackgroundBtn.Width-RSITTCTestCaseIdvalueTxtInput.Width-RSITTCTestCaseIdvalueTxtInput.X
+                        X: =RSITTCTestCaseIdvalueTxtInput.X+RSITTCTestCaseIdvalueTxtInput.Width
+                        Y: =RSITTCTestCaseIdvalueTxtInput.Y
+                  - RSITTCStatusBtn:
+                      Control: Classic/Button@2.2.0
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: |-
+                          =If(RSITTCStatusBtn.Text="New",RGBA(0, 166, 255, 1),//ColorValue("#54A0FE"), 
+                          If(RSITTCStatusBtn.Text="In Progress",ColorValue("#81A489"),
+                          If(RSITTCStatusBtn.Text="In Progress",ColorValue("#F1C40F"),
+                          If(RSITTCStatusBtn.Text="In Progress",ColorValue("#34495E")
+                          ))))
+                        BorderThickness: =0.5
+                        Color: |+
+                          =If(RSITTCStatusBtn.Text="New",ColorValue("#54A0FE"), 
+                          If(RSITTCStatusBtn.Text="In Progress",ColorValue("#81A489"),
+                          If(RSITTCStatusBtn.Text="Ready For Baseline",ColorValue("#F1C40F"),
+                          If(RSITTCStatusBtn.Text="Baselined",ColorValue("#34495E")
+                          ))))
+                        DisabledBorderColor: |-
+                          =RGBA(255, 255, 255, 1)
+                          /*If(Button2.Text="New",ColorValue("#1F4172"), 
+                          If(Button2.Text="In Progress",ColorValue("#81A489"),
+                          If(Button2.Text="Ready For Baseline",ColorValue("#B06161"),
+                          If(Button2.Text="Baselined",ColorValue("#776B5D")
+                          ))))*/
+                        DisabledColor: |-
+                          =Switch(
+                              RSITTCStatusBtn.Text,
+                              "New", ColorValue("#3468C0"), 
+                              "In Progress", ColorValue("#54A0FE"),
+                              "Ready For Baseline", ColorValue("#E3651D"),
+                              "Baselined", ColorValue("#E94560")
+                          )
+                        DisabledFill: |-
+                          =Switch(
+                              RSITTCStatusBtn.Text,
+                              "New", ColorValue("#D8DEFE"), 
+                              "In Progress", ColorValue("#D5F0C1"),
+                              "Ready For Baseline", ColorValue("#FFDBAA"),
+                              "Baselined",ColorFade(ColorValue("#FF9B9B"),30%)
+                          )
+                        DisplayMode: =DisplayMode.Disabled
+                        Fill: |-
+                          =If(RSITTCStatusBtn.Text="New",ColorValue("#54A0FE"), 
+                          If(RSITTCStatusBtn.Text="In Progress",ColorValue("#D5F0C1"),
+                          If(RSITTCStatusBtn.Text="In Progress",ColorValue("#F1C40F"),
+                          If(RSITTCStatusBtn.Text="In Progress",ColorValue("#34495E")
+                          ))))
+                        Font: =Font.'Segoe UI'
+                        Height: =25
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+                        OnSelect: =
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =8
+                        RadiusBottomRight: =8
+                        RadiusTopLeft: =8
+                        RadiusTopRight: =8
+                        Size: =7
+                        Text: =LookUp(First(colTCInfo).properties,field_name="Status",field_value_name)
+                        Visible: =varShowTestSteps
+                        Width: =100
+                        X: =RSITTCPopUpStatusLbl.X+RSITTCPopUpStatusLbl.Width+5
+                        Y: =RSITTCPopUpStatusLbl.Y+3
+                  - RSITTCPopUpProjectLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Project"
+                        Visible: =varShowTestSteps
+                        Width: =70
+                        X: =RSITTCTSRequirementSearchbackgroundBtn.X + 35
+                        Y: =RSITTCTestCaseIdvalueTxtInput.Y+RSITTCTestCaseIdvalueTxtInput.Height+10
+                  - RSITTCPopUpProjectvalueLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(153, 153, 153, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.4
+                        Color: =RGBA(94, 93, 93, 1)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Lighter
+                        Height: =30
+                        Size: =11
+                        Text: =constModuleInfo.name
+                        Tooltip: =constModuleInfo.name
+                        Visible: =varShowTestSteps
+                        Width: =140
+                        Wrap: =false
+                        X: =RSITTCPopUpProjectLbl.X+RSITTCPopUpProjectLbl.Width+5
+                        Y: =RSITTCPopUpProjectLbl.Y
+                  - RSITTCPopUpModuleLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Module"
+                        Visible: =varShowTestSteps
+                        Width: =70
+                        X: =RSITTCPopUpProjectLbl.X
+                        Y: =RSITTCPopUpProjectLbl.Y + RSITTCPopUpProjectLbl.Height+5
+                  - RSITTCPopUpModuleValueLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(153, 153, 153, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.4
+                        Color: =RGBA(94, 93, 93, 1)
+                        DisplayMode: =DisplayMode.View
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Lighter
+                        Height: =30
+                        Size: =11
+                        Text: =constModuleInfo.name
+                        Tooltip: =constModuleInfo.name
+                        Visible: =varShowTestSteps
+                        Width: =RSITTCPopUpProjectvalueLbl.Width
+                        Wrap: =false
+                        X: =RSITTCPopUpProjectvalueLbl.X
+                        Y: =RSITTCPopUpModuleLbl.Y
+                  - RSITTCAssignedToLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Assigned To"
+                        Visible: =varShowTestSteps
+                        Width: =160
+                        X: =RSITTCPopUpProjectvalueLbl.X+RSITTCPopUpProjectvalueLbl.Width+5
+                        Y: =RSITTCPopUpProjectLbl.Y
+                  - RSITTCAssignedTovalueLbl:
+                      Control: Classic/TextInput@2.3.2
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(82, 78, 78, 1)
+                        Default: =Mid( LookUp( First( colTCInfo).properties, field_name = "Assigned To", field_value_name), 2, ( Find( "]", LookUp( First( colTCInfo).properties, field_name = "Assigned To", field_value_name)) - 2))
+                        DisabledBorderColor: =RGBA(230, 230, 230, 1)
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: =RGBA(0, 0, 0, 0)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Lighter
+                        Height: =30
+                        HoverBorderColor: =RGBA(0, 18, 107, 1)
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        PaddingLeft: =5
+                        RadiusBottomLeft: =2
+                        RadiusBottomRight: =2
+                        RadiusTopLeft: =2
+                        RadiusTopRight: =2
+                        Size: =11
+                        Visible: =varShowTestSteps
+                        Width: =170
+                        X: =RSITTCAssignedToLbl.X+RSITTCAssignedToLbl.Width+5
+                        Y: =RSITTCPopUpProjectLbl.Y
+                  - RSITTCLinkedRequirementIdLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Linked Requirement(s)"
+                        Visible: =varShowTestSteps
+                        Width: =160
+                        X: =RSITTCAssignedToLbl.X
+                        Y: =RSITTCPopUpModuleLbl.Y
+                  - RSITTCLinkedReqIdsGal:
+                      Control: Gallery@2.15.0
+                      Variant: Vertical
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(236, 248, 249, 1)
+                        BorderThickness: =0.1
+                        DelayItemLoading: =false
+                        Height: =30
+                        Items: =colRequirementTestcaseLink
+                        LoadingSpinner: =LoadingSpinner.None
+                        TemplatePadding: =0
+                        Visible: =varShowTestSteps
+                        Width: =RSITTCAssignedTovalueLbl.Width
+                        WrapCount: =0
+                        X: =RSITTCAssignedTovalueLbl.X
+                        Y: =RSITTCPopUpModuleLbl.Y-2
+                      Children:
+                        - RSITTCNestedLinkedReqIdsGal:
+                            Control: Gallery@2.15.0
+                            Variant: Vertical
+                            Properties:
+                              BorderColor: =RGBA(0, 18, 107, 1)
+                              DelayItemLoading: =false
+                              Height: =30
+                              Items: =Filter(ThisItem.objects,StartsWith(pid,"rq"))
+                              LoadingSpinner: =LoadingSpinner.None
+                              TemplatePadding: =0
+                              TemplateSize: |-
+                                =//If(Self.Layout = Layout.Horizontal, Min(280, Self.Width - 60), Min(280, Self.Height - 60))
+                                30
+                              Width: =Parent.Width
+                            Children:
+                              - RSITTCLinkedRequirementIdvalueLbl:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    BorderColor: =RGBA(0, 18, 107, 1)
+                                    Color: =RGBA(94, 93, 93, 1)
+                                    Font: =Font.'Segoe UI'
+                                    FontWeight: =FontWeight.Lighter
+                                    Height: =30
+                                    OnSelect: =Select(Parent)
+                                    PaddingBottom: =2
+                                    PaddingLeft: =2
+                                    PaddingRight: =2
+                                    PaddingTop: =0
+                                    Size: =11
+                                    Text: =ThisItem.pid
+                                    Width: =120
+                                    Wrap: =false
+                                    X: =5
+                  - RSITTCPopUpDescriptionLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Description"
+                        Visible: =varShowTestSteps
+                        Width: =100
+                        X: =RSITTCAssignedTovalueLbl.X+RSITTCAssignedTovalueLbl.Width+5
+                        Y: =RSITTCPopUpProjectLbl.Y
+                  - RSITTCPopUpDescriptionValueTxtInput:
+                      Control: Classic/TextInput@2.3.2
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.4
+                        Color: =RGBA(94, 93, 93, 1)
+                        Default: =PlainText(First(colTCInfo).description)
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Lighter
+                        Height: =30
+                        HoverBorderColor: =RGBA(153, 153, 153, 1)
+                        HoverFill: =RGBA(255, 255, 255, 1)
+                        OnChange: |-
+                          =/*If(Self.Text=GalleryExistingTestCase.Selected.description,UpdateContext({ButtonUpdateTestcase:false}),UpdateContext({ButtonUpdateTestcase:true}))*/
+                          false
+                        RadiusBottomLeft: =0.4
+                        RadiusBottomRight: =0.4
+                        RadiusTopLeft: =0.4
+                        RadiusTopRight: =0.4
+                        Size: =11
+                        Tooltip: =PlainText(First(colTCInfo).description)
+                        Visible: =varShowTestSteps
+                        Width: =180
+                        X: =RSITTCPopUpDescriptionLbl.X+RSITTCPopUpDescriptionLbl.Width
+                        Y: =RSITTCPopUpProjectLbl.Y
+                  - RSITTCPreconditionLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Precondition"
+                        Visible: =varShowTestSteps
+                        Width: =100
+                        X: =RSITTCPopUpDescriptionLbl.X
+                        Y: =RSITTCPopUpModuleLbl.Y
+                  - RSITTCPreconditionValueTxtInput:
+                      Control: Classic/TextInput@2.3.2
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.4
+                        Color: =RGBA(94, 93, 93, 1)
+                        Default: =PlainText(First(colTCInfo).precondition)
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Lighter
+                        Height: =30
+                        HoverBorderColor: =RGBA(153, 153, 153, 1)
+                        HoverFill: =RGBA(255, 255, 255, 1)
+                        OnChange: |-
+                          =/*If(Self.Text=GalleryExistingTestCase.Selected.precondition,UpdateContext({ButtonUpdateTestcase:false}),UpdateContext({ButtonUpdateTestcase:true}))*/
+                          false
+                        RadiusBottomLeft: =0.4
+                        RadiusBottomRight: =0.4
+                        RadiusTopLeft: =0.4
+                        RadiusTopRight: =0.4
+                        Size: =11
+                        Tooltip: =PlainText(First(colTCInfo).precondition)
+                        Visible: =varShowTestSteps
+                        Width: =180
+                        X: =RSITTCPopUpDescriptionValueTxtInput.X
+                        Y: =RSITTCPopUpModuleLbl.Y
+                  - RSITTCPopUpPriorityLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Priority"
+                        Visible: =varShowTestSteps
+                        Width: =RSITTCTypeLbl.Width
+                        X: =RSITTCPopUpDescriptionValueTxtInput.X+RSITTCPopUpDescriptionValueTxtInput.Width+20
+                        Y: =RSITTCPopUpProjectLbl.Y
+                  - RSITTCPopUpPriorityvaluetxtbox:
+                      Control: Classic/TextInput@2.3.2
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(94, 93, 93, 1)
+                        Default: =LookUp(First(colTCInfo).properties,field_name="Priority",field_value_name)
+                        DisabledBorderColor: =RGBA(230, 230, 230, 1)
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: =RGBA(0, 0, 0, 0)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Lighter
+                        Height: =30
+                        HoverBorderColor: =RGBA(0, 18, 107, 1)
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        PaddingLeft: =5
+                        RadiusBottomLeft: =2
+                        RadiusBottomRight: =2
+                        RadiusTopLeft: =2
+                        RadiusTopRight: =2
+                        Size: =11
+                        Visible: =varShowTestSteps
+                        Width: =130
+                        X: =RSITTCPopUpPriorityLbl.X+RSITTCPopUpPriorityLbl.Width+5
+                        Y: =RSITTCPopUpProjectLbl.Y
+                  - RSITTCPopUpStatusLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Status"
+                        Visible: =varShowTestSteps
+                        Width: =RSITTCTypeLbl.Width
+                        X: =RSITTCPopUpPriorityLbl.X
+                        Y: =RSITTCPopUpModuleLbl.Y
+                  - RSITTCTypeLbl:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Color: =RGBA(122, 119, 119, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: ="Type"
+                        Visible: =varShowTestSteps
+                        Width: =60
+                        X: =RSITTCPopUpPriorityvaluetxtbox.X+RSITTCPopUpPriorityvaluetxtbox.Width+5
+                        Y: =RSITTCPopUpProjectLbl.Y
+                  - RSITTCTypeValueTxtbox:
+                      Control: Classic/TextInput@2.3.2
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        BorderThickness: =0.4
+                        Color: =RGBA(94, 93, 93, 1)
+                        Default: =LookUp(First(colTCInfo).properties,field_name="Type",field_value_name)
+                        DisabledBorderColor: =RGBA(230, 230, 230, 1)
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        DisplayMode: =DisplayMode.View
+                        Fill: =RGBA(0, 0, 0, 0)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Lighter
+                        Height: =30
+                        HoverBorderColor: =RGBA(0, 18, 107, 1)
+                        HoverFill: =RGBA(186, 202, 226, 1)
+                        PaddingLeft: =5
+                        RadiusBottomLeft: =2
+                        RadiusBottomRight: =2
+                        RadiusTopLeft: =2
+                        RadiusTopRight: =2
+                        Size: =11
+                        Visible: =varShowTestSteps
+                        Width: =140
+                        X: =RSITTCTypeLbl.X+RSITTCTypeLbl.Width
+                        Y: =RSITTCTypeLbl.Y
+                  - RSITTCETSStepNumberLbll:
+                      Control: Label@2.5.1
+                      Group: RSITTCShowTestStepsGroup
+                      Properties:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        BorderThickness: =0.2
+                        Color: =RGBA(107, 106, 106, 1)
+                        DisabledColor: =RGBA(0, 0, 0, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =35
+                        PaddingLeft: =10
+                        Size: =11
+                        Text: ="UAT Category"
+                        Visible: =varShowTestSteps
+                        Width: =120
+                        X: =RSITTCETSStepNumberLbl.X + RSITTCETSStepNumberLbl.Width
+                        Y: =RSITTCETSHeaderbackgroundrectangle.Y
+                  - RSITTSRadioButton:
+                      Control: Classic/Radio@2.3.0
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        BorderStyle: =BorderStyle.None
+                        Color: =RGBA(19, 61, 83, 0.75)
+                        Default: ="Hide Technical Test Steps"
+                        Font: =Font.'Segoe UI'
+                        Height: =40
+                        HoverColor: =RGBA(0, 18, 107, 1)
+                        Items: =["Hide Technical Test Steps", "Show All Test Steps"]
+                        Items.Value: =Value
+                        Layout: =Layout.Horizontal
+                        LineHeight: =1
+                        PaddingBottom: =5
+                        PaddingLeft: =5
+                        PaddingRight: =5
+                        PaddingTop: =5
+                        RadioBorderColor: =RGBA(0, 18, 107, 1)
+                        RadioSelectionFill: =ColorValue("#6B6A6A")
+                        RadioSize: =12
+                        Size: =10.5
+                        Visible: =varShowTestSteps
+                        Width: =415
+                        X: =60
+                        Y: =150
+      - RSITTC_Outer_Header_Component:
+          Control: CanvasComponent
+          ComponentName: Outer_Header_Component
+          Properties:
+            Height: =50
+            OuterComponentPDFLink: =varPDFLink
+            OuterComponentVideoLink: =varVideoLink
+            TabMenuItems: =ColTabMenuItems
+            Width: =1366
+            conProjectID: ="Text"
+      - RSITTC_Loading_Button:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(107, 106, 106, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisplayMode: =DisplayMode.View
+            Fill: =ColorFade(RGBA(230, 230, 230, 0.82), 35%)
+            Font: =Font.'Open Sans'
+            Height: =Parent.Height
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(56, 96, 178, 1), -20%)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Text: ="Loading..."
+            Visible: =varShowRec
+            Width: =Parent.Width
+            X: =
+            Y: =

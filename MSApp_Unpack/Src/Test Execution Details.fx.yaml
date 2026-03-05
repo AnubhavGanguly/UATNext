@@ -1,0 +1,3153 @@
+"'Test Execution Details' As screen.'phoneLayout_FluidGridWithHeaderPageLayout_ver3.0'":
+    OnHidden: |-
+        =UpdateContext({addDefectVisiblity: false})
+    OnVisible: |-
+        =//Enabling TEDLoading Spinnier
+        UpdateContext({ showTEDLoadingSpinner: true});
+        
+        Concurrent(
+            Set(varScreenName, "Test Execution Details"),
+        
+            Set(varVideoLink, Concatenate(nfSharepointbaseUrl,"video/Test_Execution_Details.mp4")),
+            
+            Set(varPDFLink, Concatenate(nfSharepointbaseUrl,"pdf/Test_Execution_Details.pdf"))
+        );
+        
+        Concurrent(
+            Reset(StatusCombobox),
+        
+            Reset(TETLRadioButton),
+        
+            Reset(ChangeLogToggle),
+        
+            Clear(colAttachmentsTR),
+        
+            Clear(colTestLogTestStep)
+        );
+        
+        UpdateContext({ExeStartDate: Concatenate( Text(  DateAdd( Now(), TimeZoneOffset( Now()), TimeUnit.Minutes), "yyyy-mm-dd"), "T", Text(  DateAdd( Now(), TimeZoneOffset( Now()), TimeUnit.Minutes), "hh:mm:ss"),"+00:00")});
+        
+        UpdateContext({ExeEndDate: Concatenate( Text( DateAdd( Now(), TimeZoneOffset( Now()), TimeUnit.Minutes), "yyyy-mm-dd"), "T", Text( DateAdd( Now(),TimeZoneOffset( Now()), TimeUnit.Minutes), "hh:mm:ss"),"+00:00")});
+        
+        If(
+            IsBlank(SelectedCycleinfo),
+        
+            Set(TestCycleId, Last(Split(LookUp(gallerySelectedTestrun.links,rel = "test-cycle",href), "/")).Value);
+        
+            Set(CycleInfo , 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, {object_type: "test-cycles", fields: ["*"], query: Concatenate("'Id' ", "=", " '" & TestCycleId & "' ")}).items);
+        
+            Set(CycleName, First(CycleInfo).name),
+        
+            Set(CycleName,Trim(SelectedCycleinfo.name))
+        );
+        
+        If( IsBlank(selectedSuiteInfo), Set( selectedSuiteInfo, 'ITS-TCOE_OCTO_UATMain_V1'.GetAtestsuite(constProjectInfo.id,gallerySelectedTestrun.parentId)));
+        
+        UpdateContext({CreatecolTestLogTestStep:false});
+        
+        Set( varFetchedTestcaseDetail, 'ITS-TCOE_OCTO_UATMain_V1'.GetObjectLink(constProjectInfo.id,{type:"test-runs",ids:gallerySelectedTestrun.id}).objects);
+        
+        Clear(colFetchedTestcaseidrows);
+        
+        ForAll( varFetchedTestcaseDetail, Collect( colFetchedTestcaseidrows, ThisRecord.objects));
+        
+        Set( FetchedTestCaseDetails, 'ITS-TCOE_OCTO_UATMain_V1'.GetTestcase( constProjectInfo.id, LookUp( colFetchedTestcaseidrows, StartsWith( pid, "TC"), id)));
+        
+        //Disable TEDLoading Spinnier
+        UpdateContext({ showTEDLoadingSpinner: false});
+
+    TECanvas As fluidGrid.fluidGridWithBlankCard:
+        BorderThickness: =0
+        Height: =Parent.Height - Self.Y
+        Width: =Parent.Width
+        Y: =UATTED_Inner_Header_Component.Y + UATTED_Inner_Header_Component.Height
+        ZIndex: =3
+
+        TEDataCard As dataCard:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            BorderStyle: =BorderStyle.Solid
+            BorderThickness: =0
+            DisplayMode: =DisplayMode.Edit
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =Parent.Height
+            Width: =Parent.Width
+            WidthFit: =false
+            X: =0
+            Y: =0
+            ZIndex: =1
+
+            TEProjectLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =30
+                Size: =11
+                Text: ="Project"
+                Width: =100
+                X: =TRIDValueLbl.X
+                Y: =TRIDValueLbl.Y+TRIDValueLbl.Height+10
+                ZIndex: =12
+
+            TEReleaseLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =30
+                Size: =11
+                Text: ="Release"
+                Width: =TEProjectLbl.Width
+                X: =TEProjectLbl.X
+                Y: =TEProjectLbl.Y + TEProjectLbl.Height + 4
+                ZIndex: =13
+
+            ProjectvaluetxtInput As text:
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =0.4
+                Default: =constModuleInfo.name
+                DisabledColor: =RGBA(0, 0, 0, 1)
+                DisabledFill: =RGBA(255, 255, 255, 1)
+                DisplayMode: =DisplayMode.Disabled
+                Font: =Font.'Segoe UI'
+                Height: =30
+                PaddingLeft: =5
+                RadiusBottomLeft: =0.4
+                RadiusBottomRight: =0.4
+                RadiusTopLeft: =0.4
+                RadiusTopRight: =0.4
+                Size: =11
+                Tooltip: =Self.Text
+                Width: =250
+                X: =TEProjectLbl.X+TEProjectLbl.Width+20
+                Y: =TEProjectLbl.Y
+                ZIndex: =14
+
+            ReleasevaluyeTxtInput As text:
+                BorderThickness: =0.4
+                Default: =constReleaseInfo.name
+                DisabledColor: =RGBA(115, 114, 114, 1)
+                DisabledFill: =RGBA(244, 244, 244, 0.76)
+                DisplayMode: =DisplayMode.View
+                Font: =Font.'Segoe UI'
+                Height: =30
+                PaddingLeft: =5
+                RadiusBottomLeft: =0.4
+                RadiusBottomRight: =0.4
+                RadiusTopLeft: =0.4
+                RadiusTopRight: =0.4
+                Size: =11
+                Tooltip: =Self.Text
+                Width: =ProjectvaluetxtInput.Width
+                X: =ProjectvaluetxtInput.X
+                Y: =TEReleaseLbl.Y
+                ZIndex: =15
+
+            TETestCycleLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =30
+                Size: =11
+                Text: ="Test Cycle"
+                Width: =100
+                X: =890
+                Y: =TEProjectLbl.Y
+                ZIndex: =16
+
+            TETestCycleValuetxtInput As text:
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =0.4
+                Default: =CycleName
+                DisabledColor: =RGBA(0, 0, 0, 1)
+                DisabledFill: =RGBA(255, 255, 255, 1)
+                DisplayMode: =DisplayMode.Disabled
+                Font: =Font.'Segoe UI'
+                Height: =30
+                PaddingLeft: =5
+                RadiusBottomLeft: =0.4
+                RadiusBottomRight: =0.4
+                RadiusTopLeft: =0.4
+                RadiusTopRight: =0.4
+                Size: =11
+                Tooltip: =Self.Text
+                Width: =250
+                X: =1030
+                Y: =TEProjectLbl.Y
+                ZIndex: =17
+
+            TestSuitLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =30
+                Size: =11
+                Text: ="Test Suite"
+                Width: =TETestCycleLbl.Width
+                X: =TETestCycleLbl.X
+                Y: =TETestCycleLbl.Y + TETestCycleLbl.Height + 4
+                ZIndex: =18
+
+            TestSuitvalueTxtInput As text:
+                BorderStyle: =BorderStyle.None
+                BorderThickness: =0.4
+                Default: =Trim( selectedSuiteInfo.name)
+                DisabledColor: =RGBA(0, 0, 0, 1)
+                DisabledFill: =RGBA(255, 255, 255, 1)
+                DisplayMode: =DisplayMode.Disabled
+                Font: =Font.'Segoe UI'
+                Height: =30
+                PaddingLeft: =5
+                RadiusBottomLeft: =0.4
+                RadiusBottomRight: =0.4
+                RadiusTopLeft: =0.4
+                RadiusTopRight: =0.4
+                Size: =11
+                Tooltip: =Self.Text
+                Width: =250
+                X: =TETestCycleValuetxtInput.X
+                Y: =TestSuitLbl.Y
+                ZIndex: =19
+
+            TETesterLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =30
+                Size: =11
+                Text: ="Tester"
+                Width: =TEProjectLbl.Width
+                X: =524
+                Y: =52
+                ZIndex: =20
+
+            TETestervalueTxtInput As text:
+                BorderThickness: =0.4
+                Default: |-
+                    =If( 
+                        !IsBlank( LookUp(gallerySelectedTestrun.properties, field_name = "Non-QA User (UATNext Only)", field_value_name)),
+                    
+                        //LookUp( Users,'Primary Email' = LookUp( gallerySelectedTestrun.properties, field_name = "Non-QA User (UATNext Only)",field_value_name),'Full Name'),
+                    
+                        LookUp( gallerySelectedTestrun.properties, field_name = "Non-QA User (UATNext Only)", field_value_name),
+                    
+                        LookUp( gallerySelectedTestrun.properties,field_name = "Assigned To", field_value_name)
+                    )
+                DisabledColor: =RGBA(115, 114, 114, 1)
+                DisabledFill: =RGBA(244, 244, 244, 0.76)
+                DisplayMode: =DisplayMode.View
+                Font: =Font.'Segoe UI'
+                Height: =30
+                PaddingLeft: =5
+                RadiusBottomLeft: =0.4
+                RadiusBottomRight: =0.4
+                RadiusTopLeft: =0.4
+                RadiusTopRight: =0.4
+                Size: =11
+                Tooltip: =Self.Text
+                Width: =ProjectvaluetxtInput.Width
+                X: =624
+                Y: =52
+                ZIndex: =21
+
+            TEStatusLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =30
+                Size: =11
+                Text: ="Status"
+                Width: =TETestCycleLbl.Width
+                X: =TETestCycleLbl.X
+                Y: =TestSuitLbl.Y + TestSuitLbl.Height + 4
+                ZIndex: =22
+
+            DefectLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =30
+                Size: =11
+                Text: ="Defect"
+                Width: =TETestCycleLbl.Width
+                X: =TETestCycleLbl.X
+                Y: =TEStatusLbl.Y + TEStatusLbl.Height + 4
+                ZIndex: =23
+
+            PreviousTSGallery As gallery.galleryVertical:
+                '#CopilotOverlayLabel': ="Filtered"
+                DisplayMode: =DisplayMode.View
+                Height: =TSGallery.Height
+                Items: =Filter( colTestSteplog, result_number = Max( colTestSteplog, result_number) - 1)
+                Layout: =Layout.Vertical
+                TemplatePadding: =0
+                TemplateSize: =300
+                Visible: =If( ChangeLogToggle.Value = true, true, false)
+                Width: =TSGallery.Width
+                X: =TSGallery.X
+                Y: =TSGallery.Y
+                ZIndex: =24
+
+                "NextedPreviousTSFlexibleGallery As gallery.'BrowseLayout_Flexible_SocialFeed_ver5.0'":
+                    '#CopilotOverlayLabel': ="Filtered"
+                    DelayItemLoading: =true
+                    Height: =Parent.TemplateHeight
+                    Items: |-
+                        =If(
+                            TETLRadioButton.Selected.Value="Show All Test Steps",
+                        
+                            ForAll(Sequence(CountRows(ThisItem.test_step_logs)),Patch(Last(FirstN(ThisItem.test_step_logs,Value)),{RowNumber:Value})),
+                        
+                            Filter(ForAll(Sequence(CountRows(ThisItem.test_step_logs)),Patch(Last(FirstN(ThisItem.test_step_logs,Value)),{RowNumber:Value})),LookUp(ThisRecord.customFieldInfo,Lower(name)=Lower("UAT Category")).value=Text(LookUp(colBusinessValuesTS,label="Business",value)) || LookUp(ThisRecord.customFieldInfo,Lower(name)=Lower("UAT Category")).value=Text(LookUp(colBusinessValuesTS,label="N/A",value)) || IsBlank(LookUp(ThisRecord.customFieldInfo,Lower(name)=Lower("UAT Category")).value)= true )
+                        
+                        )
+                    Layout: =Layout.Vertical
+                    LoadingSpinner: =LoadingSpinner.Data
+                    TemplatePadding: =0
+                    TemplateSize: =232
+                    Width: =Parent.Width
+                    ZIndex: =1
+
+                    TSOdervalueLbl_1 As label:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: |-
+                            =If(
+                                HtmlTextDescriptionValue_2.Height < 60 && HtmlTextExpectedResultValue_2.Height < 60,
+                                60,
+                                HtmlTextDescriptionValue_2.Height > HtmlTextExpectedResultValue_2.Height,
+                                HtmlTextDescriptionValue_2.Height,
+                                HtmlTextExpectedResultValue_2.Height
+                            )
+                             
+                        OnSelect: =Select(Parent)
+                        Size: =11
+                        Text: =If( varCreateTestLog = true, ThisItem.RowNumber, ThisItem.order)
+                        Width: =Label24_1.Width-4
+                        ZIndex: =1
+
+                    TSActualResultTxtInput_1 As text:
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.4
+                        Default: =PlainText(ThisItem.actual_result)
+                        DisabledBorderColor: =RGBA(230, 230, 230, 1)
+                        DisabledColor: =RGBA(94, 93, 93, 1)
+                        DisabledFill: =Self.Fill
+                        DisplayMode: =StatusCombobox.DisplayMode
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =TSOdervalueLbl_1.Height
+                        HintText: =""
+                        HoverBorderColor: =RGBA(128, 128, 128, 1)
+                        HoverFill: =RGBA(255, 255, 255, 1)
+                        Mode: =TextMode.MultiLine
+                        OnChange: |-
+                            =If(
+                                varCreateTestLog = true,
+                                Update(
+                                    First(colTestSteplog).test_step_logs,
+                                    LookUp(
+                                        First(colTestSteplog).test_step_logs,
+                                        test_step_id = ThisItem.test_step_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput_1.Text,
+                                        called_test_case_id: ThisItem.called_test_case_id,
+                                        called_test_case_name: ThisItem.called_test_case_name,
+                                        customFieldInfo: ThisItem.customFieldInfo,
+                                        //description: ThisItem.description,
+                                        //expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        parent_test_step_id: ThisItem.parent_test_step_id,
+                                        status: {
+                                             id: If(IsEmpty( TSStatusDropdown_1.SelectedItems),ThisItem.status.id, TSStatusDropdown_1.Selected.value),
+                                            name:If(IsEmpty( TSStatusDropdown_1.SelectedItems),ThisItem.status.name, TSStatusDropdown_1.Selected.label)
+                                        },
+                                        test_step: ThisItem.test_step,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id
+                                    }
+                                ),
+                                Update(
+                                    colTestLogTestStep,
+                                    LookUp(
+                                        colTestLogTestStep,
+                                        test_step_log_id = ThisItem.test_step_log_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput_1.Text,
+                                        //description: ThisItem.description,
+                                        exe_date: ThisItem.exe_date,
+                                        //expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id,
+                                        user_id: ThisItem.user_id,
+                                        status: {
+                                            id: If(IsEmpty( TSStatusDropdown_1.SelectedItems),ThisItem.status.id, TSStatusDropdown_1.Selected.value),
+                                            name:If(IsEmpty( TSStatusDropdown_1.SelectedItems),ThisItem.status.name, TSStatusDropdown_1.Selected.label)
+                                        }
+                                    }
+                                )
+                            )
+                            
+                            
+                            
+                            
+                            /*If(
+                                varCreateTestLog = true,
+                                Update(
+                                    First(colTestSteplog).test_step_logs,
+                                    LookUp(
+                                        First(colTestSteplog).test_step_logs,
+                                        test_step_id = ThisItem.test_step_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput.Text,
+                                        called_test_case_id: ThisItem.called_test_case_id,
+                                        called_test_case_name: ThisItem.called_test_case_name,
+                                        customFieldInfo: ThisItem.customFieldInfo,
+                                        description: ThisItem.description,
+                                        expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        parent_test_step_id: ThisItem.parent_test_step_id,
+                                        status: {
+                                            id: TSStatusDropdown.Selected.value,
+                                            name: TSStatusDropdown.Selected.label
+                                        },
+                                        test_step: ThisItem.test_step,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id
+                                    }
+                                ),
+                                Update(
+                                    colTestLogTestStep,
+                                    LookUp(
+                                        colTestLogTestStep,
+                                        test_step_log_id = ThisItem.test_step_log_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput.Text,
+                                        description: ThisItem.description,
+                                        expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        exe_date: ThisItem.exe_date,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id,
+                                        status: {
+                                            id: TSStatusDropdown.Selected.value,
+                                            name: TSStatusDropdown.Selected.label
+                                        }
+                                    }
+                                )
+                            )*/
+                        OnSelect: |-
+                            =Select(Parent);
+                            If(CreatecolTestLogTestStep=false,Collect(colTestLogTestStep,PreviousTSGallery.Selected.test_step_logs));
+                            UpdateContext({CreatecolTestLogTestStep:true});
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Reset: =varResetTRStepsControl
+                        Size: =11
+                        Width: =Label25_2.Width
+                        X: =HtmlTextExpectedResultValue_2.X + HtmlTextExpectedResultValue_2.Width
+                        Y: =HtmlTextExpectedResultValue_2.Y
+                        ZIndex: =2
+
+                    TSStatusDropdown_1 As combobox:
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.4
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronDisabledBackground: =Self.Fill
+                        ChevronFill: =RGBA(149, 149, 149, 1)
+                        ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                        Color: =RGBA(107, 106, 106, 1)
+                        DefaultSelectedItems: |-
+                            =LookUp(colTestlogStatus, value = ThisItem.status.id)
+                            //Filter(colTestlogStatus,label=ThisItem.status.name)
+                        DisabledBorderColor: =RGBA(230, 230, 230, 1)
+                        DisabledColor: =RGBA(94, 93, 93, 1)
+                        DisabledFill: =RGBA(255, 255, 255, 1)
+                        DisplayFields: =["label"]
+                        DisplayMode: =StatusCombobox.DisplayMode
+                        FocusedBorderThickness: =0.5
+                        Font: =Font.'Segoe UI'
+                        Height: =TSOdervalueLbl_1.Height
+                        HoverFill: =RGBA(70, 189, 198, 1)
+                        InputTextPlaceholder: ="Status"
+                        IsSearchable: =false
+                        Items: =Filter( colTestlogStatus, !(label = "Unexecuted"))
+                        OnChange: |-
+                            =If(
+                                varCreateTestLog = true,
+                                Update(
+                                    First(colTestSteplog).test_step_logs,
+                                    LookUp(
+                                        First(colTestSteplog).test_step_logs,
+                                        test_step_id = ThisItem.test_step_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput_1.Text,
+                                        called_test_case_id: ThisItem.called_test_case_id,
+                                        called_test_case_name: ThisItem.called_test_case_name,
+                                        customFieldInfo: ThisItem.customFieldInfo,
+                                        //description: ThisItem.description,
+                                        //expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        parent_test_step_id: ThisItem.parent_test_step_id,
+                                        status: {
+                                             id: If(IsEmpty( TSStatusDropdown_1.SelectedItems),ThisItem.status.id, TSStatusDropdown_1.Selected.value),
+                                            name:If(IsEmpty( TSStatusDropdown_1.SelectedItems),ThisItem.status.name, TSStatusDropdown_1.Selected.label)
+                                        },
+                                        test_step: ThisItem.test_step,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id
+                                    }
+                                ),
+                                Update(
+                                    colTestLogTestStep,
+                                    LookUp(
+                                        colTestLogTestStep,
+                                        test_step_log_id = ThisItem.test_step_log_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput_1.Text,
+                                        //description: ThisItem.description,
+                                        exe_date: ThisItem.exe_date,
+                                        //expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id,
+                                        user_id: ThisItem.user_id,
+                                        status: {
+                                            id: If(IsEmpty( TSStatusDropdown_1.SelectedItems),ThisItem.status.id, TSStatusDropdown_1.Selected.value),
+                                            name:If(IsEmpty( TSStatusDropdown_1.SelectedItems),ThisItem.status.name, TSStatusDropdown_1.Selected.label)
+                                        }
+                                    }
+                                )
+                            )
+                            
+                            
+                            /*If(
+                                varCreateTestLog = true,
+                                Update(
+                                    First(colTestSteplog).test_step_logs,
+                                    LookUp(
+                                        First(colTestSteplog).test_step_logs,
+                                        test_step_id = ThisItem.test_step_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput.Text,
+                                        called_test_case_id: ThisItem.called_test_case_id,
+                                        called_test_case_name: ThisItem.called_test_case_name,
+                                        customFieldInfo: ThisItem.customFieldInfo,
+                                        description: ThisItem.description,
+                                        expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        parent_test_step_id: ThisItem.parent_test_step_id,
+                                        status: {
+                                            id: TSStatusDropdown.Selected.value,
+                                            name: TSStatusDropdown.Selected.label
+                                        },
+                                        test_step: ThisItem.test_step,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id
+                                    }
+                                ),
+                                Update(
+                                    colTestLogTestStep,
+                                    LookUp(
+                                        colTestLogTestStep,
+                                        test_step_log_id = ThisItem.test_step_log_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput.Text,
+                                        description: ThisItem.description,
+                                        exe_date: ThisItem.exe_date,
+                                        expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id,
+                                        user_id: ThisItem.user_id,
+                                        status: {
+                                            id: TSStatusDropdown.Selected.value,
+                                            name: TSStatusDropdown.Selected.label
+                                        }
+                                    }
+                                )
+                            )*/
+                        OnSelect: |-
+                            =Select(Parent);
+                            If(CreatecolTestLogTestStep=false,ClearCollect(colTestLogTestStep,PreviousTSGallery.Selected.test_step_logs));
+                            UpdateContext({CreatecolTestLogTestStep:true});
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        Reset: =varResetTRStepsControl
+                        SearchFields: =["label"]
+                        SelectionColor: =RGBA(0, 0, 0, 1)
+                        SelectionFill: =RGBA(230, 230, 230, 1)
+                        SelectionTagFill: =//Self.HoverFill
+                        SelectMultiple: =false
+                        Size: =11
+                        Width: =Label25_3.Width
+                        X: =1146
+                        Y: =TSActualResultTxtInput_1.Y
+                        ZIndex: =3
+
+                    CalledTestCaseIcon_1 As icon:
+                        Color: =RGBA(70, 189, 198, 1)
+                        DisplayMode: =DisplayMode.View
+                        Height: =20
+                        Icon: =Icon.Link
+                        OnSelect: =Select(Parent)
+                        Visible: |-
+                            =If(
+                                !IsBlank(ThisItem.called_test_case_id),
+                                true,
+                                false
+                            )
+                        Width: =20
+                        X: =HtmlTextDescriptionValue_2.X + HtmlTextDescriptionValue_2.Width - Self.Width - 5
+                        Y: =10
+                        ZIndex: =4
+
+                    TSBusinessDrodpdown_1 As combobox:
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.4
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronDisabledBackground: =Self.Fill
+                        ChevronFill: =RGBA(211, 239, 241, 1)
+                        ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                        DefaultSelectedItems: =LookUp(colBusinessValuesTS,value = Int( LookUp( ThisItem.customFieldInfo, Lower(name) = Lower("UAT Category")).value))
+                        DisabledBorderColor: =RGBA(230, 230, 230, 1)
+                        DisabledColor: =Self.Color
+                        DisabledFill: =Self.Fill
+                        DisplayFields: =["label"]
+                        DisplayMode: =DisplayMode.Disabled
+                        FocusedBorderThickness: =0.5
+                        Font: =Font.'Segoe UI'
+                        Height: =TSOdervalueLbl_1.Height
+                        HoverColor: =RGBA(128, 128, 128, 1)
+                        HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                        InputTextPlaceholder: =""
+                        IsSearchable: =false
+                        Items: =colBusinessValuesTS
+                        PaddingBottom: =30
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        SearchFields: =["label"]
+                        SelectionColor: =RGBA(70, 189, 198, 1)
+                        SelectionFill: =RGBA(236, 248, 249, 1)
+                        SelectionTagColor: |-
+                            =RGBA(0, 0, 0, 1)
+                            //Self.HoverColor
+                        SelectionTagFill: =Color.Transparent
+                        SelectMultiple: =false
+                        Size: =11
+                        Width: =Label24_3.Width
+                        X: =TSOdervalueLbl_1.X + TSOdervalueLbl_1.Width
+                        Y: =TSOdervalueLbl_1.Y
+                        ZIndex: =5
+
+                    HtmlTextDescriptionValue_2 As htmlViewer:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderThickness: =0.4
+                        DisabledBorderColor: =RGBA(56, 56, 56, 1)
+                        Font: =Font.'Segoe UI'
+                        Height: =60
+                        HtmlText: =ThisItem.description
+                        OnSelect: =Select(Parent)
+                        PaddingRight: =15
+                        Width: =Label24_2.Width
+                        X: =198
+                        ZIndex: =6
+
+                    HtmlTextExpectedResultValue_2 As htmlViewer:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderThickness: =0.4
+                        DisabledBorderColor: =RGBA(56, 56, 56, 1)
+                        Font: =Font.'Segoe UI'
+                        Height: =60
+                        HtmlText: =ThisItem.expected_result
+                        OnSelect: =Select(Parent)
+                        Width: =Label25_1.Width
+                        X: =HtmlTextDescriptionValue_2.X + HtmlTextDescriptionValue_2.Width
+                        Y: =HtmlTextDescriptionValue_2.Y
+                        ZIndex: =7
+
+                    "'Order Seperator_1' As rectangle":
+                        Fill: =RGBA(230, 230, 230, 1)
+                        Height: =TSOdervalueLbl_1.Height
+                        OnSelect: =Select(Parent)
+                        Width: =1
+                        X: =TSOdervalueLbl_1.Width
+                        Y: =TSOdervalueLbl_1.Y
+                        ZIndex: =8
+
+                    "'Category Seperator_1' As rectangle":
+                        Fill: =RGBA(230, 230, 230, 1)
+                        Height: =TSBusinessDrodpdown_1.Height
+                        OnSelect: =Select(Parent)
+                        Width: =2
+                        X: =TSBusinessDrodpdown_1.X + TSBusinessDrodpdown_1.Width
+                        Y: =TSBusinessDrodpdown_1.Y
+                        ZIndex: =9
+
+                    "'Test Step Seperator_1' As rectangle":
+                        Fill: =RGBA(230, 230, 230, 1)
+                        Height: =TSBusinessDrodpdown_1.Height
+                        OnSelect: =Select(Parent)
+                        Width: =2
+                        X: =HtmlTextDescriptionValue_2.X + HtmlTextDescriptionValue_2.Width
+                        Y: =TSBusinessDrodpdown_1.Y
+                        ZIndex: =10
+
+                    "'Expected Result Separator_2' As rectangle":
+                        Fill: =RGBA(230, 230, 230, 1)
+                        Height: =TSBusinessDrodpdown_1.Height
+                        OnSelect: =Select(Parent)
+                        Width: =2
+                        X: =HtmlTextExpectedResultValue_2.X + HtmlTextExpectedResultValue_2.Width
+                        Y: =TSBusinessDrodpdown_1.Y
+                        ZIndex: =11
+
+                    "'Actual Result Seperator_1' As rectangle":
+                        Fill: =RGBA(230, 230, 230, 1)
+                        Height: =TSBusinessDrodpdown_1.Height
+                        OnSelect: =Select(Parent)
+                        Width: =2
+                        X: =TSActualResultTxtInput_1.X + TSActualResultTxtInput_1.Width
+                        Y: =TSBusinessDrodpdown_1.Y
+                        ZIndex: =12
+
+                    "'Vertical Seperator_1' As rectangle":
+                        Fill: =RGBA(230, 230, 230, 1)
+                        Height: =2
+                        OnSelect: =Select(Parent)
+                        Width: =Parent.Width
+                        Y: =TSOdervalueLbl_1.Height
+                        ZIndex: =13
+
+            TSGallery As gallery.galleryVertical:
+                '#CopilotOverlayLabel': ="Filtered"
+                Height: =310
+                Items: =If( varCreateTestLog = true, colTestSteplog, Filter(colTestSteplog,result_number=Max(colTestSteplog,result_number)))
+                Layout: =Layout.Vertical
+                TemplatePadding: =0
+                TemplateSize: =300
+                Visible: =If( ChangeLogToggle.Value = false, true, false)
+                Width: =Parent.Width
+                Y: =Label24_1.Y+Label24_1.Height
+                ZIndex: =25
+
+                "NextedTSFlexibleGallery As gallery.'BrowseLayout_Flexible_SocialFeed_ver5.0'":
+                    DelayItemLoading: =true
+                    Height: =Parent.TemplateHeight
+                    Items: |-
+                        =If(
+                            TETLRadioButton.Selected.Value="Show All Test Steps",
+                        
+                            ForAll(Sequence(CountRows(ThisItem.test_step_logs)),Patch(Last(FirstN(ThisItem.test_step_logs,Value)),{RowNumber:Value})),
+                        
+                            Filter(ForAll(Sequence(CountRows(ThisItem.test_step_logs)),Patch(Last(FirstN(ThisItem.test_step_logs,Value)),{RowNumber:Value})),LookUp(ThisRecord.customFieldInfo,Lower(name)=Lower("UAT Category")).value=Text(LookUp(colBusinessValuesTS,label="Business",value)) || LookUp(ThisRecord.customFieldInfo,Lower(name)=Lower("UAT Category")).value=Text(LookUp(colBusinessValuesTS,label="N/A",value)) || IsBlank(LookUp(ThisRecord.customFieldInfo,Lower(name)=Lower("UAT Category")).value)= true )
+                        
+                        )
+                    Layout: =Layout.Vertical
+                    LoadingSpinner: =LoadingSpinner.Data
+                    TemplatePadding: =0
+                    TemplateSize: =232
+                    Width: =Parent.Width
+                    ZIndex: =2
+
+                    TSOdervalueLbl As label:
+                        Align: =Align.Center
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: |-
+                            =If(
+                                HtmlTextDescriptionValue.Height < 60 && HtmlTextExpectedResultValue.Height < 60,
+                                60,
+                                HtmlTextDescriptionValue.Height > HtmlTextExpectedResultValue.Height,
+                                HtmlTextDescriptionValue.Height,
+                                HtmlTextExpectedResultValue.Height
+                            )
+                             
+                        OnSelect: =Select(Parent)
+                        Size: =11
+                        Text: =If( varCreateTestLog = true, ThisItem.RowNumber, ThisItem.order)
+                        Width: =Label24_1.Width-4
+                        ZIndex: =1
+
+                    TSActualResultTxtInput As text:
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.4
+                        Default: =PlainText(ThisItem.actual_result)
+                        DisabledBorderColor: =RGBA(230, 230, 230, 1)
+                        DisabledColor: =RGBA(94, 93, 93, 1)
+                        DisabledFill: =Self.Fill
+                        DisplayMode: =StatusCombobox.DisplayMode
+                        FocusedBorderThickness: =0.4
+                        Font: =Font.'Segoe UI'
+                        Height: =TSOdervalueLbl.Height
+                        HoverBorderColor: =RGBA(128, 128, 128, 1)
+                        HoverFill: =RGBA(255, 255, 255, 1)
+                        Mode: =TextMode.MultiLine
+                        OnChange: |-
+                            =If(
+                                varCreateTestLog = true,
+                                Update(
+                                    First(colTestSteplog).test_step_logs,
+                                    LookUp(
+                                        First(colTestSteplog).test_step_logs,
+                                        test_step_id = ThisItem.test_step_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput.Text,
+                                        called_test_case_id: ThisItem.called_test_case_id,
+                                        called_test_case_name: ThisItem.called_test_case_name,
+                                        customFieldInfo: ThisItem.customFieldInfo,
+                                        //description: ThisItem.description,
+                                        //expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        parent_test_step_id: ThisItem.parent_test_step_id,
+                                        status: {
+                                             id: If(IsEmpty( TSStatusDropdown.SelectedItems),ThisItem.status.id, TSStatusDropdown.Selected.value),
+                                            name:If(IsEmpty( TSStatusDropdown.SelectedItems),ThisItem.status.name, TSStatusDropdown.Selected.label)
+                                        },
+                                        test_step: ThisItem.test_step,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id
+                                    }
+                                ),
+                                Update(
+                                    colTestLogTestStep,
+                                    LookUp(
+                                        colTestLogTestStep,
+                                        test_step_log_id = ThisItem.test_step_log_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput.Text,
+                                        //description: ThisItem.description,
+                                        exe_date: ThisItem.exe_date,
+                                        //expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id,
+                                        user_id: ThisItem.user_id,
+                                        status: {
+                                            id: If(IsEmpty( TSStatusDropdown.SelectedItems),ThisItem.status.id, TSStatusDropdown.Selected.value),
+                                            name:If(IsEmpty( TSStatusDropdown.SelectedItems),ThisItem.status.name, TSStatusDropdown.Selected.label)
+                                        }
+                                    }
+                                )
+                            )
+                            
+                            
+                            
+                            
+                            /*If(
+                                varCreateTestLog = true,
+                                Update(
+                                    First(colTestSteplog).test_step_logs,
+                                    LookUp(
+                                        First(colTestSteplog).test_step_logs,
+                                        test_step_id = ThisItem.test_step_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput.Text,
+                                        called_test_case_id: ThisItem.called_test_case_id,
+                                        called_test_case_name: ThisItem.called_test_case_name,
+                                        customFieldInfo: ThisItem.customFieldInfo,
+                                        description: ThisItem.description,
+                                        expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        parent_test_step_id: ThisItem.parent_test_step_id,
+                                        status: {
+                                            id: TSStatusDropdown.Selected.value,
+                                            name: TSStatusDropdown.Selected.label
+                                        },
+                                        test_step: ThisItem.test_step,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id
+                                    }
+                                ),
+                                Update(
+                                    colTestLogTestStep,
+                                    LookUp(
+                                        colTestLogTestStep,
+                                        test_step_log_id = ThisItem.test_step_log_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput.Text,
+                                        description: ThisItem.description,
+                                        expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        exe_date: ThisItem.exe_date,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id,
+                                        status: {
+                                            id: TSStatusDropdown.Selected.value,
+                                            name: TSStatusDropdown.Selected.label
+                                        }
+                                    }
+                                )
+                            )*/
+                        OnSelect: |-
+                            =Select(Parent);
+                            If(CreatecolTestLogTestStep=false,Collect(colTestLogTestStep,TSGallery.Selected.test_step_logs));
+                            UpdateContext({CreatecolTestLogTestStep:true});
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Reset: =varResetTRStepsControl
+                        Size: =11
+                        Width: =Label25_2.Width
+                        X: =HtmlTextExpectedResultValue.X + HtmlTextExpectedResultValue.Width
+                        Y: =HtmlTextExpectedResultValue.Y
+                        ZIndex: =4
+
+                    TSStatusDropdown As combobox:
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.4
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronDisabledBackground: =Self.Fill
+                        ChevronFill: =RGBA(149, 149, 149, 1)
+                        ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                        Color: =RGBA(107, 106, 106, 1)
+                        DefaultSelectedItems: |-
+                            =LookUp(colTestlogStatus, value = ThisItem.status.id)
+                            //Filter(colTestlogStatus,label=ThisItem.status.name)
+                        DisabledBorderColor: =RGBA(230, 230, 230, 1)
+                        DisabledColor: =RGBA(94, 93, 93, 1)
+                        DisabledFill: =RGBA(255, 255, 255, 1)
+                        DisplayFields: =["label"]
+                        DisplayMode: =StatusCombobox.DisplayMode
+                        FocusedBorderThickness: =0.5
+                        Font: =Font.'Segoe UI'
+                        Height: =TSOdervalueLbl.Height
+                        HoverFill: =RGBA(70, 189, 198, 1)
+                        InputTextPlaceholder: ="Status"
+                        IsSearchable: =false
+                        Items: =Filter( colTestlogStatus, !(label = "Unexecuted"))
+                        OnChange: |-
+                            =If(
+                                varCreateTestLog = true,
+                                Update(
+                                    First(colTestSteplog).test_step_logs,
+                                    LookUp(
+                                        First(colTestSteplog).test_step_logs,
+                                        test_step_id = ThisItem.test_step_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput.Text,
+                                        called_test_case_id: ThisItem.called_test_case_id,
+                                        called_test_case_name: ThisItem.called_test_case_name,
+                                        customFieldInfo: ThisItem.customFieldInfo,
+                                        //description: ThisItem.description,
+                                        //expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        parent_test_step_id: ThisItem.parent_test_step_id,
+                                        status: {
+                                             id: If(IsEmpty( TSStatusDropdown.SelectedItems),ThisItem.status.id, TSStatusDropdown.Selected.value),
+                                            name:If(IsEmpty( TSStatusDropdown.SelectedItems),ThisItem.status.name, TSStatusDropdown.Selected.label)
+                                        },
+                                        test_step: ThisItem.test_step,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id
+                                    }
+                                ),
+                                Update(
+                                    colTestLogTestStep,
+                                    LookUp(
+                                        colTestLogTestStep,
+                                        test_step_log_id = ThisItem.test_step_log_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput.Text,
+                                        //description: ThisItem.description,
+                                        exe_date: ThisItem.exe_date,
+                                        //expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id,
+                                        user_id: ThisItem.user_id,
+                                        status: {
+                                            id: If(IsEmpty( TSStatusDropdown.SelectedItems),ThisItem.status.id, TSStatusDropdown.Selected.value),
+                                            name:If(IsEmpty( TSStatusDropdown.SelectedItems),ThisItem.status.name, TSStatusDropdown.Selected.label)
+                                        }
+                                    }
+                                )
+                            )
+                            
+                            
+                            /*If(
+                                varCreateTestLog = true,
+                                Update(
+                                    First(colTestSteplog).test_step_logs,
+                                    LookUp(
+                                        First(colTestSteplog).test_step_logs,
+                                        test_step_id = ThisItem.test_step_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput.Text,
+                                        called_test_case_id: ThisItem.called_test_case_id,
+                                        called_test_case_name: ThisItem.called_test_case_name,
+                                        customFieldInfo: ThisItem.customFieldInfo,
+                                        description: ThisItem.description,
+                                        expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        parent_test_step_id: ThisItem.parent_test_step_id,
+                                        status: {
+                                            id: TSStatusDropdown.Selected.value,
+                                            name: TSStatusDropdown.Selected.label
+                                        },
+                                        test_step: ThisItem.test_step,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id
+                                    }
+                                ),
+                                Update(
+                                    colTestLogTestStep,
+                                    LookUp(
+                                        colTestLogTestStep,
+                                        test_step_log_id = ThisItem.test_step_log_id
+                                    ),
+                                    {
+                                        actual_result: TSActualResultTxtInput.Text,
+                                        description: ThisItem.description,
+                                        exe_date: ThisItem.exe_date,
+                                        expected_result: ThisItem.expected_result,
+                                        order: ThisItem.order,
+                                        test_step_id: ThisItem.test_step_id,
+                                        test_step_log_id: ThisItem.test_step_log_id,
+                                        user_id: ThisItem.user_id,
+                                        status: {
+                                            id: TSStatusDropdown.Selected.value,
+                                            name: TSStatusDropdown.Selected.label
+                                        }
+                                    }
+                                )
+                            )*/
+                        OnSelect: |-
+                            =Select(Parent);
+                            If(CreatecolTestLogTestStep=false,ClearCollect(colTestLogTestStep,TSGallery.Selected.test_step_logs));
+                            UpdateContext({CreatecolTestLogTestStep:true});
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        Reset: =varResetTRStepsControl
+                        SearchFields: =["label"]
+                        SearchItems: =[]
+                        SelectionColor: =RGBA(0, 0, 0, 1)
+                        SelectionFill: =RGBA(230, 230, 230, 1)
+                        SelectionTagFill: =//Self.HoverFill
+                        SelectMultiple: =false
+                        Size: =11
+                        Width: =Label25_3.Width
+                        X: =TSGalleryBugIcon.X + TSGalleryBugIcon.Width
+                        Y: =TSActualResultTxtInput.Y
+                        ZIndex: =5
+
+                    CalledTestCaseIcon As icon.Add:
+                        Color: =RGBA(70, 189, 198, 1)
+                        DisplayMode: =DisplayMode.View
+                        Height: =20
+                        Icon: =Icon.Link
+                        OnSelect: =Select(Parent)
+                        Visible: |-
+                            =If(
+                                !IsBlank(ThisItem.called_test_case_id),
+                                true,
+                                false
+                            )
+                        Width: =20
+                        X: =HtmlTextDescriptionValue.X + HtmlTextDescriptionValue.Width - Self.Width - 5
+                        Y: =10
+                        ZIndex: =8
+
+                    TSBusinessDrodpdown As combobox:
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =0.4
+                        ChevronBackground: =RGBA(255, 255, 255, 1)
+                        ChevronDisabledBackground: =Self.Fill
+                        ChevronFill: =RGBA(211, 239, 241, 1)
+                        ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                        DefaultSelectedItems: =LookUp(colBusinessValuesTS,value = Int( LookUp( ThisItem.customFieldInfo, Lower(name) = Lower("UAT Category")).value))
+                        DisabledBorderColor: =RGBA(230, 230, 230, 1)
+                        DisabledColor: =Self.Color
+                        DisabledFill: =Self.Fill
+                        DisplayFields: =["label"]
+                        DisplayMode: =DisplayMode.Disabled
+                        FocusedBorderThickness: =0.5
+                        Font: =Font.'Segoe UI'
+                        Height: =TSOdervalueLbl.Height
+                        HoverColor: =RGBA(128, 128, 128, 1)
+                        HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                        InputTextPlaceholder: =""
+                        IsSearchable: =false
+                        Items: =colBusinessValuesTS
+                        PaddingBottom: =30
+                        PressedFill: =RGBA(70, 189, 198, 1)
+                        SearchFields: =["label"]
+                        SearchItems: =[]
+                        SelectionColor: =RGBA(70, 189, 198, 1)
+                        SelectionFill: =RGBA(236, 248, 249, 1)
+                        SelectionTagColor: |-
+                            =RGBA(0, 0, 0, 1)
+                            //Self.HoverColor
+                        SelectionTagFill: =Color.Transparent
+                        SelectMultiple: =false
+                        Size: =11
+                        Width: =Label24_3.Width
+                        X: =TSOdervalueLbl.X + TSOdervalueLbl.Width
+                        Y: =TSOdervalueLbl.Y
+                        ZIndex: =9
+
+                    HtmlTextDescriptionValue As htmlViewer:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderThickness: =0.4
+                        DisabledBorderColor: =RGBA(56, 56, 56, 1)
+                        Font: =Font.'Segoe UI'
+                        Height: =60
+                        HtmlText: =ThisItem.description
+                        OnSelect: =Select(Parent)
+                        PaddingRight: =15
+                        Width: =Label24_2.Width
+                        X: =198
+                        ZIndex: =10
+
+                    HtmlTextExpectedResultValue As htmlViewer:
+                        AutoHeight: =true
+                        BorderColor: =RGBA(230, 230, 230, 1)
+                        BorderThickness: =0.4
+                        DisabledBorderColor: =RGBA(56, 56, 56, 1)
+                        Font: =Font.'Segoe UI'
+                        Height: =60
+                        HtmlText: =ThisItem.expected_result
+                        OnSelect: =Select(Parent)
+                        Width: =Label25_1.Width
+                        X: =HtmlTextDescriptionValue.X + HtmlTextDescriptionValue.Width
+                        Y: =HtmlTextDescriptionValue.Y
+                        ZIndex: =11
+
+                    "'Order Seperator' As rectangle":
+                        Fill: =RGBA(230, 230, 230, 1)
+                        Height: =TSOdervalueLbl.Height
+                        OnSelect: =Select(Parent)
+                        Width: =1
+                        X: =TSOdervalueLbl.Width
+                        Y: =TSOdervalueLbl.Y
+                        ZIndex: =12
+
+                    "'Category Seperator' As rectangle":
+                        Fill: =RGBA(230, 230, 230, 1)
+                        Height: =TSBusinessDrodpdown.Height
+                        OnSelect: =Select(Parent)
+                        Width: =2
+                        X: =TSBusinessDrodpdown.X + TSBusinessDrodpdown.Width
+                        Y: =TSBusinessDrodpdown.Y
+                        ZIndex: =13
+
+                    "'Test Step Seperator' As rectangle":
+                        Fill: =RGBA(230, 230, 230, 1)
+                        Height: =TSBusinessDrodpdown.Height
+                        OnSelect: =Select(Parent)
+                        Width: =2
+                        X: =HtmlTextDescriptionValue.X + HtmlTextDescriptionValue.Width
+                        Y: =TSBusinessDrodpdown.Y
+                        ZIndex: =14
+
+                    "'Expected Result Separator' As rectangle":
+                        Fill: =RGBA(230, 230, 230, 1)
+                        Height: =TSBusinessDrodpdown.Height
+                        OnSelect: =Select(Parent)
+                        Width: =2
+                        X: =HtmlTextExpectedResultValue.X + HtmlTextExpectedResultValue.Width
+                        Y: =TSBusinessDrodpdown.Y
+                        ZIndex: =15
+
+                    "'Actual Result Seperator' As rectangle":
+                        Fill: =RGBA(230, 230, 230, 1)
+                        Height: =TSBusinessDrodpdown.Height
+                        OnSelect: =Select(Parent)
+                        Width: =2
+                        X: =TSActualResultTxtInput.X + TSActualResultTxtInput.Width
+                        Y: =TSBusinessDrodpdown.Y
+                        ZIndex: =16
+
+                    "'Vertical Seperator' As rectangle":
+                        Fill: =RGBA(230, 230, 230, 1)
+                        Height: =2
+                        OnSelect: =Select(Parent)
+                        Width: =Parent.Width
+                        Y: =TSOdervalueLbl.Height
+                        ZIndex: =17
+
+                    TSGalleryBugIcon As icon.Bug:
+                        Color: =RGBA(184, 0, 0, 1)
+                        Height: =30
+                        Icon: =Icon.Bug
+                        OnSelect: |-
+                            =If(
+                                varLinkDefectVisibility = true,
+                            
+                                Set( varSelectedTestStepForDefect , ThisItem);
+                            
+                                Set( varFetchedTestStepLinkedDefectPid, If( !IsBlank( ThisItem.test_step_log_id), 'ITS-TCOE_OCTO_UATMain_V1'.GetObjectLink(constProjectInfo.id,{type:"test-steps",ids:ThisItem.test_step_log_id}).objects, Blank()));
+                            
+                                Clear( colFetchedTestStepLinkedDefectPid);
+                            
+                                ForAll( varFetchedTestStepLinkedDefectPid, Collect( colFetchedTestStepLinkedDefectPid, ThisRecord.objects));
+                            
+                                UpdateContext({varNRF: false});
+                            
+                                UpdateContext({addTSDefectVisiblity: true}),
+                            
+                                Notify("Please save the execution before submitting the defect.",NotificationType.Warning,4000)
+                            )
+                        PaddingBottom: =5
+                        PaddingLeft: =6
+                        PaddingRight: =5
+                        PaddingTop: =5
+                        Width: =30
+                        X: =TSActualResultTxtInput.X + TSActualResultTxtInput.Width
+                        Y: =(TSActualResultTxtInput.Height/2) - 20
+                        ZIndex: =18
+
+                    "'Bug Icon Seperator' As rectangle":
+                        Fill: =RGBA(230, 230, 230, 1)
+                        Height: =TSBusinessDrodpdown.Height
+                        OnSelect: =Select(Parent)
+                        Width: =2
+                        X: =TSGalleryBugIcon.X + TSGalleryBugIcon.Width
+                        Y: =TSBusinessDrodpdown.Y
+                        ZIndex: =59
+
+                    BugCountLabel As label:
+                        Align: =Align.Center
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        OnSelect: =Select(Parent)
+                        Size: =10
+                        Text: |-
+                            =If(
+                                !IsBlank(ThisItem.test_step_log_id),
+                                
+                                CountRows(
+                                    First(
+                                        'ITS-TCOE_OCTO_UATMain_V1'.GetObjectLink(
+                                            constProjectInfo.id,
+                                            {
+                                                type: "test-steps",
+                                                ids: ThisItem.test_step_log_id
+                                            }
+                                        )
+                                    ).objects
+                                )
+                            )
+                        VerticalAlign: =VerticalAlign.Top
+                        Visible: |-
+                            =If(
+                                Value( Self.Text) > 0,
+                                true,
+                                false
+                            )
+                        Width: =30
+                        X: =TSGalleryBugIcon.X
+                        Y: =TSGalleryBugIcon.Y + TSGalleryBugIcon.Height -8
+                        ZIndex: =60
+
+            PreviousStatusCombobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronDisabledBackground: =Self.Fill
+                ChevronDisabledFill: =Self.Fill
+                ChevronFill: =RGBA(149, 149, 149, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: =LookUp(colTestlogStatus,value=LookUp(colTestSteplog,result_number=Max(colTestSteplog,result_number)-1).status.id)
+                DisabledBorderColor: =Self.BorderColor
+                DisabledColor: =Self.Color
+                DisabledFill: =Self.Fill
+                DisplayFields: =["label"]
+                DisplayMode: =DisplayMode.Disabled
+                FocusedBorderThickness: =0.5
+                Font: =Font.'Segoe UI'
+                Height: =StatusCombobox.Height
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: ="Status"
+                Items: =colTestlogStatus
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(colTestlogStatus,PreviousStatusCombobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(230, 230, 230, 1)
+                SelectionTagFill: =//Self.HoverFill
+                SelectMultiple: =false
+                Size: =11
+                Tooltip: =Self.Selected.label
+                Visible: =If( ChangeLogToggle.Value = true, true, false)
+                Width: =StatusCombobox.Width
+                X: =StatusCombobox.X
+                Y: =StatusCombobox.Y
+                ZIndex: =26
+
+            StatusCombobox As combobox:
+                BorderColor: =RGBA(177, 227, 230, 1)
+                BorderThickness: =1
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronDisabledBackground: =Self.Fill
+                ChevronFill: =RGBA(149, 149, 149, 1)
+                ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                DefaultSelectedItems: |-
+                    =//LookUp(colTestlogStatus,value=LookUp(colTestSteplog,result_number=Max(colTestSteplog,result_number)).status.id)
+                    LookUp(colTestlogStatus,value=LookUp(colTestSteplog,true,ThisRecord.status.id))
+                DisabledColor: =RGBA(94, 93, 93, 1)
+                DisabledFill: =RGBA(255, 255, 255, 1)
+                DisplayFields: =["label"]
+                DisplayMode: |-
+                    =DisplayMode.Edit
+                    //If( varTECDisplayModet = true, DisplayMode.Disabled, DisplayMode.Edit)
+                FocusedBorderThickness: =0.5
+                Font: =Font.'Segoe UI'
+                Height: =30
+                HoverFill: =RGBA(70, 189, 198, 1)
+                InputTextPlaceholder: ="Status"
+                Items: =colTestlogStatus
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["label"]
+                SearchItems: =Search(Filter(colTestlogStatus,is_active&&Not(label="Unexecuted")),StatusCombobox.SearchText,label)
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(230, 230, 230, 1)
+                SelectionTagFill: =//Self.HoverFill
+                SelectMultiple: =false
+                Size: =11
+                Tooltip: =Self.Selected.label
+                Visible: =If( ChangeLogToggle.Value = false, true, false)
+                Width: =150
+                X: =TETestCycleValuetxtInput.X
+                Y: =TEStatusLbl.Y
+                ZIndex: =27
+
+            TRIDValueLbl As label:
+                Color: =RGBA(19, 61, 83, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Bold
+                Height: =30
+                Size: =14
+                Text: =gallerySelectedTestrun.pid
+                Tooltip: =Self.Text
+                Width: =110
+                X: =70
+                Y: =15
+                ZIndex: =28
+
+            GalleryDefectId As gallery.galleryHorizontal:
+                '#CopilotOverlayLabel': ="Filtered"
+                Height: =52
+                Items: =Filter(colFetchedTestcaseidrows,StartsWith(pid,"DF"),pid) 
+                TemplatePadding: =0
+                TemplateSize: =70
+                Width: =250
+                X: =TETestCycleValuetxtInput.X
+                Y: =DefectLbl.Y
+                ZIndex: =29
+
+                Button1 As button:
+                    Align: =Align.Left
+                    BorderColor: =
+                    BorderStyle: =BorderStyle.None
+                    Color: =RGBA(56, 96, 178, 1)
+                    Fill: =RGBA(0, 0, 0, 0)
+                    Font: =Font.'Segoe UI'
+                    Height: =35
+                    HoverColor: =RGBA(56, 96, 178, 1)
+                    HoverFill: =
+                    OnSelect: |-
+                        =Set(SelectedDefectInfo,{id:ThisItem.id});
+                        
+                        Navigate('Defect Details');
+                    PaddingLeft: =8
+                    PressedColor: =RGBA(56, 96, 178, 1)
+                    PressedFill: =
+                    Size: =11
+                    Text: =ThisItem.pid
+                    Tooltip: =ThisItem.pid
+                    Width: =70
+                    ZIndex: =2
+
+            Rectangle4_1 As rectangle:
+                BorderColor: =RGBA(255, 152, 1, 1)
+                BorderThickness: =1
+                Fill: =RGBA(255, 152, 1, 1)
+                Height: =5
+                Width: =200
+                Y: =Label24_1.Y-Rectangle4_1.Height
+                ZIndex: =32
+
+            TETLRadioButton As radio:
+                BorderStyle: =BorderStyle.None
+                Color: =RGBA(19, 61, 83, 0.75)
+                Default: ="Show Only Business Test Steps"
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =40
+                Items: =["Show Only Business Test Steps", "Show All Test Steps"]
+                Layout: =Layout.Horizontal
+                LineHeight: =1
+                PaddingBottom: =5
+                PaddingLeft: =5
+                PaddingRight: =5
+                PaddingTop: =5
+                RadioSelectionFill: |-
+                    =ColorValue("#6B6A6A")
+                RadioSize: =12
+                Size: =10.5
+                Width: =428
+                X: =196
+                Y: =ETSValueLbl_1.Y + 5
+                ZIndex: =33
+
+            ChangeLogToggle As toggleSwitch:
+                BorderStyle: =BorderStyle.None
+                Color: =RGBA(19, 61, 83, 0.75)
+                DisabledBorderColor: =Self.BorderColor
+                DisabledColor: =Self.Color
+                DisplayMode: =If( CountRows(colTestSteplog) > 1, DisplayMode.Edit, DisplayMode.Disabled)
+                FalseText: ="Current Log"
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =23
+                Size: =10.5
+                TextPosition: =TextPosition.Left
+                Tooltip: =If( Self.DisplayMode = DisplayMode.Disabled, "This is the first execution of this test case. No prior executions available.")
+                TrueFill: =RGBA(70, 189, 198, 1)
+                TrueText: ="Previous Log"
+                Width: =140
+                X: =TETLRadioButton.X + TETLRadioButton.Width + 10
+                Y: =TETLRadioButton.Y + 4
+                ZIndex: =34
+
+            TESaveBtn As button:
+                BorderStyle: =BorderStyle.None
+                DisplayMode: |-
+                    =DisplayMode.Edit
+                    //If(enableSave = true, DisplayMode.Edit, DisplayMode.Disabled)
+                Fill: =RGBA(70, 189, 198, 1)
+                Font: =Font.'Segoe UI'
+                HoverBorderColor: =ColorFade(Self.HoverFill, 20%)
+                HoverFill: =RGBA(255, 152, 1, 1)
+                OnSelect: |-
+                    =UpdateContext({ showTEDLoadingSpinner: true});
+                    Clear( colAttachmentStatus);
+                    UpdateContext({ varSuccesedFiles: ""});
+                    UpdateContext({ varFailedFiles: ""});
+                    
+                    ClearCollect(
+                        colTotalAttachmentsTR,
+                        ShowColumns(
+                            AddColumns(
+                                CDAttachmentsHiddenGal_1.AllItems,
+                                data,
+                                With(
+                                    {
+                                        varDemoFormAttachmentCOntrol: JSON(
+                                            CDAHGImage_1.Image,
+                                            JSONFormat.IncludeBinaryData
+                                        )
+                                    },
+                                    Mid(
+                                        varDemoFormAttachmentCOntrol,
+                                        Find(
+                                            ",",
+                                            varDemoFormAttachmentCOntrol
+                                        ) + 1,
+                                        Len(varDemoFormAttachmentCOntrol) - Find(
+                                            ",",
+                                            varDemoFormAttachmentCOntrol
+                                        ) - 1
+                                    )
+                                ),
+                                name,
+                                CDAHNameValue_1.Text,
+                                content_type,
+                                CDAHContentTypeValue_1.Text,
+                                created_date,
+                                Concatenate(
+                                    Text(
+                                        DateAdd(
+                                            Now(),
+                                            TimeZoneOffset(Now()),
+                                            TimeUnit.Minutes
+                                        ),
+                                        "yyyy-mm-dd"
+                                    ),
+                                    "T",
+                                    Text(
+                                        DateAdd(
+                                            Now(),
+                                            TimeZoneOffset(Now()),
+                                            TimeUnit.Minutes
+                                        ),
+                                        "hh:mm:ss"
+                                    ),
+                                    "+00:00"
+                                )
+                            ),
+                            data,
+                            name,
+                            content_type,
+                            created_date
+                        )
+                    );
+                    
+                    UpdateContext(
+                        {
+                            ExeEndDate: Concatenate(
+                                Text(
+                                    DateAdd(
+                                        Now(),
+                                        TimeZoneOffset(Now()),
+                                        TimeUnit.Minutes
+                                    ),
+                                    "yyyy-mm-dd"
+                                ),
+                                "T",
+                                Text(
+                                    DateAdd(
+                                        Now(),
+                                        TimeZoneOffset(Now()),
+                                        TimeUnit.Minutes
+                                    ),
+                                    "hh:mm:ss"
+                                ),
+                                "+00:00"
+                            )
+                        }
+                    );
+                    
+                    If(
+                        varCreateTestLog = true,
+                    
+                        ClearCollect(
+                            colLatestTestLog,
+                            'ITS-TCOE_OCTO_UATMain_V1'.CreateTestlog(
+                                constProjectInfo.id,
+                                gallerySelectedTestrun.id,
+                                {
+                                    test_step_logs: First(colTestSteplog).test_step_logs,
+                                    properties: [
+                                        {
+                                            field_id: varTestRunCreatedByUAT,
+                                            field_name: "Created By (UATNext Only)",
+                                            field_value: nfUserObject.'Full Name',
+                                            field_value_name: ""
+                                        },
+                                        {
+                                            field_id: varTestRunUpdatedByUAT,
+                                            field_name: "Updated By (UATNext Only)",
+                                            field_value: nfUserObject.'Full Name',
+                                            field_value_name: ""
+                                        }
+                                    ],
+                                    status: {
+                                        id: If(
+                                            IsEmpty(StatusCombobox.SelectedItems),
+                                            LookUp(
+                                                colTestSteplog,
+                                                true,
+                                                ThisRecord.status.id
+                                            ),
+                                            StatusCombobox.Selected.value
+                                        )
+                                    },
+                                    exe_end_date: ExeEndDate,
+                                    exe_start_date: ExeStartDate,
+                                    attachments: colTotalAttachmentsTR
+                                }
+                            )
+                        );
+                    
+                        ClearCollect(
+                            colReturnResTr,
+                            'ITS-TCOE_OCTO_UATMain_V1'.UpdateTestrun(
+                                constProjectInfo.id,
+                                gallerySelectedTestrun.id,
+                                {
+                                    properties: [
+                                        {
+                                            field_id: varTestRunUpdatedByUAT,
+                                            field_name: "Updated By (UATNext Only)",
+                                            field_value: nfUserObject.'Full Name',
+                                            field_value_name: ""
+                                        }
+                                    ],
+                    
+                                    test_case_version_id: lastApprovedVersionId
+                                }
+                            )
+                        );
+                    
+                        Set( varCreateTestLog, false);
+                    
+                        Navigate('Test Execution Details'),
+                    
+                    
+                        If(
+                            IsEmpty( colTestLogTestStep),
+                    
+                            ClearCollect(
+                                colLatestTestLog,
+                                'ITS-TCOE_OCTO_UATMain_V1'.UpdateTestlogStatus(
+                                    constProjectInfo.id,
+                                    gallerySelectedTestrun.id,
+                                    TSGallery.Selected.id,
+                                    {
+                                        properties: [
+                                            {
+                                                field_id: varTestRunUpdatedByUAT,
+                                                field_name: "Updated By (UATNext Only)",
+                                                field_value: nfUserObject.'Full Name',
+                                                field_value_name: ""
+                                            }
+                                        ],
+                    
+                                        status: {
+                                            id: If(
+                                                IsEmpty(StatusCombobox.SelectedItems),
+                                                LookUp(
+                                                    colTestSteplog,
+                                                    true,
+                                                    ThisRecord.status.id
+                                                ),
+                                                StatusCombobox.Selected.value
+                                            )
+                                        },
+                    
+                                        exe_end_date: Text(
+                                            LookUp(
+                                                colTestSteplog,
+                                                result_number = Max(
+                                                    colTestSteplog,
+                                                    result_number
+                                                ),
+                                                exe_end_date
+                                            )
+                                        ),
+                    
+                                        exe_start_date: Text(
+                                            LookUp(
+                                                colTestSteplog,
+                                                result_number = Max(
+                                                    colTestSteplog,
+                                                    result_number
+                                                ),
+                                                exe_start_date
+                                            )
+                                        )
+                                    }
+                                )
+                            );
+                    
+                            If(
+                                !IsEmpty( colTotalAttachmentsTR),
+                                ForAll(
+                                    colTotalAttachmentsTR,
+                                    Collect(
+                                        colAttachmentStatus,
+                                        'ITS-TCOE_OCTO_UATNext_Test_AttachmentUpload_Flow'.Run(
+                                            ThisRecord.name,
+                                            ThisRecord.data,
+                                            ThisRecord.content_type,
+                                            constProjectInfo.id,
+                                            "test-logs",
+                                            TSGallery.Selected.id
+                                        )
+                                    )
+                                )
+                            );
+                    
+                            ClearCollect(
+                                colReturnResTr,
+                                'ITS-TCOE_OCTO_UATMain_V1'.UpdateTestrun(
+                                    constProjectInfo.id,
+                                    gallerySelectedTestrun.id,
+                                    {
+                                        properties:[
+                                            {
+                                                field_id: varTestRunUpdatedByUAT,
+                                                field_name: "Updated By (UATNext Only)",
+                                                field_value: nfUserObject.'Full Name',
+                                                field_value_name: ""
+                                            }
+                                        ],
+                    
+                                        test_case_version_id: LookUp(
+                                            colTestSteplog,
+                                            result_number = Max(
+                                                colTestSteplog,
+                                                result_number
+                                            ),
+                                            test_case_version_id
+                                        )
+                                    }
+                                )
+                            ),
+                    
+                            Set(
+                                smallDate,
+                                First(
+                                    SortByColumns(
+                                        colTestLogTestStep,
+                                        "exe_date",
+                                        SortOrder.Ascending
+                                    )
+                                ).exe_date
+                            );
+                    
+                            Set(
+                                LastDate,
+                                First(
+                                    SortByColumns(
+                                        colTestLogTestStep,
+                                        "exe_date",
+                                        SortOrder.Descending
+                                    )
+                                ).exe_date
+                            );
+                    
+                            If(
+                                DateTimeValue( ExeEndDate) > DateTimeValue( LastDate) || IsBlank( LastDate),
+                                Set( LastDate, ExeEndDate)
+                            );
+                    
+                            If(
+                                DateTimeValue( ExeStartDate) < DateTimeValue( smallDate) || IsBlank( smallDate),
+                                Set( smallDate, ExeStartDate)
+                            );
+                    
+                            ClearCollect(
+                                colLatestTestLog,
+                                'ITS-TCOE_OCTO_UATMain_V1'.UpdateTestlogStatus(
+                                    constProjectInfo.id,
+                                    gallerySelectedTestrun.id,
+                                    TSGallery.Selected.id,
+                                    {
+                                        properties: [
+                                            {
+                                                field_id: varTestRunUpdatedByUAT,
+                                                field_name: "Updated By (UATNext Only)",
+                                                field_value: nfUserObject.'Full Name',
+                                                field_value_name: ""
+                                            }
+                                        ],
+                    
+                                        status: {
+                                            id: If(
+                                                IsEmpty(StatusCombobox.SelectedItems),
+                                                LookUp(
+                                                    colTestSteplog,
+                                                    true,
+                                                    ThisRecord.status.id
+                                                ),
+                                                StatusCombobox.Selected.value
+                                            )
+                                        },
+                    
+                                        exe_start_date: smallDate,
+                                        exe_end_date: LastDate,
+                                        test_step_logs: colTestLogTestStep
+                                    }
+                                )
+                            );
+                    
+                            If (
+                                !IsEmpty( colTotalAttachmentsTR),
+                                ForAll(
+                                    colTotalAttachmentsTR,
+                                    Collect(
+                                        colAttachmentStatus,
+                                        'ITS-TCOE_OCTO_UATNext_Test_AttachmentUpload_Flow'.Run(
+                                            ThisRecord.name,
+                                            ThisRecord.data,
+                                            ThisRecord.content_type,
+                                            constProjectInfo.id,
+                                            "test-logs",
+                                            TSGallery.Selected.id
+                                        )
+                                    )
+                                )
+                            );
+                    
+                            ClearCollect(
+                                colReturnResTr,
+                                'ITS-TCOE_OCTO_UATMain_V1'.UpdateTestrun(
+                                    constProjectInfo.id,
+                                    gallerySelectedTestrun.id,
+                                    {
+                                         properties:[
+                                            {
+                                                field_id: varTestRunUpdatedByUAT,
+                                                field_name: "Updated By (UATNext Only)",
+                                                field_value: nfUserObject.'Full Name',
+                                                field_value_name: ""
+                                            }
+                                        ],
+                    
+                                        test_case_version_id: LookUp(
+                                            colTestSteplog,
+                                            result_number = Max(
+                                                colTestSteplog,
+                                                result_number
+                                            ),
+                                            test_case_version_id
+                                        )
+                                    }
+                                )
+                            )
+                        )
+                    );
+                    
+                    ClearCollect( colTestSteplog, 'ITS-TCOE_OCTO_UATMain_V1'.GetTestLog( constProjectInfo.id, gallerySelectedTestrun.id).items);
+                    
+                    Set( varLinkDefectVisibility, true);
+                    
+                    If(
+                        !IsEmpty( colTotalAttachmentsTR),
+                    
+                        UpdateContext({ varFailedFiles: Concat( Filter(colAttachmentStatus, StartsWith(status_code,4) ||  StartsWith(status_code,5)), file_name & ", ")}); 
+                        UpdateContext({ varSuccesedFiles: Concat( Filter(colAttachmentStatus, StartsWith(status_code,2)), file_name & ", ")})
+                    );
+                    
+                    If(
+                        !IsBlank( varSuccesedFiles) && IsBlank( varFailedFiles),
+                    
+                        Notify("Testlog Updated Successfully With Attachment.", NotificationType.Success, 4000),
+                    
+                        !IsBlank( varFailedFiles) && IsBlank( varSuccesedFiles),
+                    
+                        Notify("Attachment Upload Failed For " & varFailedFiles, NotificationType.Error, 8000),
+                            
+                        Notify( "Testlog Updated Successfully.", NotificationType.Success, 4000)  
+                    );
+                    
+                    Reset(CDAttachmentUpload_1);
+                    Clear(colAttachmentsTR);
+                    
+                    
+                    //Testrun list screen data show without network call
+                    Update(
+                        colTestRun,
+                        LookUp(
+                            colTestRun,
+                            id = gallerySelectedTestrun.id
+                        ),
+                        {
+                            automation: gallerySelectedTestrun.automation,
+                            id: gallerySelectedTestrun.id,
+                            name: gallerySelectedTestrun.name,
+                            order: gallerySelectedTestrun.order,
+                            parentId: gallerySelectedTestrun.parentId,
+                            parentType: gallerySelectedTestrun.parentType,
+                            pid: gallerySelectedTestrun.pid,
+                            properties: First(colReturnResTr).properties,
+                            testCaseId: gallerySelectedTestrun.testCaseId,
+                            latest_test_log: {
+                                id: First(colLatestTestLog).id,
+                                exe_end_date: First(colLatestTestLog).exe_end_date,
+                                exe_start_date: First(colLatestTestLog).exe_start_date,
+                                status: ""
+                            }
+                        }
+                    );
+                    
+                    //Disable TEDLoading Spinnier
+                    UpdateContext({ showTEDLoadingSpinner: false});
+                RadiusBottomLeft: =2
+                RadiusBottomRight: =2
+                RadiusTopLeft: =2
+                RadiusTopRight: =2
+                Size: =10.5
+                Text: ="SAVE"
+                Visible: =If( ChangeLogToggle.Value = false, true, false)
+                Width: =130
+                X: =1076
+                Y: =649
+                ZIndex: =35
+
+            TESubmitDefectBtn As button:
+                BorderStyle: =BorderStyle.None
+                Fill: =RGBA(70, 189, 198, 1)
+                Font: =Font.'Segoe UI'
+                HoverBorderColor: =ColorFade(Self.HoverFill, 20%)
+                HoverFill: =RGBA(255, 152, 1, 1)
+                OnSelect: |-
+                    =Set( varSelectedTestStepForDefect, Blank());
+                    
+                    UpdateContext({ExeEndDate: Concatenate( Text( DateAdd( Now(), TimeZoneOffset(Now()), TimeUnit.Minutes), "yyyy-mm-dd"), "T", Text( DateAdd( Now(), TimeZoneOffset(Now()), TimeUnit.Minutes), "hh:mm:ss"),"+05:30")});
+                    
+                    If( varLinkDefectVisibility = false, Notify( "Please save the execution before submitting the defect.", NotificationType.Error, 4000), Navigate( 'Create Defect', ScreenTransition.None, {TestLogId: TSGallery.Selected.id}))
+                RadiusBottomLeft: =2
+                RadiusBottomRight: =2
+                RadiusTopLeft: =2
+                RadiusTopRight: =2
+                Size: =10.5
+                Text: ="SUBMIT DEFECT"
+                Visible: =If( ChangeLogToggle.Value = false, true, false)
+                Width: =130
+                X: =TESaveBtn.X + TESaveBtn.Width + 20
+                Y: =TESaveBtn.Y
+                ZIndex: =36
+
+            TRIDValueLbl_1 As label:
+                Color: =RGBA(19, 61, 83, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Bold
+                Height: =30
+                Size: =14
+                Text: =gallerySelectedTestrun.name
+                Tooltip: =Self.Text
+                Width: =Parent.Width-240
+                Wrap: =false
+                X: =TRIDValueLbl.X+TRIDValueLbl.Width+15
+                Y: =TRIDValueLbl.Y
+                ZIndex: =37
+
+            TETesCaseIdLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =30
+                Size: =11
+                Text: ="Test Case"
+                Width: =TEProjectLbl.Width
+                X: =524
+                Y: =89
+                ZIndex: =38
+
+            TETestCaseIdvalueTxtInput As text:
+                BorderThickness: =0.4
+                Default: =FetchedTestCaseDetails.pid
+                DisabledColor: =RGBA(115, 114, 114, 1)
+                DisabledFill: =RGBA(244, 244, 244, 0.76)
+                DisplayMode: =DisplayMode.View
+                Font: =Font.'Segoe UI'
+                Height: =30
+                PaddingLeft: =5
+                RadiusBottomLeft: =0.4
+                RadiusBottomRight: =0.4
+                RadiusTopLeft: =0.4
+                RadiusTopRight: =0.4
+                Size: =11
+                Tooltip: =Self.Text
+                Width: =ProjectvaluetxtInput.Width
+                X: =TETestervalueTxtInput.X
+                Y: =87
+                ZIndex: =39
+
+            ETSGroup_1 As group:
+                Height: =5
+                Width: =5
+                X: =-386
+                Y: =-20
+                ZIndex: =39
+
+                ETSBackgroundRectangle_1 As rectangle:
+                    Fill: =RGBA(255, 255, 255, 1)
+                    Height: =40
+                    Visible: =false
+                    Width: =Parent.Width
+                    Y: =TEPrecondtionIdLbl.Y+TEPrecondtionIdLbl.Height + 8
+                    ZIndex: =30
+
+                ETSValueLbl_1 As label:
+                    BorderColor: =RGBA(0, 0, 0, 1)
+                    Color: =RGBA(19, 61, 83, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Bold
+                    PaddingLeft: =0
+                    Text: ="Test-Logs"
+                    Width: =ETSBackgroundRectangle_1.Width
+                    X: =5
+                    Y: =ETSBackgroundRectangle_1.Y
+                    ZIndex: =31
+
+            TEDSubmitDefectBtn As button:
+                BorderStyle: =BorderStyle.None
+                DisplayMode: |-
+                    =//If( enableDefect = true, DisplayMode.Edit, DisplayMode.Disabled)
+                    
+                    DisplayMode.Edit
+                Fill: =RGBA(70, 189, 198, 1)
+                Font: =Font.'Segoe UI'
+                HoverBorderColor: =ColorFade(Self.HoverFill, 20%)
+                HoverFill: =RGBA(255, 152, 1, 1)
+                OnSelect: |-
+                    =UpdateContext({varNRF: false});
+                    
+                    UpdateContext({addDefectVisiblity:true})
+                RadiusBottomLeft: =2
+                RadiusBottomRight: =2
+                RadiusTopLeft: =2
+                RadiusTopRight: =2
+                Size: =10.5
+                Text: ="LINK DEFECT"
+                Visible: |-
+                    =If(
+                        ChangeLogToggle.Value = false,
+                        If( varLinkDefectVisibility = true, true, false),
+                        false
+                    )
+                Width: =130
+                X: =1180
+                Y: =GalleryDefectId.Y+GalleryDefectId.Height + 5
+                ZIndex: =40
+
+            TEPrecondtionIdLbl As label:
+                Color: =RGBA(122, 119, 119, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Height: =100
+                Size: =11
+                Text: ="Precondition"
+                VerticalAlign: =VerticalAlign.Top
+                Width: =TEProjectLbl.Width
+                X: =TEProjectLbl.X
+                Y: =TETesCaseIdLbl.Y + TETesCaseIdLbl.Height + 4
+                ZIndex: =41
+
+            HtmlTextPrecondition As htmlViewer:
+                DisabledBorderColor: =RGBA(56, 56, 56, 1)
+                Font: =Font.'Segoe UI'
+                Height: =125
+                HtmlText: =getLatestTcDetails.precondition
+                Tooltip: =Self.HtmlText
+                Width: =654
+                X: =ProjectvaluetxtInput.X
+                Y: =TEReleaseLbl.Y + TEReleaseLbl.Height
+                ZIndex: =42
+
+            ETCDLoadingSpinerGroup As group:
+                Height: =5
+                Width: =5
+                X: =40
+                Y: =40
+                ZIndex: =50
+
+                UATTED_Loading_Button As button:
+                    Color: =RGBA(107, 106, 106, 1)
+                    DisplayMode: =DisplayMode.View
+                    Fill: =ColorFade(RGBA(230, 230, 230, 0.82), 35%)
+                    Height: =Parent.Height
+                    Text: =
+                    Visible: =showTEDLoadingSpinner
+                    Width: =Parent.Width
+                    X: =
+                    Y: =
+                    ZIndex: =67
+
+                UATED_Loading_Spinner As image:
+                    Image: ='Eclipse@1x'
+                    Visible: =showTEDLoadingSpinner
+                    X: =673
+                    Y: =374
+                    ZIndex: =68
+
+            ETCDDLLoadingSpinerGroup As group:
+                Height: =5
+                Width: =5
+                X: =40
+                Y: =40
+                ZIndex: =53
+
+                ETCDDLL_Loading_Button As button:
+                    Color: =RGBA(107, 106, 106, 1)
+                    DisplayMode: =DisplayMode.View
+                    Fill: =ColorFade(RGBA(230, 230, 230, 0.82), 35%)
+                    Height: =TEDSearchDefectGal.Height
+                    Text: =
+                    Visible: =showETCDDLLoadingSpinner
+                    Width: =TEDSearchDefectGal.Width
+                    X: =TEDSearchDefectGal.X
+                    Y: =TEDSearchDefectGal.Y
+                    ZIndex: =65
+
+                ETCDDLL_Loading_Spinner As image:
+                    Height: =TEDSearchDefectGal.Height
+                    Image: ='Eclipse@1x'
+                    Visible: =showETCDDLLoadingSpinner
+                    X: =640
+                    Y: =TEDSearchDefectGal.Y
+                    ZIndex: =66
+
+            AddDefectGroup As group:
+                Height: =5
+                Width: =5
+                X: =40
+                Y: =40
+                ZIndex: =55
+
+                TEDBackgroundBlurEffectBtn As button:
+                    DisplayMode: =DisplayMode.View
+                    Fill: =ColorFade(RGBA(230, 230, 230, 0.82), 35%)
+                    Height: =Parent.Height
+                    Text: =""
+                    Visible: =addDefectVisiblity
+                    Width: =Parent.Width
+                    X: =Parent.X
+                    Y: =Parent.Y
+                    ZIndex: =43
+
+                TEDDefectSearchbackgroundBtn As button:
+                    BorderColor: =RGBA(237, 237, 237, 1)
+                    BorderThickness: =1
+                    DisabledBorderColor: =RGBA(241, 244, 249, 1)
+                    DisabledColor: =Color.White
+                    DisabledFill: =RGBA(255, 255, 255, 1)
+                    DisplayMode: =DisplayMode.Disabled
+                    Fill: =Color.White
+                    Font: =Font.'Segoe UI'
+                    Height: =200
+                    RadiusBottomLeft: =30
+                    RadiusBottomRight: =30
+                    RadiusTopLeft: =30
+                    RadiusTopRight: =30
+                    Text: =""
+                    Visible: =addDefectVisiblity
+                    Width: =600
+                    X: =390
+                    Y: =TEDBackgroundBlurEffectBtn.Y + 240
+                    ZIndex: =44
+
+                TEDClosePopupIcon As icon.Cancel:
+                    Color: =RGBA(70, 189, 198, 1)
+                    Height: =30
+                    Icon: =Icon.Cancel
+                    OnSelect: |-
+                        =UpdateContext({varNRF: false});
+                        
+                        UpdateContext({addDefectVisiblity: false});
+                        
+                        Clear(colSearchDefect);
+                        
+                        Reset(TEDDefectSearchTxtBox)
+                    Visible: =addDefectVisiblity
+                    Width: =30
+                    X: =TEDDefectSearchTxtBox.X + TEDDefectSearchTxtBox.Width + 50
+                    Y: =TEDDefectSearchbackgroundBtn.Y + 15
+                    ZIndex: =45
+
+                TEDDefectSearchTxtBox As text:
+                    BorderColor: =RGBA(211, 239, 241, 1)
+                    BorderThickness: =0.4
+                    Default: =""
+                    DelayOutput: =true
+                    DisabledFill: =RGBA(236, 248, 249, 1)
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =35
+                    HintText: ="Search by Defect ID"
+                    HoverBorderColor: =RGBA(70, 189, 198, 1)
+                    HoverFill: =Self.Fill
+                    OnChange: =If( IsBlank( Substitute( TEDDefectSearchTxtBox.Text, " ", "")), Clear(colSearchDefect); Reset(TEDSearchDefectGal))
+                    PaddingLeft: =5
+                    PaddingRight: =40
+                    PressedBorderColor: =RGBA(0, 134, 146, 1)
+                    RadiusBottomLeft: =4
+                    RadiusBottomRight: =4
+                    RadiusTopLeft: =4
+                    RadiusTopRight: =4
+                    Size: =12
+                    Visible: =addDefectVisiblity
+                    Width: =400
+                    X: =TEDDefectSearchbackgroundBtn.X + 95
+                    Y: =TEDDefectSearchbackgroundBtn.Y + 30
+                    ZIndex: =46
+
+                TEDDefectSearchIcon As icon.Add:
+                    Color: =If(TEDDefectSearchTxtBox.DisplayMode = DisplayMode.Edit,RGBA(70, 189, 198, 1), RGBA(153, 153, 153, 1))
+                    DisabledColor: =RGBA(153, 153, 153, 1)
+                    DisplayMode: =If( !IsBlank( Substitute( TEDDefectSearchTxtBox.Text, " ", "")), DisplayMode.Edit, DisplayMode.Disabled)
+                    Height: =TEDDefectSearchTxtBox.Height
+                    Icon: =Icon.Search
+                    OnSelect: |-
+                        =UpdateContext({ showETCDDLLoadingSpinner: true});
+                        
+                        If(
+                            !IsBlank(
+                                Substitute(
+                                    TEDDefectSearchTxtBox.Text,
+                                    " ",
+                                    ""
+                                )
+                            ),
+                            ClearCollect(
+                                colSearchDefect,
+                                'ITS-TCOE_OCTO_UATMain_V1'.Search(
+                                    constProjectInfo.id,
+                                    {
+                                        pageSize: 999,
+                                        page: 1,
+                                        object_type: "defects",
+                                        fields: ["*"],
+                                        query: Concatenate( "'id' ", "="," '" & TEDDefectSearchTxtBox.Text & "'")
+                                        
+                                    }
+                                ).items
+                            )
+                        );
+                        
+                        If( addDefectVisiblity = true && IsEmpty(colSearchDefect), UpdateContext({varNRF: true}), UpdateContext({varNRF: false}));
+                        
+                        UpdateContext({ showETCDDLLoadingSpinner: false});
+                    PaddingBottom: =5
+                    PaddingLeft: =5
+                    PaddingRight: =5
+                    PaddingTop: =5
+                    Visible: =addDefectVisiblity
+                    Width: =30
+                    X: =TEDDefectSearchTxtBox.X + 365
+                    Y: =TEDDefectSearchTxtBox.Y
+                    ZIndex: =47
+
+                TEDSearchDefectGal As gallery.variableTemplateHeightGallery:
+                    '#CopilotOverlayLabel': ="Filtered"
+                    BorderColor: =RGBA(255, 255, 255, 1)
+                    BorderStyle: =BorderStyle.None
+                    Height: =50
+                    Items: =colSearchDefect
+                    Layout: =Layout.Vertical
+                    TemplateFill: =If(ThisItem.IsSelected,ColorFade(RGBA(236, 248, 249, 1), 40%),RGBA(0, 0, 0, 0))
+                    TemplatePadding: =0
+                    TemplateSize: =30
+                    Visible: =addDefectVisiblity
+                    Width: =TEDDefectSearchTxtBox.Width
+                    X: =TEDDefectSearchTxtBox.X
+                    Y: =TEDDefectSearchTxtBox.Y + TEDDefectSearchTxtBox.Height + 10
+                    ZIndex: =48
+
+                    TEDDefectIcon As icon.Add:
+                        Color: =RGBA(184, 0, 0, 1)
+                        Height: =20
+                        Icon: =Icon.Bug
+                        OnSelect: =Select(Parent)
+                        Width: =20
+                        X: =15
+                        Y: =5
+                        ZIndex: =2
+
+                    TEDSearchDefectValueLbl As label:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: =Concatenate("(", ThisItem.pid, ") ", LookUp(ThisItem.properties,field_name="Summary",field_value))
+                        Tooltip: =LookUp(ThisItem.properties,field_name="Summary",field_value)
+                        Width: =340
+                        X: =TEDDefectIcon.X + TEDDefectIcon.Width
+                        ZIndex: =3
+
+                TEDLinkDefectBtn As button:
+                    BorderThickness: =0.4
+                    DisplayMode: |+
+                        =If(!IsBlank(TEDSearchDefectGal.Selected.id) ,DisplayMode.Edit,DisplayMode.Disabled  )
+                        
+                    Fill: =RGBA(70, 189, 198, 1)
+                    FocusedBorderThickness: =0.4
+                    Font: =Font.'Segoe UI'
+                    Height: =30
+                    HoverBorderColor: =ColorFade(Self.HoverFill, 20%)
+                    HoverFill: =RGBA(255, 152, 1, 1)
+                    OnSelect: |-
+                        =UpdateContext({ showTEDLoadingSpinner: true});
+                        
+                        'ITS-TCOE_OCTO_UATMain_V1'.CreateObjectLink(
+                            constProjectInfo.id,
+                            "test-logs",
+                            LookUp(
+                                colTestSteplog,
+                                result_number = Max(
+                                    colTestSteplog,
+                                    result_number
+                                ),
+                                id
+                            ),
+                            {
+                                type: "defects",
+                                CreateAobjectlinkingRequestBody: [TEDSearchDefectGal.Selected.id]
+                            }
+                        );
+                        
+                        'ITS-TCOE_OCTO_UATMain_V1'.UpdateTestlogStatus(
+                            constProjectInfo.id,
+                            gallerySelectedTestrun.id,
+                            LookUp(
+                                colTestSteplog,
+                                result_number = Max(
+                                    colTestSteplog,
+                                    result_number
+                                )
+                            ).id,
+                            {
+                                properties: [
+                                    {
+                                        field_id: varTestRunUpdatedByUAT,
+                                        field_name: "Updated By (UATNext Only)",
+                                        field_value: nfUserObject.'Full Name',
+                                        field_value_name: ""
+                                    }
+                                ],
+                                exe_end_date: ExeEndDate,
+                                exe_start_date: ExeStartDate,
+                                status: {id: "602"}
+                                //status: LookUp( colTestSteplog, result_number = Max( colTestSteplog, result_number)).status
+                            }
+                        );
+                        
+                        Set(
+                            varFetchedTestcaseDetail,
+                            'ITS-TCOE_OCTO_UATMain_V1'.GetObjectLink(
+                                constProjectInfo.id,
+                                {
+                                    type: "test-runs",
+                                    ids: gallerySelectedTestrun.id
+                                }
+                            ).objects
+                        );
+                        
+                        Clear(colFetchedTestcaseidrows);
+                        
+                        ForAll(
+                            varFetchedTestcaseDetail,
+                            Collect(
+                                colFetchedTestcaseidrows,
+                                ThisRecord.objects
+                            )
+                        );
+                        
+                        ClearCollect(
+                            colTestSteplog,
+                            'ITS-TCOE_OCTO_UATMain_V1'.GetTestLog(
+                                constProjectInfo.id,
+                                gallerySelectedTestrun.id
+                            ).items
+                        );
+                        
+                        Notify(
+                            "Successfully Linked Defect.",
+                            NotificationType.Success,
+                            4000
+                        );
+                        
+                        Clear(colSearchDefect);
+                        
+                        Reset(TEDDefectSearchTxtBox);
+                        
+                        UpdateContext({varNRF: false});
+                        
+                        UpdateContext({ addDefectVisiblity: false});
+                        
+                        UpdateContext({ showTEDLoadingSpinner: false});
+                        
+                        //Testrun list screen data show without network call
+                        Update(
+                            colTestRun,
+                            LookUp(
+                                colTestRun,
+                                id = gallerySelectedTestrun.id
+                            ),
+                            {
+                                automation: gallerySelectedTestrun.automation,
+                                id: gallerySelectedTestrun.id,
+                                name: gallerySelectedTestrun.name,
+                                order: gallerySelectedTestrun.order,
+                                parentId: gallerySelectedTestrun.parentId,
+                                parentType: gallerySelectedTestrun.parentType,
+                                pid: gallerySelectedTestrun.pid,
+                                properties: First(colTestSteplog).properties,
+                                testCaseId: gallerySelectedTestrun.testCaseId,
+                                latest_test_log: {
+                                    id: First(colLatestTestLog).id,
+                                    exe_end_date: First(colLatestTestLog).exe_end_date,
+                                    exe_start_date: First(colLatestTestLog).exe_start_date,
+                                    status: ""
+                                }
+                            }
+                        );
+                    RadiusBottomLeft: =4
+                    RadiusBottomRight: =4
+                    RadiusTopLeft: =4
+                    RadiusTopRight: =4
+                    Size: =10.5
+                    Text: ="LINK"
+                    Visible: =addDefectVisiblity
+                    Width: =130
+                    X: =TEDDefectSearchbackgroundBtn.X + TEDDefectSearchbackgroundBtn.Width - (Self.Width +20)
+                    Y: =TEDSearchDefectGal.Y + TEDSearchDefectGal.Height + 15
+                    ZIndex: =49
+
+                NoSearchDefectFoundLbl As label:
+                    Align: =Align.Center
+                    Color: =RGBA(107, 106, 106, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Size: =11
+                    Text: ="Sorry! No search result found"
+                    Visible: =varNRF
+                    Width: =TEDSearchDefectGal.Width
+                    X: =TEDSearchDefectGal.X
+                    Y: =TEDSearchDefectGal.Y
+                    ZIndex: =50
+
+            GroupAttachment As group:
+                Height: =5
+                Width: =5
+                X: =60
+                Y: =60
+                ZIndex: =58
+
+                CDAttachmentUpload_1 As attachments:
+                    AddAttachmentText: ="Upload file"
+                    BorderColor: =RGBA(177, 227, 230, 1)
+                    BorderThickness: =1
+                    DropTargetBorderColor: =RGBA(227, 234, 243, 1)
+                    DropTargetBorderStyle: =BorderStyle.None
+                    DropTargetBorderThickness: =0.5
+                    FocusedBorderThickness: =0.4
+                    Font: =Font.'Segoe UI'
+                    Height: =80
+                    HoverBorderColor: =RGBA(4, 141, 154, 1)
+                    HoverFill: |-
+                        =ColorFade(ColorValue("#048D9A"), 60%)
+                    IsInDataCard: =true
+                    Items: =
+                    MaxAttachments: =5
+                    MaxAttachmentsText: =""
+                    NoAttachmentsText: ="Please select a file"
+                    OnAddFile: =ClearCollect(colAttachmentsTR, CDAttachmentUpload_1.Attachments)
+                    OnRemoveFile: =ClearCollect(colAttachmentsTR, CDAttachmentUpload_1.Attachments)
+                    PaddingBottom: =5
+                    PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+                    PaddingRight: =5
+                    PaddingTop: =5
+                    PressedBorderColor: =RGBA(153, 153, 153, 1)
+                    PressedFill: |-
+                        =ColorFade(ColorValue("#048D9A"), 60%)
+                    Size: =10
+                    Width: =400
+                    X: =CDAttachmentsLbl_1.X + CDAttachmentsLbl_1.Width + 10
+                    Y: =CDAttachmentsLbl_1.Y 
+                    ZIndex: =9
+
+                CDAttachmentsLbl_1 As label:
+                    Color: =RGBA(122, 119, 119, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =35
+                    Size: =11
+                    Text: ="Attachments"
+                    Width: =95
+                    X: =40
+                    Y: =TSGallery.Y + TSGallery.Height + 10
+                    ZIndex: =10
+
+                "CDAttachmentsHiddenGal_1 As gallery.'BrowseLayout_Vertical_OneTextOneImageVariant_ver5.0'":
+                    '#CopilotOverlayLabel': ="Filtered"
+                    DelayItemLoading: =true
+                    Height: =60
+                    Items: =colAttachmentsTR
+                    Layout: =Layout.Vertical
+                    LoadingSpinner: =LoadingSpinner.Data
+                    TemplatePadding: =0
+                    TemplateSize: =92
+                    Visible: =false
+                    Width: =296
+                    X: =645
+                    Y: =639
+                    ZIndex: =11
+
+                    CDAHGImage_1 As image:
+                        Height: =60
+                        Image: =ThisItem.Value
+                        OnSelect: =Select(Parent)
+                        RadiusBottomLeft: =8
+                        RadiusBottomRight: =8
+                        RadiusTopLeft: =8
+                        RadiusTopRight: =8
+                        Width: =60
+                        X: =1
+                        ZIndex: =1
+
+                    CDAHNameValue_1 As label:
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(71, 69, 64, 1)
+                        DisabledColor: =RGBA(186, 186, 186, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                        Height: =60
+                        OnSelect: =Select(Parent)
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =14
+                        Text: =ThisItem.Name
+                        VerticalAlign: =VerticalAlign.Top
+                        Width: =51
+                        X: =108
+                        ZIndex: =2
+
+                    CDAHContentTypeValue_1 As label:
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(71, 69, 64, 1)
+                        DisabledColor: =RGBA(186, 186, 186, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                        Height: =60
+                        OnSelect: =Select(Parent)
+                        PaddingBottom: =0
+                        PaddingLeft: =0
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =14
+                        Text: =Last(Split(ThisItem.Name, ".")).Value
+                        VerticalAlign: =VerticalAlign.Top
+                        Width: =99
+                        X: =196
+                        ZIndex: =3
+
+            TEStepsHeaderGroup As group:
+                Height: =5
+                Width: =5
+                X: =60
+                Y: =60
+                ZIndex: =59
+
+                Label24_1 As label:
+                    BorderColor: =RGBA(201, 201, 201, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Fill: =RGBA(236, 248, 249, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =38
+                    Size: =11
+                    Text: ="Step No"
+                    Width: =80
+                    Y: =ETSBackgroundRectangle_1.Y+ETSBackgroundRectangle_1.Height
+                    ZIndex: =1
+
+                Label25_1 As label:
+                    BorderColor: =RGBA(201, 201, 201, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Fill: =RGBA(236, 248, 249, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =38
+                    Size: =11
+                    Text: ="Expected Result"
+                    Width: =250
+                    X: =Label24_2.X + Label24_2.Width
+                    Y: =ETSBackgroundRectangle_1.Y+ETSBackgroundRectangle_1.Height
+                    ZIndex: =2
+
+                Label24_2 As label:
+                    BorderColor: =RGBA(201, 201, 201, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Fill: =RGBA(236, 248, 249, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =38
+                    Size: =11
+                    Text: ="Test Step"
+                    Width: =450
+                    X: =196
+                    Y: =ETSBackgroundRectangle_1.Y+ETSBackgroundRectangle_1.Height
+                    ZIndex: =3
+
+                Label25_2 As label:
+                    BorderColor: =RGBA(201, 201, 201, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Fill: =RGBA(236, 248, 249, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =38
+                    Size: =11
+                    Text: ="Actual Result"
+                    Width: =250
+                    X: =Label25_1.X + Label25_1.Width
+                    Y: =ETSBackgroundRectangle_1.Y+ETSBackgroundRectangle_1.Height
+                    ZIndex: =4
+
+                Label25_3 As label:
+                    BorderColor: =RGBA(201, 201, 201, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Fill: =RGBA(236, 248, 249, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =38
+                    Size: =11
+                    Text: ="Status"
+                    Width: =180
+                    X: =BugIcon.X + BugIcon.Width
+                    Y: =ETSBackgroundRectangle_1.Y+ETSBackgroundRectangle_1.Height
+                    ZIndex: =5
+
+                Label25_7 As label:
+                    BorderColor: =RGBA(201, 201, 201, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Fill: =RGBA(236, 248, 249, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =38
+                    Size: =11
+                    Text: ="Action"
+                    Visible: =false
+                    Width: =140
+                    X: =1226
+                    Y: =ETSBackgroundRectangle_1.Y+ETSBackgroundRectangle_1.Height
+                    ZIndex: =6
+
+                Label24_3 As label:
+                    BorderColor: =RGBA(201, 201, 201, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Fill: =RGBA(236, 248, 249, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =38
+                    Size: =11
+                    Text: ="UAT Category"
+                    Width: =120
+                    X: =Label24_1.X + Label24_1.Width
+                    Y: =ETSBackgroundRectangle_1.Y+ETSBackgroundRectangle_1.Height
+                    ZIndex: =7
+
+                BugIcon As icon.Bug:
+                    Color: =RGBA(166, 166, 166, 1)
+                    Fill: =RGBA(236, 248, 249, 1)
+                    Height: =38
+                    Icon: =Icon.Bug
+                    PaddingBottom: =7
+                    PaddingLeft: =5
+                    PaddingRight: =7
+                    PaddingTop: =7
+                    Width: =38
+                    X: =Label25_2.X + Label25_2.Width
+                    Y: =ETSBackgroundRectangle_1.Y+ETSBackgroundRectangle_1.Height
+                    ZIndex: =8
+
+            TSLDefectGroup As group:
+                Height: =5
+                Width: =5
+                X: =60
+                Y: =60
+                ZIndex: =76
+
+                TSLDBackgroundBlurEffectBtn As button:
+                    DisplayMode: =DisplayMode.View
+                    Fill: =ColorFade(RGBA(230, 230, 230, 0.82), 35%)
+                    Height: =Parent.Height
+                    Text: =""
+                    Visible: =addTSDefectVisiblity
+                    Width: =Parent.Width
+                    X: =Parent.X
+                    Y: =Parent.Y
+                    ZIndex: =51
+
+                TSLDefectSearchbackgroundBtn As button:
+                    BorderColor: =RGBA(237, 237, 237, 1)
+                    BorderThickness: =1
+                    DisabledBorderColor: =RGBA(241, 244, 249, 1)
+                    DisabledColor: =Color.White
+                    DisabledFill: =RGBA(255, 255, 255, 1)
+                    DisplayMode: =DisplayMode.Disabled
+                    Fill: =Color.White
+                    Font: =Font.'Segoe UI'
+                    Height: =350
+                    RadiusBottomLeft: =30
+                    RadiusBottomRight: =30
+                    RadiusTopLeft: =30
+                    RadiusTopRight: =30
+                    Text: =""
+                    Visible: =addTSDefectVisiblity
+                    Width: =600
+                    X: =390
+                    Y: =TSLDBackgroundBlurEffectBtn.Y + 150
+                    ZIndex: =52
+
+                TSLDClosePopupIcon As icon:
+                    Color: =RGBA(70, 189, 198, 1)
+                    Height: =30
+                    Icon: =Icon.Cancel
+                    OnSelect: |-
+                        =UpdateContext({varNRF: false});
+                        
+                        UpdateContext({addTSDefectVisiblity: false});
+                        
+                        Clear(colSearchDefect);
+                        
+                        Reset(TSLDefectSearchTxtBox)
+                    Visible: =addTSDefectVisiblity
+                    Width: =30
+                    X: =TSLDefectSearchTxtBox.X + TSLDefectSearchTxtBox.Width + 50
+                    Y: =TSLDefectSearchbackgroundBtn.Y + 15
+                    ZIndex: =53
+
+                TSLDefectSearchTxtBox As text:
+                    BorderColor: =RGBA(211, 239, 241, 1)
+                    BorderThickness: =0.4
+                    Default: =""
+                    DelayOutput: =true
+                    DisabledFill: =RGBA(236, 248, 249, 1)
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =35
+                    HintText: ="Search by Defect ID"
+                    HoverBorderColor: =RGBA(70, 189, 198, 1)
+                    HoverFill: =Self.Fill
+                    OnChange: =If( IsBlank( Substitute( TEDDefectSearchTxtBox.Text, " ", "")), Clear(colSearchDefect); Reset(TSLDSearchDefectGal))
+                    PaddingLeft: =5
+                    PaddingRight: =40
+                    PressedBorderColor: =RGBA(0, 134, 146, 1)
+                    RadiusBottomLeft: =4
+                    RadiusBottomRight: =4
+                    RadiusTopLeft: =4
+                    RadiusTopRight: =4
+                    Size: =12
+                    Visible: =addTSDefectVisiblity
+                    Width: =400
+                    X: =TSLDefectSearchbackgroundBtn.X + 95
+                    Y: =TSCDCreateLbl.Y + 45
+                    ZIndex: =54
+
+                TSLDefectSearchIcon As icon:
+                    Color: =If(TSLDefectSearchTxtBox.DisplayMode = DisplayMode.Edit,RGBA(70, 189, 198, 1), RGBA(153, 153, 153, 1))
+                    DisabledColor: =RGBA(153, 153, 153, 1)
+                    DisplayMode: =If( !IsBlank( Substitute( TSLDefectSearchTxtBox.Text, " ", "")), DisplayMode.Edit, DisplayMode.Disabled)
+                    Height: =TSLDefectSearchTxtBox.Height
+                    Icon: =Icon.Search
+                    OnSelect: |-
+                        =UpdateContext({ showETCDDLLoadingSpinner: true});
+                        
+                        If(
+                            !IsBlank(
+                                Substitute(
+                                    TSLDefectSearchTxtBox.Text,
+                                    " ",
+                                    ""
+                                )
+                            ),
+                            ClearCollect(
+                                colSearchDefect,
+                                'ITS-TCOE_OCTO_UATMain_V1'.Search(
+                                    constProjectInfo.id,
+                                    {
+                                        pageSize: 999,
+                                        page: 1,
+                                        object_type: "defects",
+                                        fields: ["*"],
+                                        query: Concatenate( "'id' ", "="," '" & TSLDefectSearchTxtBox.Text & "'")
+                                        
+                                    }
+                                ).items
+                            )
+                        );
+                        
+                        If( addDefectVisiblity = true && IsEmpty(colSearchDefect), UpdateContext({varNRF: true}), UpdateContext({varNRF: false}));
+                        
+                        UpdateContext({ showETCDDLLoadingSpinner: false});
+                    PaddingBottom: =5
+                    PaddingLeft: =5
+                    PaddingRight: =5
+                    PaddingTop: =5
+                    Visible: =addTSDefectVisiblity
+                    Width: =30
+                    X: =TSLDefectSearchTxtBox.X + 365
+                    Y: =TSLDefectSearchTxtBox.Y
+                    ZIndex: =55
+
+                TSLDSearchDefectGal As gallery.variableTemplateHeightGallery:
+                    '#CopilotOverlayLabel': ="Filtered"
+                    BorderColor: =RGBA(255, 255, 255, 1)
+                    BorderStyle: =BorderStyle.None
+                    Height: =50
+                    Items: =colSearchDefect
+                    Layout: =Layout.Vertical
+                    TemplateFill: =If(ThisItem.IsSelected,ColorFade(RGBA(236, 248, 249, 1), 40%),RGBA(0, 0, 0, 0))
+                    TemplatePadding: =0
+                    TemplateSize: =30
+                    Visible: =addTSDefectVisiblity
+                    Width: =TSLDefectSearchTxtBox.Width
+                    X: =TSLDefectSearchTxtBox.X
+                    Y: =TSLDefectSearchTxtBox.Y + TSLDefectSearchTxtBox.Height + 10
+                    ZIndex: =56
+
+                    TSLDDefectIcon As icon:
+                        Color: =RGBA(184, 0, 0, 1)
+                        Height: =20
+                        Icon: =Icon.Bug
+                        OnSelect: =Select(Parent)
+                        Width: =20
+                        X: =15
+                        Y: =5
+                        ZIndex: =1
+
+                    TSLDSearchDefectValueLbl As label:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: =Concatenate("(", ThisItem.pid, ") ", LookUp(ThisItem.properties,field_name="Summary",field_value))
+                        Tooltip: =LookUp(ThisItem.properties,field_name="Summary",field_value)
+                        Width: =340
+                        X: =TSLDDefectIcon.X + TSLDDefectIcon.Width
+                        ZIndex: =2
+
+                TSLDLinkDefectBtn As button:
+                    BorderThickness: =0.4
+                    DisplayMode: |+
+                        =If(!IsBlank(TSLDSearchDefectGal.Selected.id) ,DisplayMode.Edit,DisplayMode.Disabled  )
+                        
+                    Fill: =RGBA(70, 189, 198, 1)
+                    FocusedBorderThickness: =0.4
+                    Font: =Font.'Segoe UI'
+                    Height: =30
+                    HoverBorderColor: =ColorFade(Self.HoverFill, 20%)
+                    HoverFill: =RGBA(255, 152, 1, 1)
+                    OnSelect: |-
+                        =If( 
+                            varLinkDefectVisibility = false, 
+                            
+                            Notify( "Please save the execution before submitting the defect.", NotificationType.Error, 4000),
+                        
+                            //UpdateContext({ showTEDLoadingSpinner: true});
+                        
+                            UpdateContext({ varLinkedDefectRes: 'ITS-TCOE_OCTO_UATMain_V1'.CreateObjectLink(
+                                    constProjectInfo.id,
+                                    "test-steps",
+                                    varSelectedTestStepForDefect.test_step_log_id,
+                                    {
+                                        type: "defects",
+                                        CreateAobjectlinkingRequestBody: [TSLDSearchDefectGal.Selected.id]
+                                    }
+                                )
+                            });
+                        
+                            'ITS-TCOE_OCTO_UATMain_V1'.UpdateTestlogStatus(
+                                constProjectInfo.id,
+                                gallerySelectedTestrun.id,
+                                LookUp(
+                                    colTestSteplog,
+                                    result_number = Max(
+                                        colTestSteplog,
+                                        result_number
+                                    )
+                                ).id,
+                                {
+                                    properties: [
+                                        {
+                                            field_id: varTestRunUpdatedByUAT,
+                                            field_name: "Updated By (UATNext Only)",
+                                            field_value: nfUserObject.'Full Name',
+                                            field_value_name: ""
+                                        }
+                                    ],
+                                    exe_end_date: ExeEndDate,
+                                    exe_start_date: ExeStartDate,
+                                    status: LookUp( colTestSteplog, result_number = Max( colTestSteplog, result_number)).status
+                                }
+                            );
+                        
+                            Set( varFetchedTestStepLinkedDefectPid, 'ITS-TCOE_OCTO_UATMain_V1'.GetObjectLink(constProjectInfo.id,{type:"test-steps",ids:varSelectedTestStepForDefect.test_step_log_id}).objects);
+                        
+                            Clear(colFetchedTestStepLinkedDefectPid);
+                        
+                            ForAll( varFetchedTestStepLinkedDefectPid, Collect( colFetchedTestStepLinkedDefectPid, ThisRecord.objects));
+                        
+                            ClearCollect(
+                                colTestSteplog,
+                                'ITS-TCOE_OCTO_UATMain_V1'.GetTestLog(
+                                    constProjectInfo.id,
+                                    gallerySelectedTestrun.id
+                                ).items
+                            );
+                        
+                            If(
+                                !IsBlank( varLinkedDefectRes),
+                        
+                                Notify(
+                                    "Successfully Linked Defect.",
+                                    NotificationType.Success,
+                                    4000
+                                ),
+                        
+                                Notify(
+                                    "Linking Defect Failed",
+                                    NotificationType.Error,
+                                    4000
+                                )
+                            );
+                        
+                        
+                            Clear(colSearchDefect);
+                        
+                            Reset(TSLDefectSearchTxtBox);
+                        
+                            UpdateContext({varNRF: false});
+                        
+                            UpdateContext({ addDefectVisiblity: false});
+                        
+                            //UpdateContext({ showTEDLoadingSpinner: false});
+                        
+                            //Testrun list screen data show without network call
+                            Update(
+                                colTestRun,
+                                LookUp(
+                                    colTestRun,
+                                    id = gallerySelectedTestrun.id
+                                ),
+                                {
+                                    automation: gallerySelectedTestrun.automation,
+                                    id: gallerySelectedTestrun.id,
+                                    name: gallerySelectedTestrun.name,
+                                    order: gallerySelectedTestrun.order,
+                                    parentId: gallerySelectedTestrun.parentId,
+                                    parentType: gallerySelectedTestrun.parentType,
+                                    pid: gallerySelectedTestrun.pid,
+                                    properties: First(colTestSteplog).properties,
+                                    testCaseId: gallerySelectedTestrun.testCaseId,
+                                    latest_test_log: {
+                                        id: First(colLatestTestLog).id,
+                                        exe_end_date: First(colLatestTestLog).exe_end_date,
+                                        exe_start_date: First(colLatestTestLog).exe_start_date,
+                                        status: ""
+                                    }
+                                }
+                            );
+                        
+                            Navigate('Test Execution Details')
+                        )
+                    RadiusBottomLeft: =4
+                    RadiusBottomRight: =4
+                    RadiusTopLeft: =4
+                    RadiusTopRight: =4
+                    Size: =10.5
+                    Text: ="LINK"
+                    Visible: =addTSDefectVisiblity
+                    Width: =130
+                    X: =TSLDefectSearchbackgroundBtn.X + TSLDefectSearchbackgroundBtn.Width - (Self.Width + 35)
+                    Y: =TSLDSearchDefectGal.Y + TSLDSearchDefectGal.Height + 15 
+                    ZIndex: =57
+
+                TSLDNoSearchDefectFoundLbl As label:
+                    Align: =Align.Center
+                    Color: =RGBA(107, 106, 106, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Size: =11
+                    Text: ="Sorry! No search result found"
+                    Visible: =varNRF
+                    Width: =TSLDSearchDefectGal.Width
+                    X: =TSLDSearchDefectGal.X
+                    Y: =TSLDSearchDefectGal.Y
+                    ZIndex: =58
+
+                TSLDefectListGal As gallery.variableTemplateHeightGallery:
+                    '#CopilotOverlayLabel': ="Filtered"
+                    BorderColor: =RGBA(255, 255, 255, 1)
+                    BorderStyle: =BorderStyle.None
+                    Height: =90
+                    Items: =Filter(colFetchedTestStepLinkedDefectPid,StartsWith(pid,"DF"),pid) 
+                    Layout: =Layout.Vertical
+                    TemplateFill: =//If(ThisItem.IsSelected,ColorFade(RGBA(236, 248, 249, 1), 40%),RGBA(0, 0, 0, 0))
+                    TemplatePadding: =0
+                    TemplateSize: =30
+                    Visible: =addTSDefectVisiblity
+                    Width: =TSLDefectSearchTxtBox.Width
+                    X: =TSLDefectSearchTxtBox.X
+                    Y: =TSLDListOfDefectLbl.Y + TSLDListOfDefectLbl.Height + 10
+                    ZIndex: =59
+
+                    LDefectIcon As icon:
+                        Color: =RGBA(184, 0, 0, 1)
+                        Height: =20
+                        Icon: =Icon.Bug
+                        OnSelect: =Select(Parent)
+                        Width: =20
+                        X: =15
+                        Y: =5
+                        ZIndex: =1
+
+                    LDSearchDefectValueLbl As label:
+                        BorderColor: =RGBA(255, 255, 255, 1)
+                        Color: =RGBA(107, 106, 106, 1)
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =30
+                        Size: =11
+                        Text: =ThisItem.pid
+                        Tooltip: =
+                        Visible: =false
+                        Width: =340
+                        X: =LDefectIcon.X + LDefectIcon.Width
+                        ZIndex: =2
+
+                    LDButton As button:
+                        Align: =Align.Left
+                        BorderColor: =
+                        BorderStyle: =BorderStyle.None
+                        Color: =RGBA(56, 96, 178, 1)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        Font: =Font.'Segoe UI'
+                        Height: =30
+                        HoverColor: =RGBA(56, 96, 178, 1)
+                        HoverFill: =
+                        OnSelect: |-
+                            =Set(SelectedDefectInfo,{id:ThisItem.id});
+                            
+                            Navigate('Defect Details');
+                        PaddingLeft: =8
+                        PressedColor: =RGBA(56, 96, 178, 1)
+                        PressedFill: =
+                        Size: =11
+                        Text: =ThisItem.pid
+                        Tooltip: =ThisItem.pid
+                        Width: =70
+                        X: =LDefectIcon.X + LDefectIcon.Width
+                        ZIndex: =73
+
+                TSLDListOfDefectLbl As label:
+                    Color: =RGBA(128, 128, 128, 1)
+                    Font: =Font.'Segoe UI'
+                    Height: =25
+                    Size: =12
+                    Text: ="Defects Linked to Step [" & varSelectedTestStepForDefect.order & "]"
+                    Visible: =addTSDefectVisiblity
+                    Width: =280
+                    X: =TSLDefectSearchTxtBox.X
+                    Y: =TSLDLinkDefectBtn.Y + TSLDLinkDefectBtn.Height
+                    ZIndex: =60
+
+                TSLDInfoLbl As label:
+                    Align: =Align.Center
+                    Color: =RGBA(128, 128, 128, 1)
+                    Font: =Font.'Segoe UI'
+                    Height: =25
+                    Size: =10
+                    Text: ="No Defect Found"
+                    Visible: =If(IsBlank(colFetchedTestStepLinkedDefectPid),true,false)
+                    Width: =TSLDefectListGal.Width
+                    X: =TSLDefectSearchTxtBox.X
+                    Y: =TSLDefectListGal.Y
+                    ZIndex: =61
+
+                TSCDRestTxtLbl As label:
+                    Color: =RGBA(128, 128, 128, 1)
+                    Font: =Font.'Segoe UI'
+                    Height: =30
+                    PaddingLeft: =8
+                    Size: =12
+                    Text: ="defect against the selected step"
+                    Visible: =addTSDefectVisiblity
+                    Width: =260
+                    X: =TSLNewDefectBtn.X + TSLNewDefectBtn.Width
+                    Y: =TSCDCreateLbl.Y
+                    ZIndex: =62
+
+                TSLNewDefectBtn As button:
+                    BorderThickness: =0.4
+                    Fill: =RGBA(70, 189, 198, 1)
+                    FocusedBorderThickness: =0.4
+                    Font: =Font.'Segoe UI'
+                    Height: =30
+                    HoverBorderColor: =ColorFade(Self.HoverFill, 20%)
+                    HoverFill: =RGBA(255, 152, 1, 1)
+                    OnSelect: =Navigate( 'Create Defect', ScreenTransition.None)
+                    RadiusBottomLeft: =4
+                    RadiusBottomRight: =4
+                    RadiusTopLeft: =4
+                    RadiusTopRight: =4
+                    Size: =10.5
+                    Text: ="NEW"
+                    Visible: =addTSDefectVisiblity
+                    Width: =60
+                    X: =TSCDCreateLbl.X + TSCDCreateLbl.Width
+                    Y: =TSCDCreateLbl.Y
+                    ZIndex: =63
+
+                TSCDCreateLbl As label:
+                    Color: =RGBA(128, 128, 128, 1)
+                    Font: =Font.'Segoe UI'
+                    Height: =30
+                    Size: =12
+                    Text: ="Create"
+                    Visible: =addTSDefectVisiblity
+                    Width: =60
+                    X: =TSLDefectSearchbackgroundBtn.X + 95
+                    Y: =TSLDefectSearchbackgroundBtn.Y + 20
+                    ZIndex: =64
+
+    UATTED_Inner_Header_Component As Inner_Header_Component:
+        PDFLink: =varPDFLink
+        ScreenName: =varScreenName
+        VideoLink: =varVideoLink
+        ZIndex: =7
+
+    TEBackBtn As icon.ArrowRight:
+        Color: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(0, 134, 146, 1)
+        Height: =50
+        Icon: =Icon.BackArrow
+        OnSelect: |-
+            =Navigate('Execute Test Cases');
+            
+            UpdateContext({ varResetTRStepsControl: false});
+            
+            UpdateContext({ varResetTRStepsControl: true});
+            
+            Clear(colTestSteplog);
+            
+            Reset(TSGallery);
+            
+            Reset(CDAttachmentUpload_1);
+            
+            Clear(colAttachmentsTR);
+            
+            Set( SelectedCycleinfo, TRCycleDrodpownL2.Selected);
+            
+            Set( selectedSuiteInfo, TRTestSuitGal.Selected);
+        PaddingBottom: =8
+        PaddingLeft: =8
+        PaddingRight: =8
+        PaddingTop: =8
+        Width: =50
+        ZIndex: =8
+

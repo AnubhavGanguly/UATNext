@@ -1,0 +1,1109 @@
+"'Defects Lists' As screen.'phoneLayout_FluidGridWithHeaderPageLayout_ver3.0'":
+    OnHidden: =Clear(colDefectList)
+    OnVisible: |-
+        =Concurrent(
+            Set(varScreenName, "Defect List"),
+        
+            Set(varVideoLink, Concatenate(nfSharepointbaseUrl,"video/Defect_List.mp4")),
+            
+            Set(varPDFLink, Concatenate(nfSharepointbaseUrl,"pdf/Defect_List.pdf"))
+        );
+        
+        UpdateContext({varDefectErrorMsg: false});
+        
+        UpdateContext({ searchOn: false});
+        
+        UpdateContext({ varDFSearchReset: false});
+        
+        UpdateContext({ varFilteredDefectsQuery: Concat( colAffectReleaseValues, "'Affected Release/Build' = " & "'" & label & "'", " or ")});
+        
+        UpdateContext({ varDefectRecord: 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, {object_type: "defects", page: varDFPageNumber, pageSize: nfDefectPageSize, fields:["*"], query: varFilteredDefectsQuery})});
+        
+        UpdateContext({ defectCount: varDefectRecord.total});
+        
+        ClearCollect( colDefectList, varDefectRecord.items);
+        
+        Concurrent(
+            Reset(DLDefectIdTxtInput), Reset(DLSummaryTxtInput), Reset(DLStatusCombobox), Reset(DLTeamCombobox), Reset(DLSeverityCombobox), Reset(DLPriorityCombobox), Reset(DLAssignedToCombobox), Reset(DLBusinessUserCombobox), Reset(DLAffReleaBuildCombobox), Reset(DLCreatedByCombobox)
+        )
+
+    DLCanvas As fluidGrid.fluidGridWithBlankCard:
+        BorderThickness: =0
+        Height: =Parent.Height - DL_Outer_Header_Component.Height
+        Width: =Parent.Width
+        Y: =DL_Outer_Header_Component.Y + DL_Outer_Header_Component.Height
+        ZIndex: =3
+
+        DLDataCard As dataCard.blankCard:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            BorderStyle: =BorderStyle.Solid
+            DisplayMode: =DisplayMode.Edit
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =Parent.Height
+            Width: =Parent.Width
+            X: =0
+            Y: =20
+            ZIndex: =1
+
+            DLDefectListGallery As gallery.galleryVertical:
+                '#CopilotOverlayLabel': ="Filtered"
+                Height: =545
+                Items: =colDefectList
+                Layout: =Layout.Vertical
+                OnSelect: =//Navigate('TestCase Details')
+                TemplatePadding: =0
+                TemplateSize: =60
+                Width: =1362
+                X: =4
+                Y: =DLDefectIdLbl.Y + DLDefectIdLbl.Height
+                ZIndex: =1
+
+                DLGallerySummaryLbl As label:
+                    BorderColor: =RGBA(222, 220, 220, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.2
+                    Color: =RGBA(107, 106, 106, 1)
+                    Font: =Font.'Segoe UI'
+                    Height: =60
+                    OnSelect: =Select(Parent)
+                    Overflow: =Overflow.Scroll
+                    Size: =11
+                    Text: =PlainText( LookUp( ThisItem.properties, field_name = "Summary", field_value))
+                    Tooltip: =Self.Text
+                    Width: =DLSummaryLbl.Width
+                    X: =DLGalleryDefectIdLbl.X + DLGalleryDefectIdLbl.Width
+                    ZIndex: =1
+
+                DLGalleryDefectIdLbl As label:
+                    BorderColor: =RGBA(222, 220, 220, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.2
+                    Color: =RGBA(0, 166, 255, 1)
+                    Font: =Font.'Segoe UI'
+                    Height: =60
+                    OnSelect: |-
+                        =Set( varSelectedDefectid, ThisItem.id);
+                        
+                        Navigate( Update_Defect)
+                    Overflow: =Overflow.Scroll
+                    PaddingLeft: =15
+                    Size: =11
+                    Text: =ThisItem.pid
+                    Tooltip: =Self.Text
+                    Width: =DLDefectIdLbl.Width
+                    ZIndex: =2
+
+                "'DLGalleryAF/BLbl' As label":
+                    BorderColor: =RGBA(222, 220, 220, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.2
+                    Color: =RGBA(107, 106, 106, 1)
+                    Font: =Font.'Segoe UI'
+                    Height: =60
+                    OnSelect: =Select(Parent)
+                    Overflow: =Overflow.Scroll
+                    Size: =11
+                    Text: =PlainText( LookUp( ThisItem.properties, field_name = "Affected Release/Build", field_value_name))
+                    Tooltip: =Self.Text
+                    Width: ='DLAR/BLbl'.Width
+                    X: =DLGallerySummaryLbl.X + DLGallerySummaryLbl.Width
+                    ZIndex: =3
+
+                DLGalleryStatusCombobox As combobox:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DefaultSelectedItems: |
+                        =LookUp( colStatusValues, label = LookUp( ThisItem.properties, field_name = "Status", field_value_name))
+                    DisplayFields: =["label"]
+                    DisplayMode: =DisplayMode.View
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =60
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Status"
+                    IsSearchable: =false
+                    Items: =colStatusValues
+                    OnSelect: |-
+                        =//If(IsBlank(LookUp(colDeltaChangeDefect, dfid = ThisItem.id)), Collect(colDeltaChangeDefect,{dfid: ThisItem.id}))
+                        false
+                    PaddingBottom: =7
+                    PaddingLeft: =7
+                    PaddingRight: =7
+                    PaddingTop: =7
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["label"]
+                    SearchItems: =[]
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: |-
+                        =//Switch(Self.Selected.label,"New",ColorValue("#f0f8ff"),"Rejected",ColorValue("#E84C3D"))
+                        Color.Transparent
+                    SelectMultiple: =false
+                    Size: =11
+                    Tooltip: =Self.Selected.label
+                    Width: =DLStatusLbl.Width
+                    X: ='DLGalleryAF/BLbl'.X + 'DLGalleryAF/BLbl'.Width
+                    ZIndex: =4
+
+                DLGalleryTeamCombobox As combobox:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DefaultSelectedItems: =LookUp( colTeamValues, label = LookUp( ThisItem.properties, field_name = "Team", field_value_name))
+                    DisplayFields: =["label"]
+                    DisplayMode: =DisplayMode.View
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =60
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Priority"
+                    IsSearchable: =false
+                    Items: =colTeamValues
+                    OnSelect: |-
+                        =//If(IsBlank(LookUp(colDeltaChangeDefect, dfid = ThisItem.id)), Collect(colDeltaChangeDefect,{dfid: ThisItem.id}))
+                        false
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["label"]
+                    SearchItems: =[]
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: =Color.Transparent
+                    SelectMultiple: =false
+                    Size: =11
+                    Tooltip: =Self.Selected.label
+                    Width: =DLTeamLbl.Width
+                    X: =DLGalleryStatusCombobox.X + DLGalleryStatusCombobox.Width
+                    ZIndex: =5
+
+                DLGallerySeverityCombobox As combobox:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DefaultSelectedItems: |
+                        =LookUp( colSeverityValues, label = LookUp( ThisItem.properties, field_name = "Severity", field_value_name))
+                    DisplayFields: =["label"]
+                    DisplayMode: =DisplayMode.View
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =60
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Severity"
+                    IsSearchable: =false
+                    Items: =colSeverityValues
+                    OnSelect: |-
+                        =//If(IsBlank(LookUp(colDeltaChangeDefect, dfid = ThisItem.id)), Collect(colDeltaChangeDefect,{dfid: ThisItem.id}))
+                        false
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["label"]
+                    SearchItems: =[]
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: =Color.Transparent
+                    SelectMultiple: =false
+                    Size: =11
+                    Tooltip: =Self.Selected.label
+                    Width: =DLSeverityLbl.Width
+                    X: =DLGalleryTeamCombobox.X + DLGalleryTeamCombobox.Width
+                    ZIndex: =6
+
+                DLGalleryPriroityCombobox As combobox:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DefaultSelectedItems: |
+                        =LookUp( colPriorityValues, label = LookUp( ThisItem.properties, field_name = "Priority", field_value_name))
+                    DisabledFill: =RGBA(255, 255, 255, 1)
+                    DisplayFields: =["label"]
+                    DisplayMode: =DisplayMode.View
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =60
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Assigned To"
+                    Items: =colPriorityValues
+                    OnSelect: |-
+                        =//If(IsBlank(LookUp(colDeltaChangeDefect, dfid = ThisItem.id)), Collect(colDeltaChangeDefect,{dfid: ThisItem.id}))
+                        false
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["label"]
+                    SearchItems: =Search(Filter(colPriorityValues,is_active),DLGalleryPriroityCombobox.SearchText,label)
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: =Color.Transparent
+                    SelectMultiple: =false
+                    Size: =11
+                    Tooltip: =Self.Selected.label
+                    Width: =DLPriorityLbl.Width
+                    X: =DLGallerySeverityCombobox.X + DLGallerySeverityCombobox.Width
+                    ZIndex: =7
+
+                DLGalleryTypeCombobox As combobox:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DefaultSelectedItems: |
+                        =LookUp( colNonQAUserValues, label = LookUp( ThisItem.properties, field_name = "Non-QA User (UATNext Only)", field_value_name))
+                    DisplayFields: =["label"]
+                    DisplayMode: =DisplayMode.View
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =60
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Type"
+                    IsSearchable: =false
+                    Items: =colNonQAUserValues
+                    OnSelect: |-
+                        =//If(IsBlank(LookUp(colDeltaChangeDefect, dfid = ThisItem.id)), Collect(colDeltaChangeDefect,{dfid: ThisItem.id}))
+                        false
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["label"]
+                    SearchItems: =[]
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: =Color.Transparent
+                    SelectMultiple: =false
+                    Size: =11
+                    Tooltip: =Self.Selected.label
+                    Width: =DLTypeLbl.Width
+                    X: =DLGalleryAssignedToCombobox.X + DLGalleryAssignedToCombobox.Width
+                    ZIndex: =8
+
+                DLGalleryRootCauseCombobox As combobox:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DefaultSelectedItems: |
+                        =LookUp( colRotCauseValues, label = LookUp( ThisItem.properties, field_name = "Root Cause", field_value_name))
+                    DisplayFields: =["label"]
+                    DisplayMode: =DisplayMode.View
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =60
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Root Cause"
+                    IsSearchable: =false
+                    Items: =colRotCauseValues
+                    OnSelect: |-
+                        =//If(IsBlank(LookUp(colDeltaChangeDefect, dfid = ThisItem.id)), Collect(colDeltaChangeDefect,{dfid: ThisItem.id}))
+                        false
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["label"]
+                    SearchItems: =[]
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: =Color.Transparent
+                    SelectMultiple: =false
+                    Size: =11
+                    Visible: =false
+                    Width: =DLRootCauseLbl.Width
+                    X: =DLGalleryTypeCombobox.X + DLGalleryTypeCombobox.Width
+                    ZIndex: =9
+
+                DLGalleryAssignedToCombobox As combobox:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                    ChevronDisabledFill: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DefaultSelectedItems: =LookUp( colAssignToValues, label = LookUp( ThisItem.properties, field_name = "Assigned To", field_value_name))
+                    DisabledBorderColor: =RGBA(255, 255, 255, 1)
+                    DisabledFill: =RGBA(255, 255, 255, 1)
+                    DisplayFields: =["label"]
+                    DisplayMode: =DisplayMode.View
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =60
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Non QA User"
+                    IsSearchable: =false
+                    Items: =colAssignToValues
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["label"]
+                    SearchItems: =[]
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: =Color.Transparent
+                    SelectMultiple: =false
+                    Size: =11
+                    Tooltip: =Self.Selected.label
+                    Width: =DLAssignedToLbl.Width
+                    X: =DLGalleryPriroityCombobox.X + DLGalleryPriroityCombobox.Width
+                    ZIndex: =10
+
+                DLGallerySeperator As rectangle:
+                    BorderColor: =RGBA(240, 248, 255, 1)
+                    Fill: =RGBA(240, 248, 255, 1)
+                    Height: =2
+                    OnSelect: =Select(Parent)
+                    Width: =DLDefectListGallery.Width
+                    X: =DLDefectListGallery.X
+                    ZIndex: =11
+
+            NoSearchTRFoundLbl_1 As label:
+                Align: =Align.Center
+                Color: =RGBA(107, 106, 106, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Size: =11
+                Text: ="Sorry! No result found"
+                Visible: =varDefectErrorMsg
+                Width: =Parent.Width
+                Y: =DLDefectListGallery.Y
+                ZIndex: =3
+
+            DLProjectLbl As label:
+                Color: =RGBA(0, 134, 146, 1)
+                Font: =Font.'Segoe UI'
+                FontWeight: =FontWeight.Semibold
+                Size: =12
+                Text: ="Project >"
+                Width: =80
+                X: =8
+                ZIndex: =21
+
+            DLProjectIdCombobox As combobox:
+                BorderColor: =RGBA(204, 204, 204, 1)
+                BorderThickness: =0.4
+                ChevronBackground: =RGBA(255, 255, 255, 1)
+                ChevronFill: =RGBA(179, 179, 179, 1)
+                ChevronHoverBackground: =RGBA(0, 0, 0, 0)
+                ChevronHoverFill: =RGBA(70, 189, 198, 1)
+                Color: =RGBA(107, 106, 106, 1)
+                DefaultSelectedItems: =constModuleInfo
+                DisplayFields: =["name"]
+                DisplayMode: =DisplayMode.View
+                FocusedBorderThickness: =1
+                Font: =Font.'Segoe UI'
+                IsSearchable: =false
+                Items: =constModuleInfo
+                OnSelect: =
+                PressedFill: =RGBA(70, 189, 198, 1)
+                SearchFields: =["name"]
+                SearchItems: =[]
+                SelectionColor: =RGBA(0, 0, 0, 1)
+                SelectionFill: =RGBA(255, 255, 255, 1)
+                SelectionTagFill: =Color.Transparent
+                SelectMultiple: =false
+                Size: =12
+                Width: =500
+                X: =DLProjectLbl.X + DLProjectLbl.Width
+                ZIndex: =22
+
+            DLSearchIcon As button:
+                BorderThickness: =0.1
+                Fill: =RGBA(70, 189, 198, 1)
+                FocusedBorderThickness: =0.4
+                Font: =Font.'Segoe UI'
+                Height: =31
+                HoverBorderColor: =ColorFade(Self.HoverFill, 20%)
+                HoverFill: =RGBA(255, 152, 1, 1)
+                OnSelect: |
+                    =// Hide NoTestRun Found Status Msg
+                    UpdateContext({varDefectErrorMsg: false});
+                    
+                    // Building the search query based on the affected release selection
+                    If(
+                        !IsBlank( DefectAffRealBuild),
+                        UpdateContext({
+                            varDefectSearchQuery: Left(
+                                Concatenate( DefectId, DefectSummery, DefectStatus, DefectPriority, DefectSeverity, DefectAssignedTo, DefectTeam, DefectBusinessUser, DefectCreatedBy, DefectAffRealBuild),
+                    
+                                Len(
+                                    Concatenate( DefectId, DefectSummery, DefectStatus, DefectPriority, DefectSeverity, DefectAssignedTo, DefectTeam, DefectBusinessUser, DefectCreatedBy, DefectAffRealBuild)
+                                ) - 4
+                            )
+                        }),
+                    
+                        UpdateContext({
+                            varDefectSearchQuery: varFilteredDefectsQuery & " And " & Left(
+                                Concatenate( DefectId, DefectSummery, DefectStatus, DefectPriority, DefectSeverity, DefectAssignedTo, DefectTeam, DefectBusinessUser, DefectCreatedBy, DefectAffRealBuild),
+                    
+                                Len(
+                                    Concatenate( DefectId, DefectSummery, DefectStatus, DefectPriority, DefectSeverity, DefectAssignedTo, DefectTeam, DefectBusinessUser, DefectCreatedBy, DefectAffRealBuild)
+                                ) - 4
+                            )
+                        })
+                    );
+                    
+                    If(
+                        IsBlank(DefectTeam) && IsBlank(DefectAssignedTo) && IsBlank(DefectSeverity) && IsBlank(DefectPriority) && IsBlank(DefectStatus) && IsBlank(DefectSummery) && IsBlank(DefectId) && IsBlank(DefectAffRealBuild) && IsBlank(DefectBusinessUser) && IsBlank(DefectCreatedBy),
+                    
+                        Notify( "Please select some value to search.", NotificationType.Error, 4000),
+                    
+                        UpdateContext({searchOn: true});
+                    
+                        Set( varDFPageNumber, 1);
+                    
+                        UpdateContext(
+                            {
+                                varDefectRecord: 'ITS-TCOE_OCTO_UATMain_V1'.Search(
+                                    constProjectInfo.id,
+                                    {
+                                        object_type: "defects",
+                                        page: varDFPageNumber,
+                                        pageSize: nfDefectPageSize,
+                                        fields: ["*"],
+                                        query: varDefectSearchQuery
+                                    }
+                                )
+                            }
+                        );
+                    
+                        UpdateContext({defectCount: varDefectRecord.total});
+                    
+                        ClearCollect(
+                            colDefectList,
+                            varDefectRecord.items
+                        );
+                    
+                        UpdateContext({varDFSearchReset: true})
+                    );
+                    
+                    If(
+                        CountRows(colDefectList) = 0,
+                    
+                        UpdateContext({varDefectErrorMsg: true}),
+                        UpdateContext({varDefectErrorMsg: false})
+                    );
+                RadiusBottomLeft: =4
+                RadiusBottomRight: =4
+                RadiusTopLeft: =4
+                RadiusTopRight: =4
+                Size: =10.5
+                Text: ="SEARCH"
+                Width: =130
+                X: =DLBusinessUserCombobox.X + 5
+                Y: =9
+                ZIndex: =23
+
+            DLResetSearchIcon As icon.Add:
+                Color: =RGBA(153, 153, 153, 1)
+                DisabledColor: =RGBA(153, 153, 153, 1)
+                Height: =DLSearchIcon.Height
+                Icon: =Icon.Reset
+                OnSelect: |-
+                    =UpdateContext({searchOn: false});
+                    
+                    If(
+                        varDFSearchReset= true,
+                    
+                        Set(varDFPageNumber, 1);
+                    
+                        UpdateContext({varDefectRecord: 'ITS-TCOE_OCTO_UATMain_V1'.Search(constProjectInfo.id,{object_type:"defects", Page: varDFPageNumber, pageSize: nfDefectPageSize, fields:["*"], query: varFilteredDefectsQuery})});
+                    
+                        UpdateContext({defectCount: varDefectRecord.total});
+                    
+                        ClearCollect(colDefectList, varDefectRecord.items);
+                        
+                        Concurrent( Reset(DLDefectIdTxtInput),Reset(DLSummaryTxtInput),Reset(DLStatusCombobox),Reset(DLTeamCombobox),Reset(DLSeverityCombobox), Reset(DLPriorityCombobox),Reset(DLAssignedToCombobox),Reset(DLBusinessUserCombobox),Reset(DLAffReleaBuildCombobox), Reset(DLCreatedByCombobox)),
+                    
+                        Concurrent( Reset(DLDefectIdTxtInput),Reset(DLSummaryTxtInput),Reset(DLStatusCombobox),Reset(DLTeamCombobox),Reset(DLSeverityCombobox), Reset(DLPriorityCombobox),Reset(DLAssignedToCombobox),Reset(DLBusinessUserCombobox),Reset(DLAffReleaBuildCombobox), Reset(DLCreatedByCombobox))
+                    );
+                    
+                    Concurrent(
+                        UpdateContext({DefectId: ""}),
+                        UpdateContext({DefectSummery: ""}),
+                        UpdateContext({DefectStatus: ""}),
+                        UpdateContext({DefectPriority: ""}),
+                        UpdateContext({DefectSeverity: ""}),
+                        UpdateContext({DefectAssignedTo: ""}),
+                        UpdateContext({DefectBusinessUser: ""}),
+                        UpdateContext({DefectTeam: ""}),
+                        UpdateContext({DefectCreatedBy: ""}),
+                        UpdateContext({varDFSearchReset: false}),
+                        If( CountRows(colDefectList) = 0, UpdateContext({varDefectErrorMsg: true}), UpdateContext({varDefectErrorMsg: false}))
+                    )
+                PaddingBottom: =5
+                PaddingLeft: =5
+                PaddingRight: =5
+                PaddingTop: =5
+                Width: =30
+                X: =DLSearchIcon.X + DLSearchIcon.Width + 10
+                Y: =DLSearchIcon.Y
+                ZIndex: =24
+
+            DLGroupFilter As group:
+                Height: =5
+                Width: =5
+                X: =40
+                Y: =40
+                ZIndex: =28
+
+                DLDefectIdTxtInput As text:
+                    BorderColor: =RGBA(211, 239, 241, 1)
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Default: =""
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =36
+                    HintText: ="Defect Id"
+                    HoverBorderColor: =RGBA(211, 239, 241, 1)
+                    HoverColor: =Self.Color
+                    HoverFill: =Self.Fill
+                    Mode: =TextMode.MultiLine
+                    OnChange: |-
+                        =If(!IsBlank(Self.Text) && StartsWith(Upper(Self.Text),"DF-") ,UpdateContext({DefectId: Concatenate("'id' = '" &Self.Text & "' And ")}),UpdateContext({DefectId: ""}))
+                    OnSelect: =
+                    RadiusBottomLeft: =0.4
+                    RadiusBottomRight: =0.4
+                    RadiusTopLeft: =0.4
+                    RadiusTopRight: =0.4
+                    Size: =9
+                    Tooltip: ="Search By Defect Id"
+                    Width: =DLDefectIdLbl.Width
+                    X: =DLDefectIdLbl.X
+                    Y: =DLProjectLbl.Y + DLProjectLbl.Height + 5
+                    ZIndex: =13
+
+                DLSummaryTxtInput As text:
+                    BorderColor: =RGBA(211, 239, 241, 1)
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Default: =""
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =36
+                    HintText: ="Summary"
+                    HoverBorderColor: =RGBA(211, 239, 241, 1)
+                    HoverColor: =Self.Color
+                    HoverFill: =Self.Fill
+                    Mode: =TextMode.MultiLine
+                    OnChange: |-
+                        =If(IsBlank(Self.Text),UpdateContext({DefectSummery: ""}),UpdateContext({DefectSummery: Concatenate("'Summary' ~ '" & Self.Text & "' And ")}))
+                    OnSelect: =
+                    RadiusBottomLeft: =0.4
+                    RadiusBottomRight: =0.4
+                    RadiusTopLeft: =0.4
+                    RadiusTopRight: =0.4
+                    Size: =9
+                    Tooltip: ="Search By Summary"
+                    Width: =DLSummaryLbl.Width 
+                    X: =DLDefectIdTxtInput.X + DLDefectIdTxtInput.Width
+                    Y: =DLDefectIdTxtInput.Y 
+                    ZIndex: =14
+
+                DLStatusCombobox As combobox:
+                    BorderColor: =RGBA(211, 239, 241, 1)
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DefaultSelectedItems: =
+                    DisplayFields: =["label"]
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =36
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Status"
+                    Items: =colStatusValues
+                    OnChange: |-
+                        =If(IsBlank(Self.Selected.label),UpdateContext({DefectStatus: ""}),UpdateContext({DefectStatus: Concatenate("'Status' = '" & TrimEnds(Self.Selected.label) & "' And ")}))
+                    OnSelect: =
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["label"]
+                    SearchItems: =Search(Filter(colStatusValues,is_active),DLStatusCombobox.SearchText,label)
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: =Color.Transparent
+                    SelectMultiple: =false
+                    Size: =9
+                    Tooltip: ="Filter By Status"
+                    Width: =DLStatusLbl.Width
+                    X: =DLAffReleaBuildCombobox.X + DLAffReleaBuildCombobox.Width
+                    Y: =DLDefectIdTxtInput.Y 
+                    ZIndex: =15
+
+                DLTeamCombobox As combobox:
+                    BorderColor: =RGBA(211, 239, 241, 1)
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DefaultSelectedItems: =
+                    DisplayFields: =["label"]
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =36
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Team"
+                    Items: =colTeamValues
+                    OnChange: |-
+                        =If( IsBlank(Self.Selected.label), UpdateContext({DefectTeam: ""}), UpdateContext({DefectTeam: Concatenate("'Team' = '" & TrimEnds(Self.Selected.label) & "' And ")}))
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["label"]
+                    SearchItems: =Search(Filter(colTeamValues,is_active),DLTeamCombobox.SearchText,label)
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: =Color.Transparent
+                    SelectMultiple: =false
+                    Size: =9
+                    Tooltip: ="Filter By Team"
+                    Width: =DLTeamLbl.Width
+                    X: =DLStatusCombobox.X+ DLStatusCombobox.Width
+                    Y: =DLDefectIdTxtInput.Y 
+                    ZIndex: =16
+
+                DLSeverityCombobox As combobox:
+                    BorderColor: =RGBA(211, 239, 241, 1)
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DefaultSelectedItems: =
+                    DisplayFields: =["label"]
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =36
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Severity"
+                    Items: =colSeverityValues
+                    OnChange: |-
+                        =If(IsBlank(Self.Selected.label),UpdateContext({DefectSeverity: ""}),UpdateContext({DefectSeverity: Concatenate("'Severity' = '" & TrimEnds(Self.Selected.label) & "' And ")}))
+                    OnSelect: =
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["label"]
+                    SearchItems: =Search(Filter(colSeverityValues,is_active),DLSeverityCombobox.SearchText,label)
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: =Color.Transparent
+                    SelectMultiple: =false
+                    Size: =9
+                    Tooltip: ="Filter By Severity"
+                    Width: =DLSeverityLbl.Width
+                    X: =DLTeamCombobox.X+ DLTeamCombobox.Width
+                    Y: =DLDefectIdTxtInput.Y 
+                    ZIndex: =17
+
+                DLPriorityCombobox As combobox:
+                    BorderColor: =RGBA(211, 239, 241, 1)
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DefaultSelectedItems: =
+                    DisplayFields: =["label"]
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =36
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Priority"
+                    Items: =colPriorityValues
+                    OnChange: |-
+                        =If( IsBlank(Self.Selected.label), UpdateContext({DefectPriority: ""}), UpdateContext({DefectPriority: Concatenate("'Priority' = '" &TrimEnds(Self.Selected.label) & "' And ")}))
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["label"]
+                    SearchItems: =Search(Filter(colPriorityValues,is_active),DLPriorityCombobox.SearchText,label)
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: =Color.Transparent
+                    SelectMultiple: =false
+                    Size: =9
+                    Tooltip: ="Filter By Priority"
+                    Width: =DLPriorityLbl.Width
+                    X: =DLSeverityCombobox.X + DLSeverityCombobox.Width
+                    Y: =DLDefectIdTxtInput.Y 
+                    ZIndex: =18
+
+                DLBusinessUserCombobox As combobox:
+                    BorderColor: =RGBA(211, 239, 241, 1)
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DefaultSelectedItems: =
+                    DisplayFields: =["label"]
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =36
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Business Users"
+                    Items: =colNonQAUserValues
+                    OnChange: |-
+                        =If(IsBlank(Self.Selected.label),UpdateContext({DefectBusinessUser: ""}),UpdateContext({DefectBusinessUser: Concatenate("'Non-QA User (UATNext Only)' = '" & TrimEnds(Self.Selected.label) & "' And ")}))
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["label"]
+                    SearchItems: =Search(colNonQAUserValues,DLBusinessUserCombobox.SearchText,label)
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: =Color.Transparent
+                    SelectMultiple: =false
+                    Size: =9
+                    Tooltip: ="Filter By Business Users"
+                    Width: =DLTypeLbl.Width
+                    X: =DLAssignedToCombobox.X + DLAssignedToCombobox.Width
+                    Y: =DLDefectIdTxtInput.Y 
+                    ZIndex: =19
+
+                DLAffReleaBuildCombobox As combobox:
+                    BorderColor: =RGBA(211, 239, 241, 1)
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DefaultSelectedItems: =
+                    DisplayFields: =["label"]
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =36
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Affected Release/Build"
+                    Items: =colAffectReleaseValues
+                    OnChange: |-
+                        =If(IsBlank(Self.Selected.label),UpdateContext({DefectAffRealBuild: ""}),UpdateContext({DefectAffRealBuild: Concatenate("'Affected Release/Build' = '" & TrimEnds(Self.Selected.label) & "' And ")}))
+                    OnSelect: =
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["label"]
+                    SearchItems: =Search(Filter(colAffectReleaseValues,is_active),DLAffReleaBuildCombobox.SearchText,label)
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: =Color.Transparent
+                    SelectMultiple: =false
+                    Size: =9
+                    Tooltip: ="Filter By Affected Release/Build"
+                    Width: ='DLAR/BLbl'.Width
+                    X: =DLSummaryTxtInput.X + DLSummaryTxtInput.Width
+                    Y: =DLDefectIdTxtInput.Y 
+                    ZIndex: =20
+
+                DLAssignedToCombobox As combobox:
+                    BorderColor: =RGBA(211, 239, 241, 1)
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronDisabledBackground: =RGBA(255, 255, 255, 1)
+                    ChevronDisabledFill: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DefaultSelectedItems: =
+                    DisabledBorderColor: =RGBA(255, 255, 255, 1)
+                    DisabledColor: =RGBA(255, 255, 255, 1)
+                    DisabledFill: =RGBA(255, 255, 255, 1)
+                    DisplayFields: =["color"]
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =36
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Assigned To"
+                    Items: =colAssignToValues
+                    OnChange: |-
+                        =If( IsBlank(Self.Selected.label), UpdateContext({DefectAssignedTo: ""}), UpdateContext({DefectAssignedTo: Concatenate("'Assigned To' = '" & TrimEnds(Self.Selected.label) & "' And ")}))
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["color"]
+                    SearchItems: =Search(colAssignToValues,DLAssignedToCombobox.SearchText,color)
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: =Color.Transparent
+                    SelectMultiple: =false
+                    Size: =9
+                    Tooltip: ="Filter By Assigned To"
+                    Width: =DLAssignedToLbl.Width
+                    X: =DLPriorityCombobox.X + DLPriorityCombobox.Width
+                    Y: =DLDefectIdTxtInput.Y 
+                    ZIndex: =26
+
+                DLCreatedByCombobox As combobox:
+                    BorderColor: =RGBA(211, 239, 241, 1)
+                    BorderThickness: =0.4
+                    ChevronBackground: =RGBA(255, 255, 255, 1)
+                    ChevronFill: =RGBA(211, 239, 241, 1)
+                    ChevronHoverBackground: =RGBA(70, 189, 198, 1)
+                    Color: =RGBA(107, 106, 106, 1)
+                    DisplayFields: =["fullname"]
+                    FocusedBorderThickness: =1
+                    Font: =Font.'Segoe UI'
+                    Height: =DLAssignedToCombobox.Height
+                    HoverColor: =RGBA(128, 128, 128, 1)
+                    HoverFill: =ColorFade(RGBA(70, 189, 198, 1), 90%)
+                    InputTextPlaceholder: ="Created By"
+                    Items: =Users
+                    OnChange: |-
+                        =If( IsBlank( Self.Selected.'Full Name'), UpdateContext({ DefectCreatedBy: ""}), UpdateContext({ DefectCreatedBy: "'Created By (UATNext Only)' = '" & Self.Selected.'Full Name' & "' And "}))
+                    PressedFill: =RGBA(70, 189, 198, 1)
+                    SearchFields: =["fullname"]
+                    SearchItems: =Search(Users,DLCreatedByCombobox.SearchText,fullname)
+                    SelectionColor: =RGBA(70, 189, 198, 1)
+                    SelectionFill: =RGBA(236, 248, 249, 1)
+                    SelectionTagFill: =Color.Transparent
+                    SelectMultiple: =false
+                    Size: =9
+                    Tooltip: ="Filter By Created By"
+                    Width: =DLAssignedToCombobox.Width
+                    X: =DLAssignedToCombobox.X
+                    Y: =DLProjectIdCombobox.Y + 4
+                    ZIndex: =27
+
+            DLHeaderGroup As group:
+                Height: =5
+                Width: =5
+                X: =40
+                Y: =40
+                ZIndex: =31
+
+                DLBackgroundRectangle As rectangle:
+                    BorderStyle: =BorderStyle.None
+                    Fill: =RGBA(236, 248, 249, 1)
+                    Height: =35
+                    Width: =Parent.Width
+                    Y: =DLDefectIdLbl.Y
+                    ZIndex: =2
+
+                DLDefectIdLbl As label:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    DisabledColor: =RGBA(0, 0, 0, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =36
+                    PaddingLeft: =15
+                    Size: =11
+                    Text: ="Defect Id"
+                    Width: =120
+                    X: =3
+                    Y: =DLDefectIdTxtInput.Y + DLDefectIdTxtInput.Height
+                    ZIndex: =4
+
+                DLSummaryLbl As label:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =36
+                    Size: =11
+                    Text: ="Summary"
+                    Width: =220
+                    X: =DLDefectIdLbl.X+DLDefectIdLbl.Width
+                    Y: =DLDefectIdLbl.Y
+                    ZIndex: =5
+
+                "'DLAR/BLbl' As label":
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =36
+                    Size: =11
+                    Text: ="Affected Release/Build"
+                    Width: =200
+                    X: =DLSummaryLbl.X+DLSummaryLbl.Width
+                    Y: =DLDefectIdLbl.Y
+                    ZIndex: =6
+
+                DLStatusLbl As label:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =36
+                    Size: =11
+                    Text: ="Status"
+                    Width: =100
+                    X: ='DLAR/BLbl'.X+'DLAR/BLbl'.Width
+                    Y: =DLDefectIdLbl.Y
+                    ZIndex: =7
+
+                DLTeamLbl As label:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =36
+                    Size: =11
+                    Text: ="Team"
+                    X: =DLStatusLbl.X+DLStatusLbl.Width
+                    Y: =DLDefectIdLbl.Y
+                    ZIndex: =8
+
+                DLSeverityLbl As label:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =36
+                    Size: =11
+                    Text: ="Severity"
+                    Width: =100
+                    X: =DLTeamLbl.X + DLTeamLbl.Width
+                    Y: =DLDefectIdLbl.Y
+                    ZIndex: =9
+
+                DLPriorityLbl As label:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =36
+                    Size: =11
+                    Text: ="Priority"
+                    Width: =100
+                    X: =DLSeverityLbl.X+DLSeverityLbl.Width
+                    Y: =DLDefectIdLbl.Y
+                    ZIndex: =10
+
+                DLTypeLbl As label:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =36
+                    Size: =11
+                    Text: ="Business User"
+                    Width: =185
+                    X: =DLAssignedToLbl.X+DLAssignedToLbl.Width
+                    Y: =DLDefectIdLbl.Y
+                    ZIndex: =11
+
+                DLRootCauseLbl As label:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =36
+                    Size: =11
+                    Text: ="Root Cause"
+                    Visible: =false
+                    Width: =120
+                    X: =DLTypeLbl.X+DLTypeLbl.Width
+                    Y: =DLDefectIdLbl.Y
+                    ZIndex: =12
+
+                DLAssignedToLbl As label:
+                    BorderColor: =RGBA(204, 204, 204, 1)
+                    BorderStyle: =BorderStyle.None
+                    BorderThickness: =0.4
+                    Color: =RGBA(107, 106, 106, 1)
+                    Font: =Font.'Segoe UI'
+                    FontWeight: =FontWeight.Semibold
+                    Height: =36
+                    Size: =11
+                    Text: ="Assigned To"
+                    Width: =180
+                    X: =DLPriorityLbl.X+DLPriorityLbl.Width
+                    Y: =DLDefectIdLbl.Y
+                    ZIndex: =25
+
+    DLPaginationLeftNavIcon As icon.ArrowLeft:
+        Color: =RGBA(128, 128, 128, 1)
+        Height: =35
+        Icon: =Icon.ArrowLeft
+        OnSelect: |-
+            =Set( varDFPageNumber, varDFPageNumber - 1);
+            
+            If(
+                searchOn = false,
+                
+                ClearCollect( colDefectList, 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, {page: varDFPageNumber, pageSize:nfDefectPageSize, object_type: "defects", fields: ["*"], query: varFilteredDefectsQuery}).items),
+            
+                ClearCollect( colDefectList, 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, {page: varDFPageNumber, pageSize: nfDefectPageSize, object_type: "defects", fields:["*"], query: varDefectSearchQuery}).items)
+            )
+        Visible: =If( varDFPageNumber = 1 || DLDefectListGallery.AllItemsCount = 0, false, true)
+        Width: =35
+        X: =590
+        Y: =DLPaginationInfoLbl.Y + 5
+        ZIndex: =7
+
+    DLPaginationRightNavIcon As icon.ArrowLeft:
+        Color: =RGBA(128, 128, 128, 1)
+        Height: =35
+        Icon: =Icon.ArrowRight
+        OnSelect: |-
+            =Set(varDFPageNumber, varDFPageNumber + 1);
+            
+            If(
+                searchOn = false,
+                
+                ClearCollect( colDefectList, 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, {page: varDFPageNumber, pageSize: nfDefectPageSize,object_type: "defects", fields: ["*"], query: varFilteredDefectsQuery}).items),
+            
+                ClearCollect( colDefectList, 'ITS-TCOE_OCTO_UATMain_V1'.Search( constProjectInfo.id, {page: varDFPageNumber, pageSize: nfDefectPageSize, object_type: "defects", fields:["*"], query: varDefectSearchQuery}).items)
+            )
+        Visible: =If( DLDefectListGallery.AllItemsCount = 0 || varDFPageNumber = RoundUp( defectCount / nfDefectPageSize, 0), false, true)
+        Width: =35
+        X: =DLPaginationInfoLbl.X + DLPaginationInfoLbl.Width
+        Y: =DLPaginationInfoLbl.Y + 5
+        ZIndex: =8
+
+    DLPaginationInfoLbl As label:
+        Align: =Align.Center
+        Color: =RGBA(19, 61, 83, 1)
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Lighter
+        Size: =11
+        Text: ="Page " & varDFPageNumber & " of " & RoundUp( defectCount / nfDefectPageSize, 0) & " Pages"
+        Visible: =If( DLDefectListGallery.AllItemsCount > 0 , true, false)
+        X: =DLPaginationLeftNavIcon.X + DLPaginationLeftNavIcon.Width
+        Y: =725
+        ZIndex: =9
+
+    DL_Outer_Header_Component As Outer_Header_Component:
+        conProjectID: =constProjectInfo.id
+        OuterComponentPDFLink: =varPDFLink
+        OuterComponentVideoLink: =varVideoLink
+        ZIndex: =30
+
