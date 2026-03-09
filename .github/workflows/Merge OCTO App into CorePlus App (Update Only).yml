@@ -35,18 +35,18 @@ jobs:
  
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
  
       - name: Install Power Platform CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
 
       # 🔐 Azure Login using Federated Credential
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          allow-no-subscriptions: true
+      # - name: Azure Login
+      #   uses: azure/login@v1
+      #   with:
+      #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
+      #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+      #     allow-no-subscriptions: true
  
       # --------------------------------------------------
       # Export  CorePlus Solution
@@ -168,7 +168,7 @@ jobs:
                 if ($changed) {
                   Set-Content -LiteralPath $file.FullName $content
                 }
-                
+
               } catch {
                 Write-Host "Skipping binary file: $($file.FullName)"
               }
@@ -195,5 +195,5 @@ jobs:
         with:
           environment-url: ${{ env.ENV_URL }}
           solution-file: CorePlus_Updated.zip
-          app-id: ${{ secrets.AZURE_CLIENT_ID }}
+          app-id: ${{ secrets.AZURE_CLIENT_ID }}           
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
