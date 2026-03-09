@@ -9,8 +9,8 @@ on:
       - dev
     paths:
       - ITSTCOE_OCTO_UATNext_Solution/**
-    paths-ignore:
-      - '.github/workflows/**'
+    # paths-ignore:
+    #   - '.github/workflows/**'
  
 permissions:
   contents: write
