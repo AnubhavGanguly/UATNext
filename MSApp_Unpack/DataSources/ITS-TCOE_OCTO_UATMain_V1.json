@@ -1,8 +1,0 @@
-[
-  {
-    "ApiId": "/providers/microsoft.powerapps/apis/shared_its-2dtcoe-5focto-5fuatmain-5fv1-5fcbab90f57d62-84e505ab48bd7ff1",
-    "Name": "ITS-TCOE_OCTO_UATMain_V1",
-    "ServiceKind": "ConnectedWadl",
-    "Type": "ServiceInfo"
-  }
-]
